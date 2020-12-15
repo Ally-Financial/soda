@@ -51,7 +51,7 @@ $ npm install
     export SODA_VERSION=2.7.12
     export SODA_ROOT=/Users/ID/Source/soda/
     export SODA_HOME=/Users/ID/Source/soda/src
-    export LAMBDA_ASSET_PATH=@lambda:/soda/assets:FIntar9KTZmJB2mwlH67wD6IScVlBrHz:VjjWb5omGld2lv3k
+    export LAMBDA_ASSET_PATH=@lambda:/soda/assets:KEY:SECRET
     export SODA_SECRET=SECRET_TO_REPLACE
     export AUTH_HOST=your.api.host.com
     export AUTH_PATH=/oauth2/token
