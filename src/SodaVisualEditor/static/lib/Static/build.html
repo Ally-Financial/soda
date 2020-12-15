@@ -1,0 +1,48 @@
+<div id="soda-build">
+
+    <div id="instruments-build-form" class="build-form">
+        <form>
+            <div class="input-group">
+                <input id="instruments-build-appname" class="builder-input builder-appname" type="text" placeholder="Application name" data-arg-z="0">
+                <input id="instruments-build-workspace" class="builder-input builder-workspace" type="text" placeholder="Path to workspace" data-arg-z="1">
+                <input id="instruments-build-path" class="builder-input builder-buildpath" type="text" placeholder="Build path" data-arg-z="2">
+                <input id="instruments-build-bundleid" class="builder-input builder-bundleid" type="text" placeholder="Bundle Id" data-arg-z="3">
+                <input id="instruments-build-target" class="builder-input builder-target" type="text" placeholder="Target" data-arg-z="4">
+                <input id="instruments-build-device" class="builder-input builder-device" type="text" placeholder="Device" data-arg-z="5">
+                <button style="margin: 5px 0;" class="btn btn-default clear-wrapper builder-submit" data-wrapper="#soda-build-history" type="submit">Build</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="perfecto-build-form" class="build-form">
+        <form>
+            <div class="input-group">
+                <input id="perfecto-build-appname" class="builder-input builder-appname" type="text" placeholder="Application name" data-arg-z="0">
+                <input id="perfecto-build-workspace" class="builder-input builder-workspace" type="text" placeholder="Path to workspace" data-arg-z="1">
+                <input id="perfecto-build-path" class="builder-input builder-buildpath" type="text" placeholder="Build path" data-arg-z="2">
+                <input id="perfecto-build-target" class="builder-input builder-target" type="text" placeholder="Target" data-arg-z="3">
+                <input id="perfecto-build-device" class="builder-input builder-device" type="text" placeholder="Device" data-arg-z="4">
+                <button style="margin: 5px 0;" class="btn btn-default clear-wrapper builder-submit" data-wrapper="#soda-build-history" type="submit">Build</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="automator-build-form" class="build-form">
+        <form>
+            <div class="input-group">
+                <input id="automator-build-emulator-name" class="builder-input builder-device" type="text" placeholder="Emulator name" data-arg-z="0">
+                <input id="automator-apk-path" class="builder-input builder-path" type="text" placeholder="Path to apk" data-arg-z="1">
+                <button style="margin: 5px 0;" class="btn btn-default clear-wrapper builder-submit" type="submit">Build Project</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="soda-build-header">
+        <button id="soda-build-clear" class="btn btn-default clear-wrapper" data-wrapper="#soda-build-history" type="submit">Clear Build Output</button>
+    </div>
+    <div id="builder-form"></div>
+    <div id="builder-status" style="margin-top: 5px;" class="warning-box">Fill out the form. Click the build button to build your project. Click the reset button to reset the simulator. Click the Deploy button to deploy your build.</div>
+    <div id="soda-build-history-wrapper">
+        <ul id="soda-build-history"></ul>
+    </div>
+</div>

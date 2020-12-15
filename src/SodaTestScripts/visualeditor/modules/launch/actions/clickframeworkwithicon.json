@@ -1,0 +1,15 @@
+{
+    "meta": {
+        "name": "startlaunchwithcleanfavorites",
+        "description": "Start Soda with a clean set of favorites",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "click": "*[label~'fa fa-3x fa-${icon} fa-inline (active|inactive)']"
+        }
+    ]
+}

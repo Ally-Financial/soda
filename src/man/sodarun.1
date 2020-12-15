@@ -1,0 +1,193 @@
+.TH sodarun 1 "JANUARY 2018" Soda "Simple Object Driven Automation"
+.SH NAME
+sodarun \-\- runs a Soda script
+.SH SYNOPSIS
+.B sodar [-odvcrzextsy]
+.B [-f
+.I framework
+.B ]
+.B [-x
+.I platform
+.B ]
+.I arguments
+.B ...
+.B [
+.I --suite=suite
+.B ]
+
+.B sodar [-odvcrzextsy]
+.B [-f
+.I framework
+.B ]
+.B [-x
+.I platform
+.B ]
+.I arguments
+.B ...
+.B [
+.I --suite=suite
+.B ]
+.B [
+.I --module=module
+.B ]
+
+.B sodar [-odvcrzextsy]
+.B [-f
+.I framework
+.B ]
+.B [-x
+.I platform
+.B ]
+.I arguments
+.B ...
+.B [
+.I --suite=suite
+.B ]
+.B [
+.I --module=module
+.B ]
+.B [
+.I --test=test
+.B ]
+
+.B sodar [-odvcrzextsy]
+.B [-f
+.I framework
+.B ]
+.B [-x
+.I platform
+.B ]
+.I arguments
+.B ...
+.B [
+.I --suite=suite
+.B ]
+.B [
+.I --module=module
+.B ]
+.B [
+.I --action=action
+.B ]
+
+
+.SH DESCRIPTION
+The
+.I sodarun
+command runs a test with the given arguments.
+
+If only the
+.I --suite
+option is supplied, sodar will run the entire suite.
+
+If only the
+.I --suite
+and
+.I --module
+options are supplied, sodar will run the entire module belonging to the suite
+.I --suite
+
+If the
+.I --suite, --module,
+and the
+.I --test
+or
+.I --action
+options are supplied, sodar will run the test/action belonging to the specified suite and module.
+
+
+.I arguments
+are specific to each framework, but typically follow the following format:
+.RS
+.I [device] [binary path]
+.RE
+
+.SH PARAMETERS
+.IP "--suite"
+The suite to run, or the suite the test, action, or module you want to run belongs to.
+.IP "--module"
+The module to run, or the module the test or action you want to run belongs to.
+.IP "--test"
+The name of the test to run
+.IP "--action"
+The name of the action to run
+
+.SH OPTIONS
+.IP "-f framework"
+The framework to launch (e.g.
+.I instruments, automator, selenium
+)
+.IP "-e environment"
+The environment to start Soda with. This alters various testing variables and setting throughout the application.
+.IP "-x platform"
+The platform of the device you're starting. For example, if I start the instruments framework with the device
+.I iPad Air 9.2,
+you would set this flag to
+.I ipad
+If the -f flag isn't specified, this is unnecessary.
+.IP "-t scripts path"
+The path to your Soda test scripts (Soda project). If -t unspecified, the current working directory will be used.
+.IP "-s suite"
+The suite to start Soda with. If unspecified, Soda will use the default suite in
+.I SodaCommon/Config.
+You can always set the suite using the
+.I :suite command in the CLI
+.IP "-m module"
+The module to start Soda with. If unspecified, Soda will use the default module in
+.I SodaCommon/Config.
+You can always set the suite using the
+.I :module command in the CLI
+.IP "-p proxy"
+The proxy settings to pass to Soda. Should be entered in the following format:
+.I http://[proxy ip]
+or
+.I http://[username]:[password]@[proxy ip]
+.IP "-o supress output"
+Supresses all console output
+.IP "-c log colors"
+Enables or disable color logging. Use -c to enable color logging and -c
+.I false
+to disable it. It is enabled by default.
+.IP "-v verbose logging"
+Enables or disable verbose logging. Use -v to enable verbose logging and -v
+.I false
+to disable it. It is enabled by default.
+.IP "-d debug logging"
+Enables or disable debug logging. Use -d to enable debug logging and -d
+.I false
+to disable it. It is enabled by default.
+.IP "-r reset device"
+If a framework and device is specified, resets the device upon launch.
+.IP "-z test dev mode"
+Enables test
+.I dev mode
+Which prevents Soda from reporting test results and taking screenshots on failures. This is helpful if you are editing or creating scripts and don't want to report results.
+.SH FILES
+.B $SODA_PATH/SodaCommon/Config.js
+.RS
+The system wide configuration file.
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/instruments/imports/Config.js
+.RS
+Configuration settings for the Instruments framework
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/automator/imports/Config.js
+.RS
+Configuration settings for the Automator framework
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/selenium/imports/Config.js
+.RS
+Configuration settings for the Selenium framework
+.RE
+
+.SH AUTHOR
+Jason Pollman & James Pavlic
+.SH "SEE ALSO"
+.BR soda (1),
+.BR sodabuild (1),
+.BR sodamake (1),
+.BR sodareset (1)
+.BR sodatrace (1)
+.BR sodaeditor (1)

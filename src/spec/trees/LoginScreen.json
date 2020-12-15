@@ -1,0 +1,1476 @@
+{
+    "window:0": {
+        "id": "window:0",
+        "element": {},
+        "type": "window",
+        "name": null,
+        "label": null,
+        "value": null,
+        "rect": {
+            "origin": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "width": 768,
+                "height": 1024
+            }
+        },
+        "hitpoint": {
+            "x": 384,
+            "y": 512
+        },
+        "enabled": true,
+        "visible": true,
+        "hasKeyboardFocus": false,
+        "valid": true,
+        "children": {
+            "button:0": {
+                "id": "button:0",
+                "element": {},
+                "type": "button",
+                "name": "help icon",
+                "label": "help icon",
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 0,
+                        "y": 20
+                    },
+                    "size": {
+                        "width": 40,
+                        "height": 40
+                    }
+                },
+                "hitpoint": {
+                    "x": 20,
+                    "y": 40
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 0,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "image:0": {
+                "id": "image:0",
+                "element": {},
+                "type": "image",
+                "name": "allylogo",
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 222.5,
+                        "y": 160
+                    },
+                    "size": {
+                        "width": 123,
+                        "height": 70
+                    }
+                },
+                "hitpoint": {
+                    "x": 284,
+                    "y": 195
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 1,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "statictext:0": {
+                "id": "statictext:0",
+                "element": {},
+                "type": "statictext",
+                "name": "1-877-247-ALLY (2559)",
+                "label": "1-877-247-ALLY (2559)",
+                "value": "1-877-247-ALLY (2559)",
+                "rect": {
+                    "origin": {
+                        "x": 367.5,
+                        "y": 174
+                    },
+                    "size": {
+                        "width": 176.5,
+                        "height": 20
+                    }
+                },
+                "hitpoint": {
+                    "x": 455.75,
+                    "y": 184
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 2,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "statictext:1": {
+                "id": "statictext:1",
+                "element": {},
+                "type": "statictext",
+                "name": "callWaitTime",
+                "label": "call wait time: --",
+                "value": "call wait time: --",
+                "rect": {
+                    "origin": {
+                        "x": 368.5,
+                        "y": 205
+                    },
+                    "size": {
+                        "width": 149.5,
+                        "height": 13
+                    }
+                },
+                "hitpoint": {
+                    "x": 443.25,
+                    "y": 211.5
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 3,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "textfield:0": {
+                "id": "textfield:0",
+                "element": {},
+                "type": "textfield",
+                "name": "userName",
+                "label": "userName",
+                "value": "Username",
+                "rect": {
+                    "origin": {
+                        "x": 219.5,
+                        "y": 252
+                    },
+                    "size": {
+                        "width": 187,
+                        "height": 30
+                    }
+                },
+                "hitpoint": {
+                    "x": 313,
+                    "y": 267
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "textfield:1": {
+                        "id": "textfield:1",
+                        "element": {},
+                        "type": "textfield",
+                        "name": "userName",
+                        "label": "userName",
+                        "value": "Username",
+                        "rect": {
+                            "origin": {
+                                "x": 219.5,
+                                "y": 252
+                            },
+                            "size": {
+                                "width": 187,
+                                "height": 30
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 313,
+                            "y": 267
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "textfield:0",
+                            "name": "userName",
+                            "value": "Username",
+                            "label": "userName"
+                        }
+                    }
+                },
+                "index": 4,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "statictext:2": {
+                "id": "statictext:2",
+                "element": {},
+                "type": "statictext",
+                "name": "Forgot username?",
+                "label": "Forgot username?",
+                "value": "Forgot username?",
+                "rect": {
+                    "origin": {
+                        "x": 414.5,
+                        "y": 258.5
+                    },
+                    "size": {
+                        "width": 134,
+                        "height": 17.5
+                    }
+                },
+                "hitpoint": {
+                    "x": 481.5,
+                    "y": 267.25
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 5,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "securetextfield:0": {
+                "id": "securetextfield:0",
+                "element": {},
+                "type": "securetextfield",
+                "name": "password",
+                "label": "password",
+                "value": "Password",
+                "rect": {
+                    "origin": {
+                        "x": 220.5,
+                        "y": 285
+                    },
+                    "size": {
+                        "width": 186,
+                        "height": 30
+                    }
+                },
+                "hitpoint": {
+                    "x": 313.5,
+                    "y": 300
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "securetextfield:1": {
+                        "id": "securetextfield:1",
+                        "element": {},
+                        "type": "securetextfield",
+                        "name": "password",
+                        "label": "password",
+                        "value": "Password",
+                        "rect": {
+                            "origin": {
+                                "x": 220.5,
+                                "y": 285
+                            },
+                            "size": {
+                                "width": 186,
+                                "height": 30
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 313.5,
+                            "y": 300
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "securetextfield:0",
+                            "name": "password",
+                            "value": "Password",
+                            "label": "password"
+                        }
+                    }
+                },
+                "index": 6,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "statictext:3": {
+                "id": "statictext:3",
+                "element": {},
+                "type": "statictext",
+                "name": "Forgot password?",
+                "label": "Forgot password?",
+                "value": "Forgot password?",
+                "rect": {
+                    "origin": {
+                        "x": 414.5,
+                        "y": 285
+                    },
+                    "size": {
+                        "width": 128,
+                        "height": 21
+                    }
+                },
+                "hitpoint": {
+                    "x": 478.5,
+                    "y": 295.5
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 7,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "scrollview:0": {
+                "id": "scrollview:0",
+                "element": {},
+                "type": "scrollview",
+                "name": null,
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 220.5,
+                        "y": 317
+                    },
+                    "size": {
+                        "width": 280,
+                        "height": 82
+                    }
+                },
+                "hitpoint": {
+                    "x": 360.5,
+                    "y": 358
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "webview:0": {
+                        "id": "webview:0",
+                        "element": {},
+                        "type": "webview",
+                        "name": null,
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 220.5,
+                                "y": 317
+                            },
+                            "size": {
+                                "width": 280,
+                                "height": 90
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 360.5,
+                            "y": 362
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "element:0": {
+                                "id": "element:0",
+                                "element": {},
+                                "type": "element",
+                                "name": "•",
+                                "label": "•",
+                                "value": "",
+                                "rect": {
+                                    "origin": {
+                                        "x": 222.5,
+                                        "y": 332
+                                    },
+                                    "size": {
+                                        "width": 7,
+                                        "height": 19
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "webview:0",
+                                    "name": null,
+                                    "value": null,
+                                    "label": null
+                                }
+                            },
+                            "statictext:7": {
+                                "id": "statictext:7",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "At least 1 number",
+                                "label": "At least 1 number",
+                                "value": "",
+                                "rect": {
+                                    "origin": {
+                                        "x": 240.5,
+                                        "y": 332
+                                    },
+                                    "size": {
+                                        "width": 115,
+                                        "height": 19
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 298,
+                                    "y": 341.5
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "webview:0",
+                                    "name": null,
+                                    "value": null,
+                                    "label": null
+                                }
+                            },
+                            "element:1": {
+                                "id": "element:1",
+                                "element": {},
+                                "type": "element",
+                                "name": "•",
+                                "label": "•",
+                                "value": "",
+                                "rect": {
+                                    "origin": {
+                                        "x": 222.5,
+                                        "y": 352
+                                    },
+                                    "size": {
+                                        "width": 7,
+                                        "height": 19
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "webview:0",
+                                    "name": null,
+                                    "value": null,
+                                    "label": null
+                                }
+                            },
+                            "statictext:8": {
+                                "id": "statictext:8",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "At least 1 letter, case sensitive",
+                                "label": "At least 1 letter, case sensitive",
+                                "value": "",
+                                "rect": {
+                                    "origin": {
+                                        "x": 240.5,
+                                        "y": 352
+                                    },
+                                    "size": {
+                                        "width": 194,
+                                        "height": 19
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 337.5,
+                                    "y": 361.5
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "webview:0",
+                                    "name": null,
+                                    "value": null,
+                                    "label": null
+                                }
+                            },
+                            "element:2": {
+                                "id": "element:2",
+                                "element": {},
+                                "type": "element",
+                                "name": "•",
+                                "label": "•",
+                                "value": "",
+                                "rect": {
+                                    "origin": {
+                                        "x": 222.5,
+                                        "y": 372
+                                    },
+                                    "size": {
+                                        "width": 7,
+                                        "height": 19
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 4,
+                                "parent": {
+                                    "id": "webview:0",
+                                    "name": null,
+                                    "value": null,
+                                    "label": null
+                                }
+                            },
+                            "statictext:9": {
+                                "id": "statictext:9",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "8-32 characters, no spaces",
+                                "label": "8-32 characters, no spaces",
+                                "value": "",
+                                "rect": {
+                                    "origin": {
+                                        "x": 240.5,
+                                        "y": 372
+                                    },
+                                    "size": {
+                                        "width": 179,
+                                        "height": 19
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 330,
+                                    "y": 381.5
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 5,
+                                "parent": {
+                                    "id": "webview:0",
+                                    "name": null,
+                                    "value": null,
+                                    "label": null
+                                }
+                            }
+                        },
+                        "index": 0,
+                        "parent": {
+                            "id": "scrollview:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "image:4": {
+                        "id": "image:4",
+                        "element": {},
+                        "type": "image",
+                        "name": null,
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 498,
+                                "y": 317
+                            },
+                            "size": {
+                                "width": 2.5,
+                                "height": 94
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 1,
+                        "parent": {
+                            "id": "scrollview:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "image:5": {
+                        "id": "image:5",
+                        "element": {},
+                        "type": "image",
+                        "name": null,
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 220.5,
+                                "y": 396.5
+                            },
+                            "size": {
+                                "width": 280,
+                                "height": 2.5
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 2,
+                        "parent": {
+                            "id": "scrollview:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    }
+                },
+                "index": 8,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "statictext:4": {
+                "id": "statictext:4",
+                "element": {},
+                "type": "statictext",
+                "name": "Remember username?",
+                "label": "Remember username?",
+                "value": "Remember username?",
+                "rect": {
+                    "origin": {
+                        "x": 220.5,
+                        "y": 407
+                    },
+                    "size": {
+                        "width": 155.5,
+                        "height": 21
+                    }
+                },
+                "hitpoint": {
+                    "x": 298.25,
+                    "y": 417.5
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 9,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "switch:0": {
+                "id": "switch:0",
+                "element": {},
+                "type": "switch",
+                "name": "saveUserNameSwitch",
+                "label": null,
+                "value": 0,
+                "rect": {
+                    "origin": {
+                        "x": 407,
+                        "y": 402
+                    },
+                    "size": {
+                        "width": 51,
+                        "height": 31
+                    }
+                },
+                "hitpoint": {
+                    "x": 432.5,
+                    "y": 417.5
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 10,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "button:1": {
+                "id": "button:1",
+                "element": {},
+                "type": "button",
+                "name": "loginButton",
+                "label": "",
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 220.5,
+                        "y": 436
+                    },
+                    "size": {
+                        "width": 131,
+                        "height": 42
+                    }
+                },
+                "hitpoint": {
+                    "x": 286,
+                    "y": 457
+                },
+                "enabled": false,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "statictext:10": {
+                        "id": "statictext:10",
+                        "element": {},
+                        "type": "statictext",
+                        "name": "Log In",
+                        "label": "Log In",
+                        "value": "Log In",
+                        "rect": {
+                            "origin": {
+                                "x": 263.5,
+                                "y": 447.5
+                            },
+                            "size": {
+                                "width": 45,
+                                "height": 19
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 286,
+                            "y": 457
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "button:1",
+                            "name": "loginButton",
+                            "value": null,
+                            "label": ""
+                        }
+                    }
+                },
+                "index": 11,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "button:2": {
+                "id": "button:2",
+                "element": {},
+                "type": "button",
+                "name": "locatorButton",
+                "label": "Find ATMs",
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 167.5,
+                        "y": 558
+                    },
+                    "size": {
+                        "width": 148,
+                        "height": 56
+                    }
+                },
+                "hitpoint": {
+                    "x": 241.5,
+                    "y": 586
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "statictext:11": {
+                        "id": "statictext:11",
+                        "element": {},
+                        "type": "statictext",
+                        "name": "Find ATMs",
+                        "label": "Find ATMs",
+                        "value": "Find ATMs",
+                        "rect": {
+                            "origin": {
+                                "x": 222,
+                                "y": 567
+                            },
+                            "size": {
+                                "width": 39,
+                                "height": 38
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 241.5,
+                            "y": 586
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "button:2",
+                            "name": "locatorButton",
+                            "value": null,
+                            "label": "Find ATMs"
+                        }
+                    }
+                },
+                "index": 12,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "image:1": {
+                "id": "image:1",
+                "element": {},
+                "type": "image",
+                "name": "atm-login-icon",
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 167.5,
+                        "y": 566
+                    },
+                    "size": {
+                        "width": 48,
+                        "height": 48
+                    }
+                },
+                "hitpoint": {
+                    "x": 191.5,
+                    "y": 590
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 13,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "button:3": {
+                "id": "button:3",
+                "element": {},
+                "type": "button",
+                "name": "productsAndRatesButton",
+                "label": "Products & Rates",
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 322.5,
+                        "y": 558
+                    },
+                    "size": {
+                        "width": 167,
+                        "height": 56
+                    }
+                },
+                "hitpoint": {
+                    "x": 406,
+                    "y": 586
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "statictext:12": {
+                        "id": "statictext:12",
+                        "element": {},
+                        "type": "statictext",
+                        "name": "Products & Rates",
+                        "label": "Products & Rates",
+                        "value": "Products & Rates",
+                        "rect": {
+                            "origin": {
+                                "x": 375,
+                                "y": 567
+                            },
+                            "size": {
+                                "width": 62.5,
+                                "height": 38
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 406.25,
+                            "y": 586
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "button:3",
+                            "name": "productsAndRatesButton",
+                            "value": null,
+                            "label": "Products & Rates"
+                        }
+                    }
+                },
+                "index": 14,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "button:4": {
+                "id": "button:4",
+                "element": {},
+                "type": "button",
+                "name": "aboutAllyButton",
+                "label": "About Ally",
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 502.5,
+                        "y": 558
+                    },
+                    "size": {
+                        "width": 113,
+                        "height": 56
+                    }
+                },
+                "hitpoint": {
+                    "x": 559,
+                    "y": 586
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "statictext:13": {
+                        "id": "statictext:13",
+                        "element": {},
+                        "type": "statictext",
+                        "name": "About Ally",
+                        "label": "About Ally",
+                        "value": "About Ally",
+                        "rect": {
+                            "origin": {
+                                "x": 538.5,
+                                "y": 567
+                            },
+                            "size": {
+                                "width": 41.5,
+                                "height": 38
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 559.25,
+                            "y": 586
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "button:4",
+                            "name": "aboutAllyButton",
+                            "value": null,
+                            "label": "About Ally"
+                        }
+                    }
+                },
+                "index": 15,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "image:2": {
+                "id": "image:2",
+                "element": {},
+                "type": "image",
+                "name": "ally-login-logo",
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 322.5,
+                        "y": 571
+                    },
+                    "size": {
+                        "width": 36,
+                        "height": 34
+                    }
+                },
+                "hitpoint": {
+                    "x": 340.5,
+                    "y": 588
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 16,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "image:3": {
+                "id": "image:3",
+                "element": {},
+                "type": "image",
+                "name": "info-icon",
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 502.5,
+                        "y": 566
+                    },
+                    "size": {
+                        "width": 40,
+                        "height": 42
+                    }
+                },
+                "hitpoint": {
+                    "x": 522.5,
+                    "y": 587
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 17,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "statictext:5": {
+                "id": "statictext:5",
+                "element": {},
+                "type": "statictext",
+                "name": "©2015 Ally Financial, Inc. ",
+                "label": "©2015 Ally Financial, Inc. ",
+                "value": "©2015 Ally Financial, Inc. ",
+                "rect": {
+                    "origin": {
+                        "x": 10,
+                        "y": 970.5
+                    },
+                    "size": {
+                        "width": 196,
+                        "height": 18
+                    }
+                },
+                "hitpoint": {
+                    "x": 108,
+                    "y": 979.5
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 18,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "statictext:6": {
+                "id": "statictext:6",
+                "element": {},
+                "type": "statictext",
+                "name": "Ally Bank Member FDIC  | ",
+                "label": "Ally Bank Member FDIC  | ",
+                "value": "Ally Bank Member FDIC  | ",
+                "rect": {
+                    "origin": {
+                        "x": 10,
+                        "y": 990.5
+                    },
+                    "size": {
+                        "width": 170,
+                        "height": 18
+                    }
+                },
+                "hitpoint": {
+                    "x": 95,
+                    "y": 999.5
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 19,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "button:5": {
+                "id": "button:5",
+                "element": {},
+                "type": "button",
+                "name": "Privacy",
+                "label": "Privacy",
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 173,
+                        "y": 986.5
+                    },
+                    "size": {
+                        "width": 68,
+                        "height": 30
+                    }
+                },
+                "hitpoint": {
+                    "x": 207,
+                    "y": 1001.5
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 20,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            }
+        },
+        "index": 0,
+        "parent": {}
+    },
+    "window:1": {
+        "id": "window:1",
+        "element": {},
+        "type": "window",
+        "name": null,
+        "label": null,
+        "value": null,
+        "rect": {
+            "origin": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "width": 768,
+                "height": 1024
+            }
+        },
+        "hitpoint": null,
+        "enabled": true,
+        "visible": false,
+        "hasKeyboardFocus": false,
+        "valid": true,
+        "children": {},
+        "index": 1,
+        "parent": {}
+    },
+    "window:2": {
+        "id": "window:2",
+        "element": {},
+        "type": "window",
+        "name": null,
+        "label": null,
+        "value": null,
+        "rect": {
+            "origin": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "width": 768,
+                "height": 1024
+            }
+        },
+        "hitpoint": {
+            "x": 9,
+            "y": 5
+        },
+        "enabled": true,
+        "visible": true,
+        "hasKeyboardFocus": false,
+        "valid": true,
+        "children": {
+            "statusbar:0": {
+                "id": "statusbar:0",
+                "element": {},
+                "type": "statusbar",
+                "name": null,
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "size": {
+                        "width": 768,
+                        "height": 20
+                    }
+                },
+                "hitpoint": {
+                    "x": 384,
+                    "y": 10
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "element:3": {
+                        "id": "element:3",
+                        "element": {},
+                        "type": "element",
+                        "name": "Swipe down with three fingers to reveal the notification center., Swipe up with three fingers to reveal the control center, Double-tap to scroll to top",
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 6,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 38,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 25,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:4": {
+                        "id": "element:4",
+                        "element": {},
+                        "type": "element",
+                        "name": "3 of 3 Wi-Fi bars",
+                        "label": "3 of 3 Wi-Fi bars",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 49,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 13,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 55.5,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 1,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:5": {
+                        "id": "element:5",
+                        "element": {},
+                        "type": "element",
+                        "name": "12:31 PM",
+                        "label": "12:31 PM",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 359,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 51,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 384.5,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 2,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:6": {
+                        "id": "element:6",
+                        "element": {},
+                        "type": "element",
+                        "name": "100% battery power",
+                        "label": "100% battery power",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 704,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 59,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 750.5,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 3,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    }
+                },
+                "index": 0,
+                "parent": {
+                    "id": "window:2",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            }
+        },
+        "index": 2,
+        "parent": {}
+    }
+}

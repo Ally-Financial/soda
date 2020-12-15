@@ -1,0 +1,343 @@
+<div id="soda-help">
+    <h2 class="soda-help-topic first">Contents</h2>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            <a href="#" onclick="$('#soda-toolbox-wrapper-left').mCustomScrollbar('scrollTo', '.help-simulator-tips')">Simulator Tips</a>
+        </li>
+        <li class="soda-help-list-item">
+            <a href="#" onclick="$('#soda-toolbox-wrapper-left').mCustomScrollbar('scrollTo', '.help-ui')">Soda VisualEditor UI</a>
+        </li>
+        <li class="soda-help-list-item">
+            <a href="#" onclick="$('#soda-toolbox-wrapper-left').mCustomScrollbar('scrollTo', '.help-toolboxes-left')">VisualEditor Toolboxes (Left)</a>
+        </li>
+        <li class="soda-help-list-item">
+            <a href="#" onclick="$('#soda-toolbox-wrapper-left').mCustomScrollbar('scrollTo', '.help-toolboxes-right')">VisualEditor Toolboxes (Right)</a>
+        </li>
+        <li class="soda-help-list-item">
+            <a href="#" onclick="$('#soda-toolbox-wrapper-left').mCustomScrollbar('scrollTo', '.help-shortcuts')">Keyboard Shortcuts</a>
+        </li>
+        <li class="soda-help-list-item">
+            <a href="docs/" target="_blank">Soda JSDocs</a>
+        </li>
+    </ul>
+    <h2 class="soda-help-topic help-simulator-tips">Simulator Tips</h2>
+    <h4 class="soda-help-list-heading">iOS Simulator Tips</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            In XCode 6+ disable "Slow Animations" to speed up testing. This option can be found in the Simulator <span style="font-style: oblique">Debug</span> menu.
+        </li>
+        <li class="soda-help-list-item">
+            In XCode 7.X disable "Optimize Rendering for Window Scale" to prevent corrupt screen shots. This option can be found in the Simulator <span style="font-style: oblique">Debug</span> menu.
+        </li>
+    </ul>
+    <h4 class="soda-help-list-heading">ADB Simulator Tips</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            Don't close the simulator between sessions. If you leave the simulator booted and start the framework with it's device name, Soda will attach to the already booted device—saving time.
+        </li>
+        <li class="soda-help-list-item">
+            You can change the device's orientation by pressing Ctrl+F12
+        </li>
+    </ul>
+    <h2 class="soda-help-topic help-ui">Soda VisualEditor UI</h2>
+    <h4 class="soda-help-list-heading">Menubar Buttons</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            The "Refresh DOM" <em class="fa fa-recycle"></em> button syncs the screen shot and DOM tree will the current screen or page on the running device (simulator or web page).
+        </li>
+        <li class="soda-help-list-item">
+            The "Download Current Screenshot" <em class="fa fa-image"></em> button downloads the current DOM screenshot.
+        </li>
+        <li class="soda-help-list-item">
+            The "Download Current DOM" <em class="fa fa-download"></em> button downloads the DOM tree in its raw JSON format.
+        </li>
+        <li class="soda-help-list-item">
+            The "Download Current Script" <em class="fa fa-cloud-download"></em> button downloads the DOM tree in its raw JSON format.
+        </li>
+        <li class="soda-help-list-item">
+            The "Shutdown Framework" <em class="fa fa-power-off"></em> button stops the running framework (Instruments, ADB, Selenium, etc) and close the editor window. You will be redirected to the Launch page to start another framework, if desired.
+        </li>
+        <li class="soda-help-list-item">
+            The "Shutdown Server" <em class="fa fa-plug"></em> button kills the running Soda instance. This mean, the Soda VisualEditor will no longer be available and the server will shutdown.
+        </li>
+    </ul>
+    <h4 class="soda-help-list-heading">Working with the screen</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            Hover over an element to see its bounds. If you switch to the Element Inspector <em class="fa fa-compass"></em> toolbox, the element's attributes will be displayed when hovered over.
+        </li>
+        <li class="soda-help-list-item">
+            To see outlines of each element's position on the screen, you can toggle "Outline Mode" by pressing Ctrl+O.
+        </li>
+        <li class="soda-help-list-item">
+            Press the <em class="fa fa-recycle"></em> button in the upper-right hand corner of the page to refresh the screen image and element tree.
+        </li>
+        <li class="soda-help-list-item">
+            To prevent the Element Inspector <em class="fa fa-compass"></em> from changing values accidentally when moving your cursor, you can "sticky" or "pin" the current element by clicking it. To "un-pin" the element, click it again.
+        </li>
+        <li class="soda-help-list-item">
+            You can remove (or stash) an element from the screen by right clicking it. This is useful is you'd like to view the attributes of an element that is underneith another. To add all the stashed elements back to the screen press Ctrl+R.
+        </li>
+        <li class="soda-help-list-item">
+            Different colors represent different element types.
+        </li>
+        <li class="soda-help-list-item">
+            Drag actions from the Actions <em class="fa fa-bolt"></em> toolbox on top of screen elements to write tests.
+        </li>
+    </ul>
+    <h2 class="soda-help-topic help-toolboxes-left">VisualEditor Toolboxes (Left)</h2>
+    <h4 class="soda-help-list-heading"><em class="fa fa-repeat"></em> Test Runner</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            The Test Runner allows you to run any test, suite, or module from the respective sub-menus.
+        </li>
+        <li class="soda-help-list-item">
+            To run an individual Test, click on the Test tab, and click on the desired Test.
+        </li>
+        <li class="soda-help-list-item">
+            To run an entire Module, click on the Module tab, and click on the desired Module.
+        </li>
+        <li class="soda-help-list-item">
+            To run an entire Suite, click on the Suite tab, and click on the desired Suite.
+        </li>
+        <li class="soda-help-list-item">
+            Once a suite, module, or test has been started, you will be switched to the Test Monitor <em class="fa fa-eye"></em> toolbox automatically. From here you can control (stop, pause, etc.) the current test and view test output.
+        </li>
+        <li class="soda-help-list-item">
+            Once a test, suite, module run has been started, this tab will be "locked out" until the currently running item has finished.
+        </li>
+    </ul>
+    <h4 class="soda-help-list-heading"><em class="fa fa-eye"></em> Test Monitor</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            The Test Monitor allows you to control a running test, suite, or module.
+        </li>
+        <li class="soda-help-list-item">
+            This tab will remain "locked out" until a run has been started from the Test Runner <em class="fa fa-repeat"></em> toolbox.
+        </li>
+        <li class="soda-help-list-item">
+            The "Test Info" heading will update to show you important information about the current run as it becomes available.
+        </li>
+        <li class="soda-help-list-item">
+            The "Test Information" heading shows you the meta-data in regard to the running test (i.e. The test's name, id, module, suite, and description).
+        </li>
+        <li class="soda-help-list-item">
+            If a suite or module was run, the information shown will update as the suite or module moves to the next test.
+        </li>
+        <li class="soda-help-list-item">
+            The "Current Action" heading shows the action that is currently being executed against the running device.
+        </li>
+        <li class="soda-help-list-item">
+            The "Last Action" heading shows the action that was last executed against the running device.
+        </li>
+        <li class="soda-help-list-item">
+            The "Test Output" heading shows the Soda process output that is pertinent to testing only. Green output indicates that an action has passed, red indicates that it has failed.
+        </li>
+        <li class="soda-help-list-item">
+            To stop a test (or suite, or module) press the <em class="fa fa-stop"></em> button. The stop button may not always be available.
+        </li>
+        <li class="soda-help-list-item">
+            To pause a test press the <em class="fa fa-pause"></em> button. The pause button may not always be available.
+        </li>
+        <li class="soda-help-list-item">
+            While a test is paused, the "last" <em class="fa fa-backward"></em>, "next" <em class="fa fa-fast-forward"></em>, and "stop" <em class="fa fa-stop"></em> options will become available.
+        </li>
+        <li class="soda-help-list-item">
+            Pressing the "last" <em class="fa fa-backward"></em> button will repeat the previous action.
+        </li>
+        <li class="soda-help-list-item">
+            Pressing the "next" <em class="fa fa-fast-forward"></em> button will execute the next action.
+        </li>
+        <li class="soda-help-list-item">
+            If a test fails, the "last" <em class="fa fa-backward"></em>, "skip" <em class="fa fa-forward"></em> and "continue" <em class="fa fa-eject"></em> options will become available.
+        </li>
+        <li class="soda-help-list-item">
+            Pressing the "continue" <em class="fa fa-eject"></em> button will fail the test, and the results will be displayed in the Result History <em class="fa fa-pie-chart"></em> toolbox.
+        </li>
+        <li class="soda-help-list-item">
+            Pressing the "skip" <em class="fa fa-forward"></em> button will skip the failed test item, and continue onto the next action.
+        </li>
+        <li class="soda-help-list-item">
+            If a test passes, the results will be displayed in the Result History <em class="fa fa-pie-chart"></em> toolbox.
+        </li>
+    </ul>
+    <h4 class="soda-help-list-heading"><em class="fa fa-pie-chart"></em> Result History</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            The Result History Toolbox shows the history for test, suite, and module runs duing this Soda VisualEditor session.
+        </li>
+        <li class="soda-help-list-item">
+            To view history for runs prior to this session, see the JSON files in the "test-results" directory listed in your project folder.
+        </li>
+        <li class="soda-help-list-item">
+            To clear the history list, click the "Clear" button.
+        </li>
+    </ul>
+    <h4 class="soda-help-list-heading"><em class="fa fa-sitemap"></em> Project Manager</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            The Project Manager Toolbox provides a tree-view of your Soda project folder.
+        </li>
+        <li class="soda-help-list-item">
+            Suites reside a the top level, followed by modules. Modules contain a folder for each action type. Within these folders are the respective action files for each action type.
+        </li>
+        <li class="soda-help-list-item">
+            To create a new suite, press the "<em class="fa fa-plus"></em> Add New Suite" button. A modal will be displayed that will ask you to enter the filename of the suite. The suite's "suite.json" file will be automatically generated.
+        </li>
+        <li class="soda-help-list-item">
+            To create a new module, press the <em class="fa fa-plus"></em> button on the suite where you wish to create the module.  A modal will be displayed that will ask you to enter the filename of the module. The "module.json" and all action type subfolders will automatically be created for you.
+        </li>
+        <li class="soda-help-list-item">
+            To "load" an action into the Test Editor <em class="fa fa-pencil"></em> for editing, click the <em class="fa fa-pencil"></em> button to the right of the action name. You will be switched to the test editor toolbox automatically.
+        </li>
+        <li class="soda-help-list-item">
+            To delete an action, click the <em class="fa fa-close"></em> button to the right of the action name.
+        </li>
+        <li class="soda-help-list-item">
+            To run an action, press the <em class="fa fa-play"></em> button to the right of the action name. This will execute the aciton in "non-interactive" mode. So, running tests from here won't allow you to pause or stop them. Once an action is started, it will run through to completion or stop on a failure. The results will be displayed in the context menu that will appear at the end of the run.
+        </li>
+    </ul>
+    <h4 class="soda-help-list-heading"><em class="fa fa-tree"></em> Screen Elements (DOM Viewer)</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            The Screen Elements Toolbox lists all elements currently within the DOM (screen or page).
+        </li>
+        <li class="soda-help-list-item">
+            Elements are listed by hierarchy, with root level elements at the top of the DOM tree, and children elements listed beneith their parents.
+        </li>
+        <li class="soda-help-list-item">
+            To expand an element and see its children, click on the element name or the <em class="fa fa-caret-right"></em> icon.
+        </li>
+        <li class="soda-help-list-item">
+            If an element has the <em class="fa fa-leaf"></em> icon, it indicates that it has no children (a leaf node on the DOM tree).
+        </li>
+        <li class="soda-help-list-item">
+            When you hover over a DOM element, it will be highlighted on the screen viewer.
+        </li>
+        <li class="soda-help-list-item">
+            To "pin" the element to the screen and prevent hovering from changing the displayed element, click the <em class="fa fa-thumb-tack"></em> icon, on the right side of the element listing.
+        </li>
+        <li class="soda-help-list-item">
+            The "Query Selector" input field allows you to see which elements will match the entered selector. To test elements against a selector, enter the selector into the input field. Elements that match will display a purple <em class="fa fa-check"></em> icon.
+        </li>
+    </ul>
+    <h4 class="soda-help-list-heading"><em class="fa fa-pencil"></em> Test Editor</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            The Test Editor allows you to dynamically create new tests without having to write any JSON.
+        </li>
+        <li class="soda-help-list-item">
+            To add test items to the list, drag them from the Actions Toolbox <em class="fa fa-bolt"></em>, onto the "Test Actions" (or "Screen Actions", or "Menu Actions", etc.) panel.
+        </li>
+        <li class="soda-help-list-item">
+            To clear a list, click the "Menu" button and select "Clear List". A dialog will appear asking for confirmation.
+        </li>
+        <li class="soda-help-list-item">
+            To download a test's JSON content, click the "Menu" button and select "Download List".
+        </li>
+        <li class="soda-help-list-item">
+            To save a test (screen, menu, or popup), click the "Menu" button and select "Save List". A dialog will appear asking for a filename to save the test.
+        </li>
+        <li class="soda-help-list-item">
+            Once you've added some actions, and you're ready to save the test (or screen, menu, or popup), select a Suite and Module from above the Actions panel to save the test in. Then fill out the test meta-data beneith the "Test Metadata" heading.
+        </li>
+        <li class="soda-help-list-item">
+            The "Test Name" field should relate directly to the test filename. While this isn't strictly enforced, if you save the test with a different value than what is listed in the "Test Name" field, it will be overwritten by the actual filename the next time the test is loaded into the test editor.
+        </li>
+        <li class="soda-help-list-item">
+            If you load a test into the test editor, then save it with a new filename or change the suite (and/or module), it will be save as a new test and the old test will be unaltered. Basically, the editor treats this like "Save As" in most text editors.
+        </li>
+    </ul>
+    <h2 class="soda-help-topic help-toolboxes-right">VisualEditor Toolboxes (Right)</h2>
+    <h4 class="soda-help-list-heading"><em class="fa fa-compass"></em> Attributes Inspector</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            The Attributes Inspector shows you each element's respective properties.
+        </li>
+        <li class="soda-help-list-item">
+            Nested elements represent child elements of an object. For example, The "x" property is a child of the "origin" object—which is a child of the "rect" object.
+        </li>
+        <li class="soda-help-list-item">
+            The collection of these properties make up a screen element. All screen elements combined make up the current DOM.
+        </li>
+        <li class="soda-help-list-item">
+            The attributes inspector is useful for deciding on selectors when creating tests, and can be used for debugging purposes.
+        </li>
+    </ul>
+    <h4 class="soda-help-list-heading"><em class="fa fa-bolt"></em> Actions</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            The Actions Toolbox lists all available testing actions that may be performed for each action file type (i.e. "test", "action", "screen", etc.).
+        </li>
+        <li class="soda-help-list-item">
+            To view the list of actions for a respective action file type, click the type's name on the button toolbar at the top of the screen.
+        </li>
+        <li class="soda-help-list-item">
+            To change the current syntax (a set of actions repsective to the running framework), click the dropdown at the top of the toolbox and select the desired syntax. The actions list will be automatically updated.
+        </li>
+        <li class="soda-help-list-item">
+            To write tests, drag an action onto either a screen element, or the Test Editor <em class="fa fa-pencil"></em> toolbox panel on the left side of the page.
+        </li>
+        <li class="soda-help-list-item">
+            Actions may only be dragged into the Test Editor panel if the action is the same as the selected test type.
+        </li>
+    </ul>
+    <h4 class="soda-help-list-heading"><em class="fa fa-terminal"></em> Console</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            The console toolbox allows you to view terminal output from the currently running Soda process.
+        </li>
+        <li class="soda-help-list-item">
+            Any command that can be executed in the Soda REPL can be executed by entering the command in the Console input field and clicking "execute".
+        </li>
+        <li class="soda-help-list-item">
+            The console also acts as a JavaScript interpreter. Any JavaScript entered will be evaluated accordingly.
+        </li>
+        <li class="soda-help-list-item">
+            To clear the console, click the "Clear" button.
+        </li>
+    </ul>
+    <h4 class="soda-help-list-heading"><em class="fa fa-cog"></em> Settings</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">
+            The settings toolbox shows all currently set Soda configuration values.
+        </li>
+        <li class="soda-help-list-item">
+            You can change a value, by clicking on a value and editing the value's text.
+        </li>
+        <li class="soda-help-list-item">
+            Be warned, that changing configuration values may break the running Soda process, or cause other unintended harm.
+        </li>
+    </ul>
+    <h2 class="soda-help-topic help-shortcuts">Keyboard Shortcuts</h2>
+    <h4 class="soda-help-list-heading">UI Shortcuts</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">Note, on windows the following would use the "Windows" key and not the "Control" key!</li>
+        <li class="soda-help-list-item">Ctrl+Space: Refresh the DOM</li>
+        <li class="soda-help-list-item">Ctrl+R: Add stashed elements back to the screen</li>
+        <li class="soda-help-list-item">Ctrl+O: Toggle Outline Mode</li>
+        <li class="soda-help-list-item">Ctrl+I: Download Screenshot</li>
+        <li class="soda-help-list-item">Ctrl+D: Download DOM Tree</li>
+    </ul>
+    <h4 class="soda-help-list-heading">Writing Tests</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">Ctrl+G: Generate Screen for current action list (if available)</li>
+        <li class="soda-help-list-item">Ctrl+L: Download current action list</li>
+        <li class="soda-help-list-item">Ctrl+S: Save current action list</li>
+        <li class="soda-help-list-item">Ctrl+C: Clear the current list</li>
+        <li class="soda-help-list-item">Ctrl+K: Execute/Validate the current list</li>
+        <li class="soda-help-list-item">Ctrl+F: Action file picker</li>
+    </ul>
+    <h4 class="soda-help-list-heading">Toolboxes</h4>
+    <ul class="soda-help-list">
+        <li class="soda-help-list-item">Ctrl+X: Console</li>
+        <li class="soda-help-list-item">Ctrl+P: Attributes Inspector</li>
+        <li class="soda-help-list-item">Ctrl+A: Actions Toolbox</li>
+        <li class="soda-help-list-item">Ctrl+E: Test Editor Toolbox</li>
+        <li class="soda-help-list-item">Ctrl+T: Element Tree Toolbox</li>
+        <li class="soda-help-list-item">Ctrl+U: Test Runner Toolbox</li>
+        <li class="soda-help-list-item">Ctrl+J: Project Manager</li>
+        <li class="soda-help-list-item">Ctrl+Z: Settings Toolbox</li>
+        <li class="soda-help-list-item">Ctrl+? (or Ctrl+H): Soda VisualEditor Help</li>
+    </ul>
+</div>

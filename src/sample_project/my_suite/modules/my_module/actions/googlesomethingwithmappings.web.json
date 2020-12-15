@@ -1,0 +1,32 @@
+{
+    "meta": {
+        "name": "google",
+        "id": "google",
+        "description": "Navigates to Google and searches for the value of the variable ${to_search}",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "goto": "http://www.google.com"
+        },
+        {
+            "set": "GOOGLE_SEARCH_INPUT_FIELD",
+            "to": "${to_search}"
+        },
+        {
+            "wait": 1
+        },
+        {
+            "waitFor": "GOOGLE_SEARCH_SEARCH_BUTTON"
+        },
+        {
+            "click": "GOOGLE_SEARCH_SEARCH_BUTTON"
+        },
+        {
+            "wait": 3
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+    "meta": {
+        "name": "google",
+        "id": "google",
+        "description": "Navigates to Google and searches for the value of the variable ${to_search}",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "goto": "http://www.google.com"
+        },
+        {
+            "set": "*[type='input'][attributes.type='text']",
+            "to": "${to_search}"
+        },
+        {
+            "wait": 1
+        },
+        {
+            "waitFor": "^btnK[type='input'][attributes.type='submit'][nth='last']"
+        },
+        {
+            "click": "^btnK[type='input'][attributes.type='submit'][nth='last']"
+        },
+        {
+            "wait": 3
+        }
+    ]
+}

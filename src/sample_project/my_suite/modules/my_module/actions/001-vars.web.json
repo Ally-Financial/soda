@@ -1,0 +1,13 @@
+{
+    "meta": {
+        "name": "001-vars",
+        "id": "001-vars",
+        "description": "Sets default variables",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+    ]
+}

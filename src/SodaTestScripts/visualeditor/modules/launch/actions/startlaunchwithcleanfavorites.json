@@ -1,0 +1,27 @@
+{
+    "meta": {
+        "name": "startlaunchwithcleanfavorites",
+        "description": "Start Soda with a clean set of favorites",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "execute": "setessentials"
+        },
+        {
+            "execute": "makefavoritestemp"
+        },
+        {
+            "execute": "startvisualeditor"
+        },
+        {
+            "execute": "removefavorites"
+        },
+        {
+            "execute": "maketempfavorites"
+        }
+    ]
+}

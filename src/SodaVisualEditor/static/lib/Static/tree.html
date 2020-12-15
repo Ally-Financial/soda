@@ -1,0 +1,40 @@
+<div id="soda-tree">
+    <div id="soda-tree-hierarchy-wrapper">
+        <div id="soda-tree-query">
+            <div class="input-group">
+                <em class="fa fa-close search-close purple"></em>
+                <span class="input-group-addon purple" id="tree-query-addon"><em class="fa fa-check"></em></span>
+                <input class="form-control tree-filter purple" type="text" placeholder="Query selector..." data-filter=".tree-element" data-title="tree query" aria-describedby="tree-query-addon">
+            </div>
+        </div>
+        <div id="soda-tree-search">
+            <div class="input-group">
+                <em class="fa fa-close search-close"></em>
+                <span class="input-group-addon" id="tree-search-addon"><em class="fa fa-search"></em></span>
+                <input class="form-control search-filter" type="text" placeholder="Search..." data-filter=".tree-element" data-title="tree search" aria-describedby="tree-search-addon">
+            </div>
+        </div>
+        <div id="soda-settings-tree-info" class="warning-box">
+            <em class="fa fa-close close" data-close="#soda-settings-tree-info"></em>
+            Click the <em class="fa fa-thumb-tack"></em> icon to "pin" an element to the screen.
+        </div>
+        <div id="soda-settings-tree-info-2" class="warning-box">
+            <em class="fa fa-close close" data-close="#soda-settings-tree-info-2"></em>
+            Right click an element to "stash" it and remove it from the screen.<br>Press Alt+R to restore stashed elements.
+        </div>
+        <div id="soda-settings-tree-info-3" class="warning-box">
+            <span class="bold">Tree hash</span> <span class="soda-tree-hash"></span>
+        </div>
+        <div id="soda-tree-hierarchy">
+            <div class="tree-element expandable-parent">
+                <div class="tree-element-info element-info">
+                    <em class="fa fa-thumb-tack pull-right sticky-element" data-container="body" data-toggle="tooltip" data-placement="bottom" data-original-title="Pin element on screen"></em>
+                    <em class="fa inline fa-check pull-right sticky-element"></em>
+                    <em class="tree-element-icon fa fa-leaf inline expandable-icon"></em>
+                    <div class="tree-element-id inline"></div>
+                </div>
+                <div class="tree-element-children expandable-child"></div>
+            </div>
+        </div>
+    </div>
+</div>

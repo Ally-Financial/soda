@@ -1,0 +1,34 @@
+<div style="padding: 20px; margin: 0; color: #333333; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;">
+    <h1 style="font-family: 'HelveticaNeue-Thin', 'ArialNarrow', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif; font-weight: normal; font-size: 24px; border-bottom: 1px solid #e7e7e7; padding-bottom: 10px; color: #A21F9D; margin: 0">Failed report for <strong>{{ module }}</b> module in <strong>{{ suite }}</b> suite for <strong>{{ platform }}</b> platform</h1>
+    <div style="padding: 20px 0 0 0; margin-bottom: 20px; font-family: 'HelveticaNeue-Light', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif; font-size: 14px; border-top: 1px solid #e7e7e7; min-height: 20px;">
+        <div>
+          <h2 id="report-status" style="font-weight: bold; font-size: 20px; margin: 0; color: {{ status.color }}">{{ status.message }}</h2>
+          <div style="margin: 5px 0; line-height: 20px;"><div style="font-size: 20px; font-weight: bold; vertical-align: middle; line-height: 20px; display: inline-block; min-width: 45px; max-width: 40%; text-align:center;">{{ totaltests }}</div><div style="text-align: center; margin-left: 10px; vertical-align: middle; display: inline-block; line-height: 20px;">Total Tests Ran</div></div>
+          <div style="margin: 5px 0; line-height: 20px;"><div style="font-size: 20px; font-weight: bold; vertical-align: middle; line-height: 20px; display: inline-block; min-width: 45px; max-width: 40%; text-align:center;">{{ totalpassed }}</div><div style="text-align: center; margin-left: 10px; vertical-align: middle; display: inline-block; line-height: 20px;">Total Tests Passed</div></div>
+          <div style="margin: 5px 0; line-height: 20px;"><div style="font-size: 20px; font-weight: bold; vertical-align: middle; line-height: 20px; display: inline-block; min-width: 45px; max-width: 40%; text-align:center;">{{ totalfailed }}</div><div style="text-align: center; margin-left: 10px; vertical-align: middle; display: inline-block; line-height: 20px;">Total Failures</div></div>
+          <div style="margin: 5px 0; line-height: 20px;"><div style="font-size: 20px; font-weight: bold; vertical-align: middle; line-height: 20px; display: inline-block; min-width: 45px; max-width: 40%; text-align:center;">{{ totalstopped }}</div><div style="text-align: center; margin-left: 10px; vertical-align: middle; display: inline-block; line-height: 20px;">Total Stopped</div></div>
+
+            <p style="font-weight: normal; font-size: 14px; margin: 10px 0 10px 0; color: #4C4C4C; border-top: 1px solid #e7e7e7; padding: 10px 0 0 0">The following Soda tests failed...</p>
+            {{#if artifacts }}
+            <div bgcolor="#F7F7F7" style="background-color: #F7F7F7; border-radius: 6px; max-width: 100%; padding: 20px;">
+                {{#artifacts}}
+                <div style="margin-bottom: 15px; font-family: 'HelveticaNeue-Light', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;">
+                    <h4 style="font-family: 'HelveticaNeue-Light', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif; font-weight: normal; font-size: 14px; margin: 0 0 5px 0">
+                        <span style="font-weight: bold">Reason for failure</span> {{ this.failureMessage }}
+                        <p><img style="display: block;" alt="If this does not display, please see attached image: {{ this.screnShotname }}.png" src="cid:{{ this.screnShotname }}" /></p>
+                    </h4>
+                </div>
+                {{/artifacts}}
+            </div>
+            {{/if}}
+        </div>
+    </div>
+    <div style="color: #A7A7A7; text-align: center; font-size: 14px; border-top: 1px solid #e7e7e7; padding-top: 10px; min-height: 20px;">
+        <p style="margin: 0; margin-bottom: 5px;">
+            sODA &#8226;
+        </p>
+        <p style="margin: 0">
+            If you think you've received this email in error or wish to unsubscribe from these reports, contact: <a style="color: #A21F9D; text-decoration: none" href="mailto:{{ maintainer.email }}">{{ maintainer.email }}</a>
+        </p>
+    </div>
+</div>

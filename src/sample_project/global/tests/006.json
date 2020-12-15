@@ -1,0 +1,28 @@
+{
+    "meta": {
+        "name": "Google",
+        "description": "Same as test two, but uses *mappings*, see this module's module.json file",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "store": "soda",
+            "as": "to_search"
+        },
+        {
+            "execute": "googlesomethingwithmappings"
+        },
+        {
+            "execute": "clickfirstgooglelink"
+        },
+        {
+            "wait": 3
+        },
+        {
+            "execute": "closebrowser"
+        }
+    ]
+}

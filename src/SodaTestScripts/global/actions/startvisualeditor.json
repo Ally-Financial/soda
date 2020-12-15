@@ -1,0 +1,27 @@
+{
+    "meta": {
+        "name": "setessentials",
+        "description": "Setup some important variables for 'Soda testing Soda'",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "comment": "Kill all processes using the defined port...",
+            "osexec": "lsof -i tcp:${port} | awk 'NR!=1 {print $2}' | xargs kill"
+        },
+        {
+            "comment": "Start *detached* Soda Editor",
+            "osexec": "${root}/bin/visualeditor ${port} true &>/dev/null &",
+            "saveResultsAs": "sodastart"
+        },
+        {
+            "wait": 3
+        },
+        {
+            "goto": "http://localhost:${port}"
+        }
+    ]
+}

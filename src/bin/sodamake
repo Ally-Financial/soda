@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+
+var fs          = require('fs'),
+    path        = require('path'),
+    destination = process.argv[2];
+
+if(typeof destination === 'string') {
+    destination = path.join(destination, process.argv[3] || 'MyProject');
+
+    fs.stat(destination, function (err, stat) {
+        'use strict';
+
+        if(stat) {
+            console.log('Destination `' + destination + '` already exists!', 'Aborting.');
+        }
+        else {
+            fs.copy(path.resolve(path.join(__dirname, '..', 'support', 'projecttemplate')), destination, function (err) {
+                if(err) throw err;
+                console.log('Soda project created in', destination);
+            });
+        }
+    });
+}
+else {
+    console.error('Argument #0 `destination` is required.');
+}

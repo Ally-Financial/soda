@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaVisualEditor/static/lib/Soda/SodaRunner.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaVisualEditor/static/lib/Soda/SodaRunner.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+/**
+ * Manages the Test Runner Toolbox
+ * @constructor
+ * @extends SodaEmitter
+ * @param {Soda} soda The window.Soda instance
+ */
+window.SodaRunner = function (soda) {
+    var self        = this,
+        initialized = false,
+        runIds      = 0;
+
+    // Inherit from the SodaEmitter class
+    window.SodaEmitter.call(self);
+    this.$runner = {};
+
+    // A template for the "current" action, as it will be appended to the Test Monitor
+    var currentTemplate = $(
+        '&lt;div class="attribute-info">' +
+            '&lt;div class="inline attribute-key">Tap&lt;/div>' +
+            '&lt;div class="inline attribute-value">Selector&lt;/div>' +
+        '&lt;/div>'
+    );
+
+    /**
+     * A callback for adding console output to the test monitor toolbox
+     * @param  {Array} messages An array of server stdout messages
+     * @return {undefined}
+     */
+    function testOutputPipe (messages) {
+        for(var i in messages) {
+            if(messages.hasOwnProperty(i)) {
+                var $msg = $(messages[i]);
+                if($msg.hasClass("pass") || $msg.hasClass("fail")) {
+                    $("#test-output").children('li:gt(49)').remove();
+                    $("#test-output").prepend('&lt;li class="soda-test-message list-group-item">' + messages[i] + '&lt;/li>');
+                }
+            }
+        }
+    }
+
+    /**
+     * When the server returns the "running" test state
+     * @return {undefined}
+     */
+    function onRunning () {
+        self.$monitor.$testStatus.html('Running&lt;span class="dot-dot-dot">...&lt;/span>');
+        self.$monitor.$testInfo.html('&lt;span>Testing in progress. Click &lt;i class="fa fa-stop">&lt;/i> to stop testing, or ' +
+        '&lt;i class="fa fa-pause">&lt;/i> to pause testing.');
+    }
+
+    /**
+     * Callback for when the server emits the "test start" event
+     * @param  {object} data Data from the server, in regard to the current test
+     * @return {undefined}
+     */
+    function onStart (data) {
+        $(".test-monitor-test-name.attribute-value").html(data.name);
+        $(".test-monitor-test-id.attribute-value").html(data.id);
+        $(".test-monitor-test-desc.attribute-value").html(data.description);
+        $(".test-monitor-test-module.attribute-value").html(data.module);
+        $(".test-monitor-test-suite.attribute-value").html(data.suite);
+        onRunning();
+    }
+
+    /**
+     * Called by the below function, to build out the "current" and "last" actions on the Test Monitor
+     * @param  {object} action The action object, as sent by the server
+     * @param  {jQuery} $parent The parent object to append the built action to
+     * @param  {Boolean} isRoot If the sub-action is at the root leve of the action, then true, false otherwise
+     * @return {undefined}
+     */
+    function buildCurrent (action, $parent, isRoot) {
+        for(var i in action) {
+            if(action.hasOwnProperty(i)) {
+                var $action = currentTemplate.sodaclone();
+                $action.find(".attribute-key").html(i);
+                if(typeof action[i] === "object") {
+                    buildCurrent(action[i], $action, false);
+                }
+                else {
+                    $action.find(".attribute-value").html(action[i]);
+                    if(isRoot) $action.addClass("root");
+                    $parent.append($action);
+                }
+            }
+        }
+    }
+
+    /**
+     * When the server returns the "paused" test state
+     * @param  {Error} err An exception, if one is present
+     * @return {undefined}
+     */
+    function onPause (err) {
+        if(err) return console.error(err);
+        self.$monitor.$testStatus.html("Test Paused");
+        self.$monitor.$testInfo.html('&lt;span>Test Paused. Click &lt;i class="fa fa-play">&lt;/i> to resume testing, ' +
+        '&lt;i class="fa fa-forward">&lt;/i> to skip to the next text evaluation,' +
+        '&lt;i class="fa fa-backward">&lt;/i> to repeat the last evaluation, or ' +
+        '&lt;i class="fa fa-stop">&lt;/i> to stop testing.&lt;/span>');
+    }
+
+    /**
+     * When the server returns the "paused" test state
+     * @param  {Error} err An exception, if one is present
+     * @return {undefined}
+     */
+    function onStop (err) {
+        if(err) return console.error(err);
+        self.$monitor.$testStatus.html("Test Stopped");
+        self.$monitor.$testInfo.html('&lt;span>Test aborted.' +
+        '&lt;br>&lt;span class="show-results-tab bold">Click here to view detailed test results&lt;/span>');
+    }
+
+    /**
+     * When the server returns the "failed" test state
+     * @param  {Error} err An exception, if one is present
+     * @return {undefined}
+     */
+    function onFail (err) {
+        if(err) return console.error(err);
+        self.$monitor.$testStatus.html("Test Failed");
+        self.$monitor.$testInfo.html('&lt;span>Test Failed. Click &lt;i class="fa fa-eject">&lt;/i> to continue, ' +
+        '&lt;i class="fa fa-forward">&lt;/i> to skip failed evaluation, or' +
+        '&lt;i class="fa fa-backward">&lt;/i> to repeat the last evaluation&lt;/span>');
+    }
+
+    /**
+     * As the server encounters new actions, it will emit the "current" event, and this callback will be invoked
+     * @param  {object} action The action object, as sent by the server
+     * @return {undefined}
+     */
+    function onCurrent (action) {
+        self.$monitor.$last.empty();
+        self.$monitor.$current.children().detach().appendTo(self.$monitor.$last);
+        buildCurrent(action, self.$monitor.$current, true);
+    }
+
+    /**
+     * Disable all next/last/skip/continue, etc. buttons
+     * @return {undefined}
+     */
+    function disableAllButtons () {
+        self.$monitor.$lastButton.addClass("disabled");
+        self.$monitor.$nextButton.addClass("disabled");
+        self.$monitor.$stopButton.addClass("disabled");
+        self.$monitor.$pauseButton.addClass("disabled");
+        self.$monitor.$skipButton.addClass("disabled");
+        self.$monitor.$resumeButton.addClass("disabled");
+        self.$monitor.$continueButton.addClass("disabled");
+    }
+
+    /**
+     * Enables/disables test buttons, per the data returned from the server
+     * @param  {object} data An object with allowable states, as returned from the server
+     * @return {undefined}
+     */
+    function onAllow (data) {
+        disableAllButtons();
+        if(data.last   === true) self.$monitor.$lastButton.removeClass("disabled");
+        if(data.next   === true) self.$monitor.$nextButton.removeClass("disabled");
+        if(data.skip   === true) self.$monitor.$skipButton.removeClass("disabled");
+        if(data.resume === true) self.$monitor.$resumeButton.removeClass("disabled");
+        if(data.stop   === true) self.$monitor.$stopButton.removeClass("disabled");
+        if(data.pause  === true) self.$monitor.$pauseButton.removeClass("disabled");
+        if(data.end    === true) self.$monitor.$continueButton.removeClass("disabled");
+    }
+
+    /**
+     * A callback for when a suite/module/test is started
+     * @param  {Error} err An exception, if one is present
+     * @param  {object} data The data returned from the server
+     * @return {undefined}
+     */
+    function onTestCallback (err, data) {
+        var testReferenceId = data.tid;
+
+        soda.editor
+            .enableToolbox("test-monitor")
+            .disableToolbox("test-runner")
+            .switchToToolbox("test-monitor");
+
+        disableAllButtons();
+        self.$monitor.$testStatus.html('Running&lt;span class="dot-dot-dot">...&lt;/span>');
+
+        soda.socket.on("current " + testReferenceId, onCurrent);
+        soda.socket.on("running " + testReferenceId, onRunning);
+        soda.socket.on("allow "   + testReferenceId, onAllow);
+        soda.socket.on("paused "  + testReferenceId, onPause);
+        soda.socket.on("failed "  + testReferenceId, onFail);
+        soda.socket.on("stopped " + testReferenceId, onStop);
+        soda.addOutputPipe(testOutputPipe);
+
+        soda.socket.once("run results " + this, function () { // jshint ignore:line
+            soda.socket.removeListener("current " + testReferenceId, onCurrent);
+            soda.socket.removeListener("allow "   + testReferenceId, onAllow);
+            soda.socket.removeListener("paused "  + testReferenceId, onPause);
+            soda.socket.removeListener("failed "  + testReferenceId, onFail);
+            soda.socket.removeListener("running " + testReferenceId, onRunning);
+            soda.socket.removeListener("stopped " + testReferenceId, onStop);
+            soda.removeOutputPipe(testOutputPipe);
+        });
+    }
+
+    /**
+     * Sorts the test menus in alphabetical order
+     * @param  {jQuery} m The jQuery menu item to sort
+     * @return {undefined}
+     */
+    function sortMenu (m) {
+        var sorted = m.children();
+        sorted.sort(function (a, b) {
+            var aN = $(a).attr("data-sort"),
+                bN = $(b).attr("data-sort");
+            return aN &lt; bN ? -1 : aN > bN ? 1 : 0;
+        });
+        sorted.appendTo(m);
+    }
+
+    /**
+     * When a suite is clicked from the run menu this callback is invoked
+     * @return {undefined}
+     */
+    function suiteOnClick () {
+        $("#test-output").empty();
+
+        var runId = runIds++;
+        soda.send("run", { type: "suite", suite: $(this).attr("data-suite"), runId: runIds }, onTestCallback.bind(runId)); // jshint ignore:line
+        soda.editor.setStatus({ which: "left", message: 'Testing in progress&lt;span class="dot-dot-dot">...&lt;/span>' });
+        soda.socket.once("run results " + runId, function (data) {
+            soda.editor.enableToolbox("test-runner");
+            self.emit("test results", data.results, data.message);
+            self.$monitor.$testStatus.html(data.results.results);
+            self.$monitor.$testInfo.html("Suite run complete. Results: " + data.results.result + '&lt;br>&lt;span class="show-results-tab bold">Click here to view detailed results&lt;/span>');
+            disableAllButtons();
+            soda.editor.setStatus({ which: "left", message: 'Testing stopped' });
+        });
+    }
+
+    /**
+     * When a module is clicked from the run menu this callback is invoked
+     * @return {undefined}
+     */
+    function moduleOnClick () {
+        $("#test-output").empty();
+
+        var runId = runIds++;
+        soda.send("run", { type: "module", suite: $(this).attr("data-suite"), module: $(this).attr("data-module"), runId: runId }, onTestCallback.bind(runId)); // jshint ignore:line
+        soda.editor.setStatus({ which: "left", message: 'Testing in progress&lt;span class="dot-dot-dot">...&lt;/span>' });
+        soda.socket.once("run results " + runId, function (data) {
+            soda.editor.enableToolbox("test-runner");
+            self.emit("test results", data.results, data.message);
+            self.$monitor.$testStatus.html(data.results.result);
+            self.$monitor.$testInfo.html("Module run complete. Results: " + data.results.result + '&lt;br>&lt;span class="show-results-tab bold">Click here to view detailed results&lt;/span>');
+            disableAllButtons();
+            soda.editor.setStatus({ which: "left", message: 'Testing stopped' });
+        });
+    }
+
+    /**
+     * When a test is clicked from the run menu this callback is invoked
+     * @return {undefined}
+     */
+    function testOnClick () {
+        $("#test-output").empty();
+
+        var runId = runIds++,
+            // jshint ignore:start
+            runObj = {
+                name    : $(this).attr("data-type"),
+                suite   : $(this).attr("data-suite"),
+                module  : $(this).attr("data-module"),
+                test    : $(this).attr("data-id"), runId: runId
+            };
+            // jshint ignore:end
+
+        runObj[$(this).attr("data-type")] = $(this).attr("data-name");  // jshint ignore:line
+        soda.send("run", runObj, onTestCallback.bind(runId));           // jshint ignore:line
+        soda.editor.setStatus({ which: "left", message: 'Testing in progress&lt;span class="dot-dot-dot">...&lt;/span>' });
+        soda.socket.once("run results " + runId, function (data) {
+            soda.editor.enableToolbox("test-runner");
+            self.emit("test results", data.results, data.message);
+            self.$monitor.$testStatus.html(data.results.result);
+            self.$monitor.$testInfo.html("Test run complete. Results: " + data.results.result + '&lt;br>&lt;span class="show-results-tab bold">Click here to view detailed results&lt;/span>');
+            disableAllButtons();
+            soda.editor.setStatus({ which: "left", message: 'Testing stopped' });
+        });
+    }
+
+    /**
+     * Initalized the SodaRunner object
+     * @param  {object} $runner  An object containing the Run Menu HTML elements
+     * @param  {object} $monitor An object containing the test monitor HTML elements
+     * @return {SodaRunner} The current SodaRunner instance
+     */
+    this.init = function ($runner, $monitor) {
+
+        // Setup jQuery objects...
+        self.$runner  = $runner;
+        self.$monitor = $monitor;
+
+        self.$runner.$suiteTemplate  = self.$runner.self.find(".runner-run-item.suite").detach();
+        self.$runner.$moduleTemplate = self.$runner.self.find(".runner-run-item.module").detach();
+        self.$runner.$testTemplate   = self.$runner.self.find(".runner-run-item.test").detach();
+        self.$runner.$suiteWrapper   = self.$runner.self.find("#runner-list-suites");
+        self.$runner.$moduleWrapper  = self.$runner.self.find("#runner-list-modules");
+        self.$runner.$testWrapper    = self.$runner.self.find("#runner-list-tests");
+        self.$runner.$allWrapper     = self.$runner.self.find("#runner-list-all");
+        self.$runner.$allButton      = self.$runner.self.find("#runner-options-all-button");
+        self.$runner.$moduleFilter   = self.$runner.self.find("#test-filter-module");
+        self.$runner.$suiteFilter    = self.$runner.self.find(".suite-filter");
+
+        self.$monitor.$lastButton     = self.$monitor.self.find("#do-last");
+        self.$monitor.$nextButton     = self.$monitor.self.find("#do-next");
+        self.$monitor.$stopButton     = self.$monitor.self.find("#do-stop");
+        self.$monitor.$pauseButton    = self.$monitor.self.find("#do-pause");
+        self.$monitor.$skipButton     = self.$monitor.self.find("#do-skip");
+        self.$monitor.$resumeButton   = self.$monitor.self.find("#do-resume");
+        self.$monitor.$continueButton = self.$monitor.self.find("#do-continue");
+        self.$monitor.$current        = self.$monitor.self.find("#test-monitor-current-wrapper");
+        self.$monitor.$last           = self.$monitor.self.find("#test-monitor-last-wrapper");
+
+        self.$monitor.$testStatus   = self.$monitor.self.find("#test-monitor-status");
+        self.$monitor.$testInfo     = self.$monitor.self.find(".test-monitor-info-message");
+
+        // Handle test results from the server
+        soda.socket.on("start test", onStart);
+
+        // When the "last" button is clicked perform the last action
+        self.$monitor.$lastButton.click(function () {
+            if(!$(this).hasClass("disabled")) soda.send("keypress", "l", function () {
+                self.$monitor.$testStatus.html('Repeating Last Action&lt;span class="dot-dot-dot">&lt;/span>');
+                self.$monitor.$testInfo.html('&lt;span>Repating the last test action.&lt;/span>');
+            });
+        });
+
+        // When the "next" button is clicked perform the next action
+        self.$monitor.$nextButton.click(function () {
+            if(!$(this).hasClass("disabled")) soda.send("keypress", "n", function () {
+                self.$monitor.$testStatus.html('Performing Next Action&lt;span class="dot-dot-dot">&lt;/span>');
+                self.$monitor.$testInfo.html('&lt;span>Performing the next test action.&lt;/span>');
+            });
+        });
+
+        // When the "stop" button is clicked stop the test
+        self.$monitor.$stopButton.click(function () {
+            if(!$(this).hasClass("disabled")) soda.send("keypress", "s", function () {
+                self.$monitor.$testStatus.html('Stopping&lt;span class="dot-dot-dot">...&lt;/span>');
+                self.$monitor.$testInfo.html('&lt;span>Attempting to abort test—this may take a few minutes.&lt;/span>');
+            });
+        });
+
+        // When the "pause" button is clicked pause testing
+        self.$monitor.$pauseButton.click(function () {
+            if(!$(this).hasClass("disabled")) soda.send("keypress", "p", function () {
+                self.$monitor.$testStatus.html('Pausing&lt;span class="dot-dot-dot">...&lt;/span>');
+                self.$monitor.$testInfo.html('&lt;span>Pausing test—this may take a few moments.&lt;/span>');
+            });
+        });
+
+        // When the "skip" button is clicked skip the current test action
+        self.$monitor.$skipButton.click(function () {
+            if(!$(this).hasClass("disabled")) soda.send("keypress", "k", function () {
+                self.$monitor.$testStatus.html('Skipping&lt;span class="dot-dot-dot">...&lt;/span>');
+                self.$monitor.$testInfo.html('&lt;span>Skipping to the next test action and evaluating.&lt;/span>');
+            });
+        });
+
+        // When the "resume" button is clicked resume testing from the paused state
+        self.$monitor.$resumeButton.click(function () {
+            if(!$(this).hasClass("disabled")) soda.send("keypress", "r", function () {
+                self.$monitor.$testStatus.html('Resuming&lt;span class="dot-dot-dot">...&lt;/span>');
+                self.$monitor.$testInfo.html('&lt;span>Resuming test.&lt;/span>');
+            });
+        });
+
+        // When the "continue" button is clicked, continue an fail the test
+        self.$monitor.$continueButton.click(function () {
+            if(!$(this).hasClass("disabled")) soda.send("keypress", "e", function () {
+                self.$monitor.$testStatus.html('Continuing&lt;span class="dot-dot-dot">...&lt;/span>');
+                self.$monitor.$testInfo.html('&lt;span>Continuing with test failure. Results will be available shortly.&lt;/span>');
+            });
+        });
+
+        // Trigger the all button click and show the "all tests" tab
+        soda.on("editor shown", function (err) {
+            if(err) return console.error(err);
+            soda.editor.disableToolbox("test-monitor");
+            self.$runner.$allButton.trigger("click");
+            $(".category-filter").trigger("change");
+        });
+
+        // When the Project Manager loads the hierarchy and builds the file system,
+        // clear the run menu's for subsequent propagation
+        soda.projectManager.on("build", function () {
+            self.clearRunMenu();
+        });
+
+        // When the Project Manager loads the hierarchy and builds the file system,
+        // as it encounters suites, we'll add the suite to the run menu...
+        soda.projectManager.on("suite", function (i, obj, context) {
+            var $suite,
+                formalName = i.titleCase.replace(/[^a-zA-Z0-9]/g, ' ');
+
+            $suite = self.$runner.$suiteTemplate.sodaclone();
+            $suite.attr("data-name", i);
+            $suite.attr("data-sort", formalName);
+
+            $suite.find(".r-icon").addClass("fa-folder-open-o");
+            $suite.find(".r-name").html(formalName);
+            $suite.find(".r-misc").html(soda.framework.testPath);
+
+            $suite.click(suiteOnClick);
+            $suite.attr("data-suite", context.suite);
+            $suite.appendTo(self.$runner.$suiteWrapper);
+
+            var $allSuite = $suite.sodaclone();
+            $allSuite.click(suiteOnClick);
+            $allSuite.appendTo(self.$runner.$allWrapper);
+
+            if(self.$runner.$suiteFilter.children('option.filter-item-' + i).length === 0)
+                self.$runner.$suiteFilter.append('&lt;option value="' + formalName + '" ' + (i === soda.framework.config.suite ? "selected" : "") + '>' + formalName + '&lt;/option>');
+        });
+
+        // When the Project Manager loads the hierarchy and builds the file system,
+        // as it encounters modules, we'll add the module to the run menu...
+        soda.projectManager.on("module", function (i, obj, context) {
+            var $module,
+                formalName       = i.titleCase.replace(/[^a-zA-Z0-9]/g, ' '),
+                parentFormalName = context.suite.titleCase.replace(/[^a-zA-Z0-9]/g, ' ');
+
+            $module = self.$runner.$moduleTemplate.sodaclone();
+            $module.attr("data-suite", context.suite);
+            $module.attr("data-module", context.module);
+            $module.attr("data-sort", formalName);
+
+            $module.find(".r-icon").addClass("fa-files-o");
+            $module.find(".r-name").html(formalName);
+            $module.find(".r-suite").html('&lt;span class="inline-header">Suite&lt;/span> &lt;span class="inline-info suite">' + parentFormalName + '&lt;/span>');
+            $module.click(moduleOnClick);
+
+            if(self.$runner.$moduleFilter.children('option.filter-item-' + i).length === 0)
+                self.$runner.$moduleFilter.append('&lt;option value="' + formalName + '">' + formalName + '&lt;/option>');
+                if(soda.framework.config.suite) self.$runner.$suiteFilter.trigger("change");
+
+            $module.appendTo(self.$runner.$moduleWrapper);
+            var $allModule = $module.sodaclone();
+            $allModule.click(moduleOnClick);
+            $allModule.appendTo(self.$runner.$allWrapper);
+        });
+
+        // When the Project Manager loads the hierarchy and builds the file system,
+        // as it encounters tests, we'll add the test to the run menu...
+        soda.projectManager.on("test", function (i, obj, context, item) {
+            var $test,
+                formalName       = i.titleCase.replace(/[^a-zA-Z0-9]/g, ' '),
+                parentFormalName = context.module.titleCase.replace(/[^a-zA-Z0-9]/g, ' '),
+                suiteFormalName  = context.suite.titleCase.replace(/[^a-zA-Z0-9]/g, ' ');
+
+            $test = self.$runner.$testTemplate.sodaclone();
+            $test.attr("data-suite", context.suite);
+            $test.attr("data-module", context.module);
+            $test.attr("data-sort", formalName);
+            $test.attr("data-name", i);
+            $test.attr("data-type", context.type);
+
+            $test.find(".r-icon").addClass("fa-file-text-o");
+            $test.find(".r-name").html(item.name ? formalName : item.baseName.titleCase);
+            $test.find(".r-id").html('&lt;span class="inline-header">Test Id&lt;/span> ' + (item.id ? item.id.titleCase : "No id"));
+            $test.find(".r-description").html('&lt;span class="inline-header">Description&lt;/span>&lt;br>' + (typeof item.description === "string" ? item.description.ucFirst : "No description"));
+            $test.find(".r-module").html('&lt;span class="inline-header">Module&lt;/span> &lt;span class="inline-info module">' + parentFormalName + '&lt;/span>');
+            $test.find(".r-suite").html('&lt;span class="inline-header">Suite&lt;/span> &lt;span class="inline-info suite">' + suiteFormalName + '&lt;/span>');
+
+            $test.click(testOnClick);
+            $test.appendTo(self.$runner.$testWrapper);
+
+            var $allTest = $test.sodaclone();
+            $allTest.click(testOnClick);
+            $allTest.appendTo(self.$runner.$allWrapper);
+        });
+
+        // Sort the test menus, once the project hierarchy is done being iterated over
+        soda.projectManager.on("build complete", function () {
+            sortMenu(self.$runner.$suiteWrapper);
+            sortMenu(self.$runner.$moduleWrapper);
+            sortMenu(self.$runner.$testWrapper);
+            sortMenu(self.$runner.$allWrapper);
+        });
+
+        initialized = true;
+        return self;
+    };
+
+    /**
+     * Clears the run menus
+     * @return {SodaRunner} The current SodaRunner instance
+     */
+    this.clearRunMenu = function () {
+        self.$runner.$moduleFilter
+            .empty()
+            .prepend('&lt;option value="all">Filter tests by module...&lt;/option>');
+
+        self.$runner.$suiteFilter.empty();
+        self.$runner.$suiteWrapper.empty();
+        self.$runner.$moduleWrapper.empty();
+        self.$runner.$testWrapper.empty();
+        self.$runner.$allWrapper.empty();
+        return self;
+    };
+
+    /**
+     * Append test results to the results menu when received from the server...
+     */
+    self.on("test results", function (results) {
+        var html   = $('&lt;ul class="list-group">&lt;/ul>');
+        for(var i in results) {
+            if(results.hasOwnProperty(i) &amp;&amp; results[i] !== undefined) {
+                if(i !== "variables") {
+                    $('&lt;li class="list-group-item active">&lt;h5 class="list-group-item-heading">' + i.toString().titleCase + '&lt;/h4>&lt;p class="list-group-item-text">' + results[i].toString().replace(/\n/g, '&lt;br />') + '&lt;/p>&lt;/li>').appendTo(html);
+                }
+                else {
+                    var item;
+                    try {
+                        item = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(results[i], null, '   '));
+                        $('&lt;li class="list-group-item active">&lt;h5 class="list-group-item-heading">' + i.toString().titleCase + '&lt;/h4>&lt;p class="list-group-item-text">&lt;a target="_blank" href="' + item + '" download="' + i + '.json">' + "Download " + i + '&lt;/a>&lt;/p>&lt;/li>').appendTo(html);
+                    }
+                    catch (e) {
+                        console.error(e);
+                    }
+                }
+            }
+        }
+        $("#soda-results-history").prepend(html);
+    });
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

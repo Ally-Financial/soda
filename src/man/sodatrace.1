@@ -1,0 +1,46 @@
+.TH sodatrace 1 "JANUARY 2018" Soda "Simple Object Driven Automation"
+.SH NAME
+sodatrace \-\- runs a Soda trace file
+.SH SYNOPSIS
+.B soda
+.I tracefile
+.SH DESCRIPTION
+The
+.I sodatrace
+command starts runs a test trace file. It starts the framework using the arguments specified in the
+.I tracefile,
+and then
+performs the device and element interactions listed in the trace.
+.SH OPTIONS
+.IP traceFile
+The path to the Soda tracefile
+.SH FILES
+.B $SODA_PATH/SodaCommon/Config.js
+.RS
+The system wide configuration file.
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/instruments/imports/Config.js
+.RS
+Configuration settings for the Instruments framework
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/automator/imports/Config.js
+.RS
+Configuration settings for the Automator framework
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/selenium/imports/Config.js
+.RS
+Configuration settings for the Selenium framework
+.RE
+
+.SH AUTHOR
+Jason Pollman & James Pavlic
+.SH "SEE ALSO"
+.BR soda (1),
+.BR sodabuild (1),
+.BR sodamake (1),
+.BR sodareset (1)
+.BR sodarun (1)
+.BR sodaeditor (1)

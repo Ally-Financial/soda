@@ -1,0 +1,1635 @@
+{
+    "window:0": {
+        "id": "window:0",
+        "element": {},
+        "type": "window",
+        "name": null,
+        "label": null,
+        "value": null,
+        "rect": {
+            "origin": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "width": 414,
+                "height": 736
+            }
+        },
+        "hitpoint": {
+            "x": 207,
+            "y": 368
+        },
+        "enabled": true,
+        "visible": true,
+        "hasKeyboardFocus": false,
+        "valid": true,
+        "children": {
+            "image:0": {
+                "id": "image:0",
+                "element": {},
+                "type": "image",
+                "name": "grad.png",
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": -144.90000987052917,
+                        "y": -257.6000175476074
+                    },
+                    "size": {
+                        "width": 703.8000197410583,
+                        "height": 1251.2000350952148
+                    }
+                },
+                "hitpoint": null,
+                "enabled": true,
+                "visible": false,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 0,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                },
+                "level": 1
+            },
+            "tableview:0": {
+                "id": "tableview:0",
+                "element": {},
+                "type": "tableview",
+                "name": "sideMenu",
+                "label": null,
+                "value": "rows 1 to 12 of 12",
+                "rect": {
+                    "origin": {
+                        "x": -28.5,
+                        "y": -184
+                    },
+                    "size": {
+                        "width": 621,
+                        "height": 1104
+                    }
+                },
+                "hitpoint": null,
+                "enabled": true,
+                "visible": false,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "tablecell:0": {
+                        "id": "tablecell:0",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": -184
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:0": {
+                                "id": "statictext:0",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "View Accounts",
+                                "value": "View Accounts",
+                                "rect": {
+                                    "origin": {
+                                        "x": -28.5,
+                                        "y": -184
+                                    },
+                                    "size": {
+                                        "width": 182.3144989013672,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:0",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 0,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:1": {
+                        "id": "tablecell:1",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": -91.99999618530273
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:1": {
+                                "id": "statictext:1",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "Transfer Funds",
+                                "value": "Transfer Funds",
+                                "rect": {
+                                    "origin": {
+                                        "x": -28.5,
+                                        "y": -91.99999618530273
+                                    },
+                                    "size": {
+                                        "width": 181.0605010986328,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:1",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 1,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:2": {
+                        "id": "tablecell:2",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": 0.00000762939453125
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:2": {
+                                "id": "statictext:2",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "Deposit Money",
+                                "value": "Deposit Money",
+                                "rect": {
+                                    "origin": {
+                                        "x": -28.5,
+                                        "y": 0.00000762939453125
+                                    },
+                                    "size": {
+                                        "width": 184.39500045776367,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:2",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 2,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:3": {
+                        "id": "tablecell:3",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": 92.0000114440918
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:3": {
+                                "id": "statictext:3",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "Pay Bills",
+                                "value": "Pay Bills",
+                                "rect": {
+                                    "origin": {
+                                        "x": -28.5,
+                                        "y": 92.0000114440918
+                                    },
+                                    "size": {
+                                        "width": 102.40049743652344,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:3",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 3,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:4": {
+                        "id": "tablecell:4",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": 184.00001525878906
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:4": {
+                                "id": "statictext:4",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "Pay People",
+                                "value": "Pay People",
+                                "rect": {
+                                    "origin": {
+                                        "x": -28.5,
+                                        "y": 184.00001525878906
+                                    },
+                                    "size": {
+                                        "width": 138.88049697875977,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:4",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 4,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:5": {
+                        "id": "tablecell:5",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": 276.0000190734863
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:5": {
+                                "id": "statictext:5",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "Activity",
+                                "value": "Activity",
+                                "rect": {
+                                    "origin": {
+                                        "x": -28.5,
+                                        "y": 276.0000190734863
+                                    },
+                                    "size": {
+                                        "width": 86.55449867248535,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:5",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 5,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:6": {
+                        "id": "tablecell:6",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": 368.0000228881836
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:6": {
+                                "id": "statictext:6",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "Statements & Tax Forms",
+                                "value": "Statements & Tax Forms",
+                                "rect": {
+                                    "origin": {
+                                        "x": -28.5,
+                                        "y": 368.0000228881836
+                                    },
+                                    "size": {
+                                        "width": 300.33300018310547,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:6",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 6,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:7": {
+                        "id": "tablecell:7",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": 460.00002670288086
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:7": {
+                                "id": "statictext:7",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "Help",
+                                "value": "Help",
+                                "rect": {
+                                    "origin": {
+                                        "x": -28.5,
+                                        "y": 460.00002670288086
+                                    },
+                                    "size": {
+                                        "width": 56.48700141906738,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:7",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 7,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:8": {
+                        "id": "tablecell:8",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": 552.0000305175781
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:8": {
+                                "id": "statictext:8",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "Call Us call wait time: --",
+                                "value": "Call Us call wait time: --",
+                                "rect": {
+                                    "origin": {
+                                        "x": -28.5,
+                                        "y": 552.0000305175781
+                                    },
+                                    "size": {
+                                        "width": 561,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:8",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 8,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:9": {
+                        "id": "tablecell:9",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": 644.0000343322754
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:9": {
+                                "id": "statictext:9",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "Ally Assist",
+                                "value": "Ally Assist",
+                                "rect": {
+                                    "origin": {
+                                        "x": -3,
+                                        "y": 644.0000343322754
+                                    },
+                                    "size": {
+                                        "width": 122.40750503540039,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:9",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 9,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:10": {
+                        "id": "tablecell:10",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": 736.0000381469727
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:10": {
+                                "id": "statictext:10",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "Find ATMs",
+                                "value": "Find ATMs",
+                                "rect": {
+                                    "origin": {
+                                        "x": -3,
+                                        "y": 736.0000381469727
+                                    },
+                                    "size": {
+                                        "width": 129.13349533081055,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:10",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 10,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:11": {
+                        "id": "tablecell:11",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "sideMenuCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": -28.5,
+                                "y": 828.0000419616699
+                            },
+                            "size": {
+                                "width": 621,
+                                "height": 92.00000381469727
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:11": {
+                                "id": "statictext:11",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "sideMenuCellName",
+                                "label": "Log Out",
+                                "value": "Log Out",
+                                "rect": {
+                                    "origin": {
+                                        "x": -3,
+                                        "y": 828.0000419616699
+                                    },
+                                    "size": {
+                                        "width": 99.77849578857422,
+                                        "height": 92.00000381469727
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:11",
+                                    "name": "sideMenuCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 11,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "sideMenu",
+                            "value": "rows 1 to 12 of 12",
+                            "label": null
+                        },
+                        "level": 2
+                    }
+                },
+                "index": 1,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                },
+                "level": 1
+            },
+            "navigationbar:0": {
+                "id": "navigationbar:0",
+                "element": {},
+                "type": "navigationbar",
+                "name": "Choose a Contact",
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 0,
+                        "y": 20
+                    },
+                    "size": {
+                        "width": 414,
+                        "height": 44
+                    }
+                },
+                "hitpoint": {
+                    "x": 207,
+                    "y": 42
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "image:1": {
+                        "id": "image:1",
+                        "element": {},
+                        "type": "image",
+                        "name": null,
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 414,
+                                "height": 64
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "image:2": {
+                                "id": "image:2",
+                                "element": {},
+                                "type": "image",
+                                "name": null,
+                                "label": null,
+                                "value": null,
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 64
+                                    },
+                                    "size": {
+                                        "width": 414,
+                                        "height": 0.3333333333333286
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "image:1",
+                                    "name": null,
+                                    "value": null,
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 0,
+                        "parent": {
+                            "id": "navigationbar:0",
+                            "name": "Choose a Contact",
+                            "value": null,
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "button:0": {
+                        "id": "button:0",
+                        "element": {},
+                        "type": "button",
+                        "name": null,
+                        "label": "",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 12,
+                                "y": 26
+                            },
+                            "size": {
+                                "width": 25,
+                                "height": 30
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 13,
+                            "y": 27
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:12": {
+                                "id": "statictext:12",
+                                "element": {},
+                                "type": "statictext",
+                                "name": null,
+                                "label": "",
+                                "value": "",
+                                "rect": {
+                                    "origin": {
+                                        "x": 12,
+                                        "y": 183
+                                    },
+                                    "size": {
+                                        "width": 0,
+                                        "height": 0
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "button:0",
+                                    "name": null,
+                                    "value": null,
+                                    "label": ""
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 1,
+                        "parent": {
+                            "id": "navigationbar:0",
+                            "name": "Choose a Contact",
+                            "value": null,
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "button:1": {
+                        "id": "button:1",
+                        "element": {},
+                        "type": "button",
+                        "name": "Back",
+                        "label": "Back",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 12,
+                                "y": 31.666666666666668
+                            },
+                            "size": {
+                                "width": 21,
+                                "height": 20.999999999999996
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 22.5,
+                            "y": 42.166666666666664
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 2,
+                        "parent": {
+                            "id": "navigationbar:0",
+                            "name": "Choose a Contact",
+                            "value": null,
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "button:2": {
+                        "id": "button:2",
+                        "element": {},
+                        "type": "button",
+                        "name": "Choose a Contact",
+                        "label": "Choose a Contact",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 136,
+                                "y": 25.666666666666668
+                            },
+                            "size": {
+                                "width": 142,
+                                "height": 33
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 207,
+                            "y": 42.16666666666667
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 3,
+                        "parent": {
+                            "id": "navigationbar:0",
+                            "name": "Choose a Contact",
+                            "value": null,
+                            "label": null
+                        },
+                        "level": 2
+                    }
+                },
+                "index": 2,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                },
+                "level": 1
+            },
+            "tableview:1": {
+                "id": "tableview:1",
+                "element": {},
+                "type": "tableview",
+                "name": "contactTableView",
+                "label": null,
+                "value": "rows 1 to 3 of 3",
+                "rect": {
+                    "origin": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "size": {
+                        "width": 414,
+                        "height": 736
+                    }
+                },
+                "hitpoint": {
+                    "x": 207,
+                    "y": 368
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "tablecell:12": {
+                        "id": "tablecell:12",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "contactTableViewCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 64
+                            },
+                            "size": {
+                                "width": 414,
+                                "height": 44
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 207,
+                            "y": 86
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:13": {
+                                "id": "statictext:13",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "textLabel",
+                                "label": "pvtpopuser1@ally.com",
+                                "value": "pvtpopuser1@ally.com",
+                                "rect": {
+                                    "origin": {
+                                        "x": 20,
+                                        "y": 76
+                                    },
+                                    "size": {
+                                        "width": 173.33333333333334,
+                                        "height": 20.33333333333333
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 106.66666666666667,
+                                    "y": 86.16666666666667
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:12",
+                                    "name": "contactTableViewCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 0,
+                        "parent": {
+                            "id": "tableview:1",
+                            "name": "contactTableView",
+                            "value": "rows 1 to 3 of 3",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:13": {
+                        "id": "tablecell:13",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "contactTableViewCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 108
+                            },
+                            "size": {
+                                "width": 414,
+                                "height": 44
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 207,
+                            "y": 130
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:14": {
+                                "id": "statictext:14",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "textLabel",
+                                "label": "(876) 482-7654",
+                                "value": "(876) 482-7654",
+                                "rect": {
+                                    "origin": {
+                                        "x": 20.000000000000007,
+                                        "y": 120
+                                    },
+                                    "size": {
+                                        "width": 115.66666666666669,
+                                        "height": 20.333333333333343
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 77.83333333333334,
+                                    "y": 130.16666666666669
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:13",
+                                    "name": "contactTableViewCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 1,
+                        "parent": {
+                            "id": "tableview:1",
+                            "name": "contactTableView",
+                            "value": "rows 1 to 3 of 3",
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "tablecell:14": {
+                        "id": "tablecell:14",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "contactTableViewCell",
+                        "label": null,
+                        "value": "",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 152
+                            },
+                            "size": {
+                                "width": 414,
+                                "height": 44
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 207,
+                            "y": 174
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:15": {
+                                "id": "statictext:15",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "textLabel",
+                                "label": "Bank of America",
+                                "value": "Bank of America",
+                                "rect": {
+                                    "origin": {
+                                        "x": 20.000000000000007,
+                                        "y": 157
+                                    },
+                                    "size": {
+                                        "width": 126.66666666666669,
+                                        "height": 20.333333333333343
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 83.33333333333334,
+                                    "y": 167.16666666666669
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:14",
+                                    "name": "contactTableViewCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            },
+                            "statictext:16": {
+                                "id": "statictext:16",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "detailTextLabel",
+                                "label": "...3245",
+                                "value": "...3245",
+                                "rect": {
+                                    "origin": {
+                                        "x": 20.000000000000004,
+                                        "y": 177.33333333333334
+                                    },
+                                    "size": {
+                                        "width": 38.33333333333334,
+                                        "height": 14.333333333333314
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 39.16666666666667,
+                                    "y": 184.5
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:14",
+                                    "name": "contactTableViewCell",
+                                    "value": "",
+                                    "label": null
+                                },
+                                "level": 3
+                            }
+                        },
+                        "index": 2,
+                        "parent": {
+                            "id": "tableview:1",
+                            "name": "contactTableView",
+                            "value": "rows 1 to 3 of 3",
+                            "label": null
+                        },
+                        "level": 2
+                    }
+                },
+                "index": 3,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                },
+                "level": 1
+            }
+        },
+        "index": 0,
+        "parent": {},
+        "level": 0
+    },
+    "window:1": {
+        "id": "window:1",
+        "element": {},
+        "type": "window",
+        "name": null,
+        "label": null,
+        "value": null,
+        "rect": {
+            "origin": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "width": 414,
+                "height": 736
+            }
+        },
+        "hitpoint": null,
+        "enabled": true,
+        "visible": false,
+        "hasKeyboardFocus": false,
+        "valid": true,
+        "children": {},
+        "index": 1,
+        "parent": {},
+        "level": 0
+    },
+    "window:2": {
+        "id": "window:2",
+        "element": {},
+        "type": "window",
+        "name": null,
+        "label": null,
+        "value": null,
+        "rect": {
+            "origin": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "width": 414,
+                "height": 736
+            }
+        },
+        "hitpoint": {
+            "x": 9,
+            "y": 5
+        },
+        "enabled": true,
+        "visible": true,
+        "hasKeyboardFocus": false,
+        "valid": true,
+        "children": {
+            "statusbar:0": {
+                "id": "statusbar:0",
+                "element": {},
+                "type": "statusbar",
+                "name": null,
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "size": {
+                        "width": 414,
+                        "height": 20
+                    }
+                },
+                "hitpoint": {
+                    "x": 207,
+                    "y": 10
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "element:0": {
+                        "id": "element:0",
+                        "element": {},
+                        "type": "element",
+                        "name": "Swipe down with three fingers to reveal the notification center., Swipe up with three fingers to reveal the control center, Double-tap to scroll to top",
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 6,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 38,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 25,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "element:1": {
+                        "id": "element:1",
+                        "element": {},
+                        "type": "element",
+                        "name": "3 of 3 Wi-Fi bars",
+                        "label": "3 of 3 Wi-Fi bars",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 49,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 13,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 55.5,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 1,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "element:2": {
+                        "id": "element:2",
+                        "element": {},
+                        "type": "element",
+                        "name": "3:07 PM",
+                        "label": "3:07 PM",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 184,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 47,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 207.5,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 2,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        },
+                        "level": 2
+                    },
+                    "element:3": {
+                        "id": "element:3",
+                        "element": {},
+                        "type": "element",
+                        "name": "100% battery power",
+                        "label": "100% battery power",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 384,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 25,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 396.5,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 3,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        },
+                        "level": 2
+                    }
+                },
+                "index": 0,
+                "parent": {
+                    "id": "window:2",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                },
+                "level": 1
+            }
+        },
+        "index": 2,
+        "parent": {},
+        "level": 0
+    }
+}

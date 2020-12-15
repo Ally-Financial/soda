@@ -1,0 +1,82 @@
+.TH sodareset 1 "JANUARY 2018" Soda "Simple Object Driven Automation"
+.SH NAME
+sodareset \-\- starts the Soda CLI
+.SH SYNOPSIS
+.B sodareset [-odvcrz]
+.B [-f
+.I framework
+.B ]
+.B [-e
+.I environment
+.B ]
+.I arguments
+.B ...
+.SH DESCRIPTION
+The
+.I sodareset
+command starts "resets" the specified device using the given framework.
+
+.I arguments
+are specific to each framework, but typically follow the following format:
+.RS
+.I [device] [binary path]
+.RE
+.SH OPTIONS
+.IP "-f framework"
+The framework to launch (e.g.
+.I instruments, automator, selenium
+)
+.IP "-e environment"
+The environment to start Soda with. This alters various testing variables and setting throughout the application.
+.IP "-t scripts path"
+The path to your Soda test scripts
+.IP "-o supress output"
+Supresses all console output
+.IP "-c log colors"
+Enables or disable color logging. Use -c to enable color logging and -c
+.I false
+to disable it. It is enabled by default.
+.IP "-v verbose logging"
+Enables or disable verbose logging. Use -v to enable verbose logging and -v
+.I false
+to disable it. It is enabled by default.
+.IP "-d debug logging"
+Enables or disable debug logging. Use -d to enable debug logging and -d
+.I false
+to disable it. It is enabled by default.
+.IP "-r reset device"
+If a framework and device is specified, resets the device upon launch.
+.IP "-z test dev mode"
+Enables test
+.I dev mode
+Which prevents Soda from reporting test results and taking screenshots on failures. This is helpful if you are editing or creating scripts and don't want to report results.
+.SH FILES
+.B $SODA_PATH/SodaCommon/Config.js
+.RS
+The system wide configuration file.
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/instruments/imports/Config.js
+.RS
+Configuration settings for the Instruments framework
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/automator/imports/Config.js
+.RS
+Configuration settings for the Automator framework
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/selenium/imports/Config.js
+.RS
+Configuration settings for the Selenium framework
+.RE
+
+.SH AUTHOR
+Jason Pollman & James Pavlic
+.SH "SEE ALSO"
+.BR soda (1),
+.BR sodabuild (1),
+.BR sodamake (1),
+.BR sodatrace (1)
+.BR sodarun (1)
+.BR sodaeditor (1)
