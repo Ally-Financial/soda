@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Soda Visual Editor</title>
+    <script src="external/jquery.min.js"></script>
+    <script src="external/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="external/bootstrap/js/bootstrap.min.js"></script>
+    <script src="external/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="external/jquery-ui/jquery-ui.css">
+    <link rel="stylesheet" href="external/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="external/bootstrap/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="external/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="external/jquery.mCustomScrollbar.css">
+    <link rel="stylesheet" href="fonts/stylesheet.css">
+    <link rel="stylesheet" href="style/soda.css">
+    <script src="external/socket.io-2.0.4.js"></script>
+    <script src="external/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="external/ace/ace.js"></script>
+    <script src="external/ace/mode-json.js"></script>
+    <script src="lib/Soda/SodaLib.js"></script>
+    <script src="lib/Soda/SodaSettings.js"></script>
+    <script src="lib/Soda/SodaDelegates.js"></script>
+    <script src="lib/Soda/SodaFramework.js"></script>
+    <script src="lib/Soda/SodaEmitter.js"></script>
+    <script src="lib/Soda/SodaEditor.js"></script>
+    <script src="lib/Soda/SodaScreen.js"></script>
+    <script src="lib/Soda/SodaTree.js"></script>
+    <script src="lib/Soda/SodaRunner.js"></script>
+    <script src="lib/Soda/SodaConsole.js"></script>
+    <script src="lib/Soda/SodaProjectManager.js"></script>
+    <script src="lib/Soda/SodaActions.js"></script>
+    <script src="lib/Soda/SodaTestEditor.js"></script>
+    <script src="lib/Soda/SodaTemplates.js"></script>
+    <script src="lib/Soda/Soda.js"></script>
+</head>
+<body>
+    <div id="soda-wrapper">
+        <section id="soda-loading">
+            <div class="bkg-logo">
+                <div class="bkg-logo-content">
+                    <div class="bkg-logo-content-header"><span>S</span>oda</div>
+                    <div class="version-info"></div>
+                    <div id="soda-loading-message">
+                        Waiting on socket connection<div class="dot-dot-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

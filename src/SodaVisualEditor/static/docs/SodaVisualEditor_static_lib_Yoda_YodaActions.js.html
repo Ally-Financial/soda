@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaVisualEditor/static/lib/Soda/SodaActions.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaVisualEditor/static/lib/Soda/SodaActions.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+/**
+ * Manages the creation of actions
+ * @constructor
+ * @extends SodaEmitter
+ * @param {Soda} soda The window.Soda instance
+ */
+window.SodaActionManager = function (soda) {
+    var self = this;
+
+    // Inherit from the SodaEmitter class
+    window.SodaEmitter.call(self);
+
+    /**
+     * Same as SodaVisualEditor.actionManager
+     * @type {Object}
+     */
+    this.actionManager  = {};
+
+    /**
+     * The current syntax, with the keys {string} name and {string} version
+     * @type {Object}
+     */
+    this.currentSyntax  = {};
+
+    /**
+     * Sorts the test menus in alphabetical order
+     * @param  {jQuery} m The jQuery menu item to sort
+     * @return {undefined}
+     */
+    function sortMenu (m) {
+        var sorted = m.children();
+        sorted.sort(function (a, b) {
+            var aN = $(a).attr("data-sort"),
+                bN = $(b).attr("data-sort");
+            return aN &lt; bN ? -1 : aN > bN ? 1 : 0;
+        });
+        sorted.appendTo(m);
+        return m;
+    }
+
+    // Before an action is processed in an action search
+    soda.delegates.on("action search before", function () {
+        self.actionManager.typeWrapper.find(".action-list-group").show();
+    });
+
+    // After an action is processed in an action search
+    soda.delegates.on("action search after", function () {
+        var $groups = self.actionManager.typeWrapper.children(":visible");
+        $groups.sodaeach(function () {
+            var $group = $(this).find(".action-list-group");
+            $group.sodaeach(function () {
+                var visibleChildren = $(this).find(".action-item:visible");
+                return visibleChildren.length > 0 ? $(this).show() : $(this).hide();
+            });
+        });
+    });
+
+    /**
+     * Initalized the SodaRunner object
+     * @param  {object} $runner  An object containing the Run Menu HTML elements
+     * @param  {object} $monitor An object containing the test monitor HTML elements
+     * @return {SodaActions} The current SodaActions instance
+     */
+    this.init = function ($actionManager) {
+        self.actionManager = $actionManager;
+        self.actionManager.syntaxOptions       = self.actionManager.self.find("#action-select-language");
+        self.actionManager.typeWrapper         = self.actionManager.self.find("#action-list-wrapper");
+        self.actionManager.actionWrapper       = self.actionManager.self.find("#action-list-action-wrapper");
+        self.actionManager.testWrapper         = self.actionManager.self.find("#action-list-test-wrapper");
+        self.actionManager.screenWrapper       = self.actionManager.self.find("#action-list-screen-wrapper");
+        self.actionManager.menuWrapper         = self.actionManager.self.find("#action-list-menu-wrapper");
+        self.actionManager.popupWrapper        = self.actionManager.self.find("#action-list-popup-wrapper");
+        self.actionManager.widgetWrapper       = self.actionManager.self.find("#action-list-widget-wrapper");
+        self.actionManager.actionTemplate      = self.actionManager.self.find(".action-item").detach();
+        self.actionManager.actionGroupTemplate = self.actionManager.self.find(".action-list-group").detach();
+
+        // Change the syntax when the option is chosen
+        self.actionManager.syntaxOptions.change(function () {
+            var $sel = $($(this).find(":selected"));
+            soda.framework.getSyntax($sel.attr("data-name"), $sel.attr("data-version"), function (err, syntaxObject) {
+                if(err) {
+                    soda.editor.setContext(
+                        {
+                            header      : "Something went wrong..",
+                            body        : $("&lt;p>Unable to update action syntax.&lt;/p>&lt;p>Error:" + err.message + "&lt;/p>"),
+                            okayText    : "Okay",
+                            omitCancel  : true
+                        }
+                    );
+                    return console.error(err);
+                }
+                self.currentSyntax = { name: $sel.attr("data-name"), version: $sel.attr("data-version") };
+                self.buildActionMenu(syntaxObject);
+                $("#soda-force-update-project-button").trigger("click");
+                $(".editor-syntax-name").val(self.currentSyntax.name);
+                $(".editor-syntax-version").val(self.currentSyntax.version);
+            });
+        });
+
+        var groups = {};
+
+        soda.projectManager.on("build", function () {
+            groups = {};
+            self.actionManager.widgetWrapper.find(".action-type-widget").remove();
+            self.actionManager.widgetWrapper.empty();
+        });
+
+        soda.projectManager.on("build complete", function () {
+            sortMenu(self.actionManager.widgetWrapper);
+        });
+
+        soda.projectManager.on("widget", function (type, obj, context, meta) {
+            if(meta.syntax.name === self.currentSyntax.name &amp;&amp; meta.syntax.version === self.currentSyntax.version) {
+
+                var $action         = self.actionManager.actionTemplate.sodaclone(),
+                    widgetIsObject  = typeof meta.widget === "object",
+                    g               = typeof meta.widget.group === "string" ? meta.widget.group : "widget",
+                    $group          = groups[g.replace(/[^a-zA-Z0-9_\-]/g, '_').toLowerCase()],
+                    $groupContainer;
+
+                if(!$group) {
+                    $group = self.actionManager.actionGroupTemplate.sodaclone();
+                    $group.addClass(g.replace(/[^a-zA-Z0-9_\-]/g, '_').toLowerCase());
+                    $groupContainer = $group.children(".action-list-group-actions");
+
+                    $group.attr("data-type", "widget");
+                    $group.children("h4").html(g.ucFirst);
+                    $group.attr("data-sort", "widget");
+                    groups[g.replace(/[^a-zA-Z0-9_\-]/g, '_').toLowerCase()] = $group;
+                }
+                else {
+                    $groupContainer = $group.children(".action-list-group-actions");
+                }
+
+                $action.addClass("action-type-widget");
+                $action.attr("data-type", "widget");
+                $action.attr("data-group", g);
+                $action.attr("data-widget-name", meta.name.toString());
+                $action.attr("data-keys", "executeWidget:module:type");
+                $action.attr("data-sort", "executeWidget:module:type");
+                $action.attr("data-prefill", meta.name + ":" + context.module + ":" + context.type.toString().replace(/s$/, ''));
+
+                if(widgetIsObject &amp;&amp; meta.widget.vars instanceof Array)
+                    $action.attr("data-vars", meta.widget.vars.join(":VAR:"));
+
+                if(widgetIsObject &amp;&amp; meta.widget.varDefaults instanceof Array) {
+                    try {
+                        $action.attr("data-def", JSON.stringify(meta.widget.varDefaults));
+                    }
+                    catch (e) {
+                        console.error(e);
+                    }
+                }
+
+                if(widgetIsObject &amp;&amp; meta.widget.varDescriptions instanceof Array)
+                    $action.attr("data-var-desc", meta.widget.varDescriptions.join(":DESC:"));
+
+                $action.attr("data-for-syntax-name", meta.syntax.name);
+                $action.attr("data-for-syntax-version", meta.syntax.version);
+
+                $action.find(".a-icon").addClass("fa-puzzle-piece");
+                $action.find(".a-key-signature").html(widgetIsObject ? meta.widget.name || meta.name : meta.name);
+                $action.find(".a-description").html(widgetIsObject ? (meta.widget.description || (meta.description ? meta.description.ucFirst : "")) : meta.description ? meta.description.ucFirst : "");
+
+                $action = $action.appendTo($groupContainer);
+                $action.draggable({ appendTo: "#soda-editor", helper: "clone", zIndex: 993, cursor: "move", cursorAt: {left: 0, top: 0}, refreshPositions: true });
+
+                $groupContainer = sortMenu($groupContainer);
+                $group = $group.appendTo(self.actionManager.widgetWrapper);
+            }
+        });
+
+        return self;
+    };
+
+    /**
+     * Builds the action menu for the given syntax
+     * @param  {object} syntax The syntax to build the action menu with
+     * @return {undefined}
+     */
+    function buildActionMenu (syntax) {
+        self.actionManager.actionWrapper.empty();
+        self.actionManager.testWrapper.empty();
+        self.actionManager.screenWrapper.empty();
+        self.actionManager.menuWrapper.empty();
+        self.actionManager.popupWrapper.empty();
+
+        var $testGroup;
+
+        for(var i in syntax) { // Type
+            if(syntax.hasOwnProperty(i)) {
+                var typeChild = syntax[i];
+
+                for(var n in typeChild) {
+                    if(typeChild.hasOwnProperty(n)) {
+
+                        var $group = self.actionManager.typeWrapper.find("#action-list-" + i + "-wrapper").find("div[data-type='" + n + "']"),
+                            $groupContainer;
+
+                        if($group.length > 0) {
+                            $group = $($group.get(0));
+                        }
+                        else {
+                            $group = self.actionManager.actionGroupTemplate.sodaclone();
+                            $group.attr("data-type", n);
+                            $group.children("h4").html(n.titleCase);
+                            $group.attr("data-sort", n);
+                        }
+
+                        $groupContainer = $group.children(".action-list-group-actions");
+
+                        for(var k in typeChild[n]) {
+                            if(typeChild[n].hasOwnProperty(k)) {
+                                var action  = typeChild[n][k],
+                                    $action = self.actionManager.actionTemplate.sodaclone();
+
+                                switch(i) {
+                                    case "action":
+                                        $action.find(".a-icon").addClass("fa-bolt");
+                                        break;
+
+                                    default:
+                                        $action.find(".a-icon").addClass("fa-bullseye");
+                                        break;
+                                }
+
+                                $action.addClass("action-type-" + i.toLowerCase());
+                                $action.attr("data-type", i);
+                                $action.attr("data-group", n);
+                                $action.attr("data-elemental", !action.nonElemental);
+                                $action.attr("data-keys", action.keys.join(":"));
+                                $action.attr("data-sort", action.keys.join(":"));
+                                $action.find(".a-key-signature").html(action.keys.join(", ").titleCase);
+                                $action.find(".a-description").html(action.description ? action.description.ucFirst : "");
+
+                                $action = $action.appendTo($groupContainer);
+                                $action.draggable({ appendTo: "#soda-editor", helper: "clone", zIndex: 993, cursor: "move", cursorAt: {left: 0, top: 0}, refreshPositions: true });
+                            }
+                        }
+
+                        $groupContainer = sortMenu($groupContainer);
+                        switch(i) {
+                            case "action":
+                                $group = $group.appendTo(self.actionManager.actionWrapper);
+
+                                $testGroup = $group.sodaclone().appendTo(self.actionManager.testWrapper);
+                                $testGroup.find(".action-item")
+                                    .attr("data-type", "test")
+                                    .draggable({ appendTo: "#soda-editor", helper: "clone", zIndex: 993, cursor: "move", cursorAt: {left: -10, top: -10} });
+                                break;
+
+                            case "screen":
+                                $group = $group.appendTo(self.actionManager.screenWrapper);
+                                break;
+
+                            case "menu":
+                                $group = $group.appendTo(self.actionManager.menuWrapper);
+                                break;
+
+                            case "popup":
+                                $group = $group.appendTo(self.actionManager.popupWrapper);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Sort all action menus
+        sortMenu(self.actionManager.actionWrapper);
+        sortMenu(self.actionManager.testWrapper);
+        sortMenu(self.actionManager.screenWrapper);
+        sortMenu(self.actionManager.menuWrapper);
+        sortMenu(self.actionManager.popupWrapper);
+    }
+
+    /**
+     * Build the action menus
+     * @param  {object} actionList The syntax, as provided by the server
+     * @param  {Function} done A callback for completion
+     * @return {SodaActions} The current SodaActions instance
+     */
+    this.buildActionMenu = function (actionList, done) {
+        if(!done &amp;&amp; actionList instanceof Function) {
+            done       = actionList;
+            actionList = undefined;
+        }
+
+        if(!actionList) {
+            soda.framework.getSyntax(self.currentSyntax.name || soda.framework.defaultSyntax.name || "mobile", self.currentSyntax.version || soda.framework.defaultSyntax.version || "2.0", function (err, syntax) {
+                if(err) {
+                    soda.editor.setContext(
+                        {
+                            header      : "Something went wrong..",
+                            body        : $("&lt;p>Unable to retrive syntax from server.&lt;/p>&lt;p>Error:" + err.message + "&lt;/p>"),
+                            okayText    : "Okay",
+                            omitCancel  : true
+                        }
+                    );
+                    return console.error(err);
+                }
+                buildActionMenu(syntax);
+            });
+        }
+        else {
+            buildActionMenu(actionList);
+        }
+        return self;
+    };
+
+    // Re-build the actions when the user changes the syntax
+    soda.framework.on("syntax update", function (err, syntax) {
+        if(err) return console.error(err);
+        self.buildActionMenu(syntax);
+    });
+
+    // When the editor is shown, trigger an initial syntax selection
+    soda.on("editor shown", function () {
+        self.actionManager.self.find(".test-tab").trigger("click");
+        self.currentSyntax = { name: soda.framework.defaultSyntax.name || "mobile", version: soda.framework.defaultSyntax.version || "2.0" };
+        $(".editor-syntax-name").val(self.currentSyntax.name);
+        $(".editor-syntax-version").val(self.currentSyntax.version);
+        $("#action-select-language").val(self.currentSyntax.name.toLowerCase() + "-" + self.currentSyntax.version.toLowerCase().replace(".", "-"));
+    });
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

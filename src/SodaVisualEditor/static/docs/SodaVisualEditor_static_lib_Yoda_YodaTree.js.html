@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaVisualEditor/static/lib/Soda/SodaTree.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaVisualEditor/static/lib/Soda/SodaTree.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+/**
+ * Manages the Test Editor DOM Tree
+ * @constructor
+ * @param {Soda} soda The window.Soda instance
+ */
+window.SodaTree = function (soda, $tree) {
+
+    var self = this,
+
+        /**
+         * @associates SodaSettings
+         * @type {SodaSettings}
+         */
+        SodaSettings    = window.SodaSettings,
+        wids            = 0,
+        elements        = {},
+        elementsById    = {},
+        Selectors       = {};
+
+
+    /**
+     * Search the properties of element "e" for a search match
+     * @param  {object} e The element to search a match for
+     * @param  {string} searchTerms The search terms to match
+     * @return {Boolean} True if the element matches the search terms, false otherwise
+     */
+    function traverseElementWithSearchTerms (e, searchTerms) {
+        var found = false;
+        if(e &amp;&amp; typeof e === "object") {
+            for(var i in e) {
+                if(e.hasOwnProperty(i)) {
+                    if(e[i] &amp;&amp; typeof e[i] === "object" &amp;&amp; i !== "children" &amp;&amp; i !== "parent") {
+                        found = traverseElementWithSearchTerms(e[i], searchTerms);
+                    }
+                    else {
+                        found = new RegExp(searchTerms, "i").test(e[i]);
+                    }
+                    if(found) break;
+                }
+            }
+        }
+        return found;
+    }
+
+    // Create a new toolbox to show tree hierarchy
+    $tree.self = soda.editor.addToolbox({
+        name    : "dom-tree",
+        title   : "Screen Elements",
+        content : $tree.self,
+        icon    : "fa-tree",
+        show    : true,
+        side    : "left"
+    });
+
+    $tree.elementTemplate   = $tree.self.find(".tree-element").detach();
+    $tree.search            = $tree.self.find("#soda-tree-search");
+    $tree.hierarchy         = $tree.self.find("#soda-tree-hierarchy");
+    $tree.hierarchyWrapper  = $tree.self.find("#soda-tree-hierarchy-wrapper");
+
+    // After a "search" has been iniatiated, but before the elements are queried as to whether or not
+    // they meet the search requirements...
+    soda.delegates.on("tree search before", function () {
+        self.closeAllTreeNodes();
+        $(".tree-element").removeClass("search-positive");
+    });
+
+    soda.delegates.on("tree search after", function () {
+        var $res = $(".tree-element.search-positive");
+        $res.sodaeach(function () {
+            var $el = $(this);
+            setTimeout(function () {
+                self.expandTreeParents(elements[$el.attr("data-wid")].__soda_parents);
+                $el.show();
+            }, 0);
+        });
+
+        setTimeout(function () {
+            soda.$editor.toolboxWrapperLeft.mCustomScrollbar("scrollTo", $res.first(), { scrollInertia: 0 });
+        }, 0);
+    });
+
+    // On a tree search, determine the tree elements that will pass or fail the search
+    soda.delegates.on("tree search", function (searchTerms, $element) {
+        if(searchTerms &amp;&amp; searchTerms !== "") {
+            var passed = traverseElementWithSearchTerms(elements[$element.attr("data-wid")], searchTerms);
+            if(passed) $element.addClass("search-positive");
+        }
+        else {
+            $(".tree-element").removeClass("search-positive");
+        }
+    });
+
+    // After a "tree query" has been iniatiated, but before the elements are queried as to whether or not
+    // they meet the query requirements...
+    soda.delegates.on("tree query before", function () {
+        self.closeAllTreeNodes();
+        $(".tree-element").removeClass("query-positive");
+    });
+
+    soda.delegates.on("tree query after", function () {
+        var $res = $(".tree-element.query-positive");
+        $res.sodaeach(function () {
+            self.expandTreeParents(elements[$(this).attr("data-wid")].__soda_parents);
+            $(this).show();
+        });
+
+        setTimeout(function () {
+            soda.$editor.toolboxWrapperLeft.mCustomScrollbar("scrollTo", $res.first(), { scrollInertia: 0 });
+        }, 0);
+    });
+
+    // On a tree queru, determine the tree elements that will pass or fail the query
+    soda.delegates.on("tree query", function (searchTerms, $element, elementIds) {
+        if(searchTerms &amp;&amp; searchTerms !== "") {
+            var passed = elementIds.indexOf($element.attr("data-eid")) === -1 ? false : true;
+            if(passed) $element.addClass("query-positive");
+        }
+        else {
+            $(".tree-element").removeClass("query-positive");
+        }
+    });
+
+    /**
+     * Returns all the tree elements
+     * @return {Object} The elements of this tree
+     */
+    this.getElements = function () {
+        return elements;
+    };
+
+    /**
+     * Close all "nodes" on the tree (the on-screen element tree)
+     * @return {SodaTree} The current SodaTree instance
+     */
+    this.closeAllTreeNodes = function () {
+        $(".tree-element").sodaeach(function () {
+            var $icon = $(this).children(".tree-element-info").children("i.expandable-icon");
+
+            if(!$icon.hasClass("fa-leaf"))
+                $icon.removeClass("fa-caret-down").addClass("fa-caret-right");
+
+            $(this).removeClass("expanded").children(".expandable-child").hide();
+        });
+    };
+
+    /**
+     * Append
+     * @param  {object} e The element to append attributes to
+     * @param  {object} parent The parent of the element
+     * @param  {Boolean} isObject
+     * @return {undefined}
+     */
+    function appendToAttributesWithElement (e, parent, isObject) {
+        parent = parent || soda.$inspector.attributes;
+
+        for(var i in e) {
+            if(e.hasOwnProperty(i) &amp;&amp; !(/^__soda_.*/.test(i)) &amp;&amp; i !== "element" &amp;&amp; i !== "children") {
+                if(e[i] &amp;&amp; typeof e[i] === "object") {
+                    var newParent =
+                        $(
+                            '&lt;div class="tree-attribute' + (isObject ? ' has-object-parent' : '') + '">' +
+                                '&lt;div class="tree-attribute-info">' +
+                                    '&lt;div class="tree-attribute-key object-parent">'   + i    + '&lt;/div>'  +
+                                    '&lt;div class="tree-attribute-value object-parent">&lt;/div>'  +
+                                '&lt;/div>' +
+                                '&lt;div class="tree-attribute-children">&lt;/div>'  +
+                            '&lt;/div>'
+                        )
+                        .appendTo(parent);
+
+                    appendToAttributesWithElement(e[i], newParent.children(".tree-attribute-children"), true, true);
+                }
+                else {
+                    parent.append(
+                        '&lt;div class="tree-attribute' + (isObject ? ' has-object-parent' : '') + '">' +
+                            '&lt;div class="tree-attribute-info">' +
+                                '&lt;div class="tree-attribute-key inline">'   + i    + '&lt;/div>'  +
+                                '&lt;div class="tree-attribute-value inline">' + e[i] + '&lt;/div>'  +
+                            '&lt;/div>' +
+                        '&lt;/div>'
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * Call back for when the user hovers over a tree element
+     * @param  {object} e The element that is being hovered over
+     * @param  {Boolean} force For the attrributes to change, even if another element is pinned
+     * @param  {jQuery} parent The parent element of the element
+     * @return {Function} The hover callback
+     */
+    this.treeElementOnHover = function (e, force, parent) {
+        parent = parent || soda.$inspector.attributes;
+
+        return function () {
+            if(!soda.screen.hoverBoxTacked || force) {
+                soda.$inspector.attributes.empty();
+                soda.$inspector.attributesHeader.html("#" + e.id);
+                appendToAttributesWithElement(e, soda.$inspector.attributes);
+            }
+        };
+    };
+
+    /**
+     * Callback for when and element is hovered over
+     * @param  {object} e The element to generate the hover function for
+     * @return {Function} A callback for hovering over a tree element
+     */
+    function animateHoverBox (e) {
+        return function () {
+            if(!soda.screen.hoverBoxTacked) {
+                soda.screen.animateHoverBoxUsingElement(e);
+            }
+        };
+    }
+
+    /**
+     * Animate the hover box to the element e
+     * @param  {object} e The element to animate the hover box to
+     * @return {SodaTree} The current SodaTree instance
+     */
+    this.animateHoverBox = function (e) {
+        animateHoverBox(e)();
+        return self;
+    };
+
+    /**
+     * Callback for when and element the element pin icon is clicked
+     * @param  {object} e The element to generate the hover function for
+     * @return {Function} A callback for pinning a tree element
+     */
+    function toggleHoverBoxTacked ($eStickyButton, e) {
+        return function (event) {
+            event.stopPropagation();
+            if($eStickyButton.hasClass("active")) {
+                $eStickyButton.removeClass("active");
+                soda.screen.hoverBoxTacked = false;
+            }
+            else {
+                $tree.self.find("#soda-tree-hierarchy i.sticky-element").removeClass("active");
+                soda.screen.animateHoverBoxUsingElement(e);
+                self.treeElementOnHover(e, true)();
+                $eStickyButton.addClass("active");
+                soda.screen.hoverBoxTacked = true;
+            }
+        };
+    }
+
+    /**
+     * Generate a function to expand all of the elements in the "parents" array
+     * @param  {Array} parents An array of parent elements to expand
+     * @return {Function} The generated callback
+     */
+    function expandParents (parents) {
+        return function (event) {
+            if(event) event.stopPropagation();
+            for(var i in parents) {
+                if(parents.hasOwnProperty(i)) {
+                    if(!$(parents[i]).parent().hasClass("expanded")) {
+                        $(parents[i]).parent().trigger("click");
+                    }
+                }
+            }
+        };
+    }
+
+    /**
+     * Expand all tree elements in the "parents" array
+     * @param  {Array} parents An array of elements to expand
+     * @return {*}
+     */
+    this.expandTreeParents = function (parents) {
+        return expandParents(parents)();
+    };
+
+    var lockDraggable = false;
+
+    function finish (ui, rawType, group, e, $input, keys, isElemental, prefill) {
+        if($(".editor-toggle." + rawType).attr("data-active") == "true") { // jshint ignore:line
+            var currentJson, arr, o = {};
+
+            try {
+                currentJson = JSON.parse(soda.testEditor.aceEditors[rawType].getValue().trim());
+            }
+            catch (e) {
+                soda.editor.setContext(
+                    {
+                        header      : "JSON Syntax Error",
+                        body        : "&lt;span class=\"bold\">Can't insert new action, because your JSON is invalid!&lt;/span>&lt;br>Fix the syntax errors and try again.",
+                        okayText    : "Okay",
+                        omitCancel  : true
+                    }
+                );
+                return;
+            }
+
+            var addArr = function () {
+                arr.push(o);
+
+                try {
+                    soda.testEditor.aceEditors[rawType].setValue(JSON.stringify(currentJson, null, '    '));
+                }
+                catch (e) {
+                    soda.editor.setContext(
+                        {
+                            header      : "Something went wrong",
+                            body        : "Unable to add action at this time. Try again later.",
+                            okayText    : "Okay",
+                            omitCancel  : true
+                        }
+                    );
+                    return;
+                }
+            };
+
+            var addAction = function () {
+                keys.forEach(function (k) {
+                    if(k === group &amp;&amp; $input &amp;&amp; $input.val()) {
+                        o[k] = $input.val();
+                    }
+                    else if(typeof prefill === "object" &amp;&amp; prefill &amp;&amp; prefill[k]) {
+                        o[k] = prefill[k];
+                    }
+                    else {
+                        o[k] = "[value]";
+                    }
+                });
+
+                if(rawType === "widget") {
+                    var vars        = ui.draggable.attr("data-vars") ? ui.draggable.attr("data-vars").split(":VAR:") : [],
+                        varDesc     = ui.draggable.attr("data-var-desc") ? ui.draggable.attr("data-var-desc").split(":DESC:") : [],
+                        varDefaults,
+                        body        = $("&lt;div>&lt;/div>"),
+                        desc        = "";
+
+                    if(ui.draggable.attr("data-def")) {
+                        varDefaults = JSON.parse(ui.draggable.attr("data-def"));
+                    }
+                    else {
+                        varDefaults = [];
+                    }
+
+                    for(var i in vars) {
+                        if(vars.hasOwnProperty(i)) {
+                            if(varDesc[i]) {
+                                desc = "&lt;div class=\"widget-var-desc\">" + varDesc[i] + "&lt;/div>";
+                            }
+                            else {
+                                desc = "&lt;div class=\"widget-var-desc\">&lt;span class=\"emphasis\">No description&lt;/span>&lt;/div>";
+                            }
+
+                            var inputType = "";
+                            if(varDefaults[i] !== undefined &amp;&amp; varDefaults[i] !== null) {
+                                if(varDefaults[i] instanceof Array) {
+                                    inputType = '&lt;select class="widget-variable" data-var="' + vars[i] + '" data-value="' + varDefaults[i][0] + '">';
+                                    for(var k in varDefaults[i]) {
+                                        if(varDefaults[i].hasOwnProperty(k) &amp;&amp; (typeof varDefaults[i][k] === "string" || typeof varDefaults[i][k] === "number")) {
+                                            inputType += '&lt;option value="' + varDefaults[i][k] + '">' + varDefaults[i][k] + '&lt;/option>';
+                                        }
+                                    }
+                                    inputType += "&lt;/select>";
+                                }
+                                else {
+                                    inputType = '&lt;input class="widget-variable" type="text" data-var="' + vars[i] + '" value="' + varDefaults[i] + '">&lt;/input>';
+                                }
+                            }
+                            else {
+                                inputType = '&lt;input class="widget-variable" type="text" data-var="' + vars[i] + '">&lt;/input>';
+                            }
+
+                            $('&lt;div>&lt;label class="widget-var-label">Value for &lt;span class="emphasis">' + vars[i] + '&lt;/span>&lt;/label>' + desc + inputType + '&lt;/div>').appendTo(body);
+                        }
+                    }
+
+                    if(vars.length > 0) {
+                        soda.editor.setContext({
+                            header: "Enter widget variables",
+                            body  : body,
+                            onOkay: function () {
+                                var $vars = body.find(".widget-variable");
+
+                                $vars.sodaeach(function () {
+                                    if($(this).val() &amp;&amp; $(this).val() !== "") {
+                                        arr.push({ "store": $(this).val(), "as": $(this).attr("data-var") });
+                                    }
+                                });
+                                addArr();
+                            }
+                        });
+                    }
+                    else {
+                        addArr();
+                    }
+                }
+                else {
+                    addArr();
+                }
+            };
+
+            switch(rawType) {
+                case "test":
+                case "action":
+                    if(typeof currentJson === "object" &amp;&amp; currentJson.actions instanceof Array) {
+                        arr = currentJson.actions;
+                        addAction();
+                    }
+                    else {
+                        soda.editor.setContext(
+                            {
+                                header      : "Asset Syntax Error",
+                                body        : "&lt;span class=\"bold\">Your " + rawType + " is missing the \"actions\" array!&lt;/span>&lt;br>Would you like to autocorrect this problem?",
+                                okayText    : "Okay",
+                                cancelText  : "No, nevermind",
+                                onOkay      : function () {
+                                    if(typeof currentJson !== "object") currentJson = {};
+                                    currentJson.actions = [];
+                                    arr = currentJson.actions;
+                                    addAction();
+                                }
+                            }
+                        );
+                        return;
+                    }
+                    break;
+
+                default:
+                    if(typeof currentJson === "object" &amp;&amp; typeof currentJson[rawType] === "object" &amp;&amp; currentJson[rawType].components instanceof Array) {
+                        arr = currentJson[rawType].components;
+                        addAction();
+                    }
+                    else {
+                        soda.editor.setContext(
+                            {
+                                header      : "Asset Syntax Error",
+                                body        : "&lt;span class=\"bold\">Your " + rawType + " structure is malformed!&lt;/span>&lt;br>Would you like to autocorrect this problem?",
+                                okayText    : "Okay",
+                                cancelText  : "No, nevermind",
+                                onOkay      : function () {
+                                    if(typeof currentJson !== "object") currentJson = {};
+                                    if(typeof currentJson[rawType] !== "object") currentJson[rawType] = {};
+                                    currentJson[rawType].components = [];
+                                    arr = currentJson[rawType].components;
+                                    addAction();
+                                }
+                            }
+                        );
+                        return;
+                    }
+            }
+        }
+        else {
+            soda.testEditor.addAction(rawType, group, e, $input, keys, isElemental, prefill);
+            soda.testEditor.switchToTab(rawType);
+        }
+    }
+
+    /**
+     * A callback for when an action is dropped on a screen element
+     * @param  {object} event jQuery event object
+     * @param  {object} ui jQuery ui object
+     * @return {undefined}
+     */
+    function onActionDropped (event, ui) {
+        $(this).html(""); // jshint ignore:line
+
+        event.stopPropagation();
+
+        if(!lockDraggable) {
+            lockDraggable = true;
+
+            var rawType = ui.draggable.attr("data-type"),
+                keys    = rawType !== 'draggable' ? ui.draggable.attr("data-keys").split(":") : [],
+                type    = rawType === "action" || ui.draggable.attr("data-type") === "test" ? "action" : ui.draggable.attr("data-type") === "widget" ? "widget" : "validation",
+                group   = ui.draggable.attr("data-group"),
+
+                elemental = ui.draggable.attr("data-elemental") === "true" ? true : false,
+                eid       = $(this).attr("data-id"), // jshint ignore:line
+                id        = elements[eid] ? elements[eid].id : "Unknown",
+                e         = elements[eid],
+                $input,
+
+                i, bodyHtml, selectors, selectorsDropdown, propertiesDropdown, $testIcon, $testBtn, optn, opt,
+                triggeredFirst = false;
+
+            if (rawType === "draggable") {
+                return;
+            }
+            else if(rawType !== "widget") {
+                bodyHtml  = $('&lt;div class="soda-selector-context">&lt;span>Action key signature: &lt;/span>&lt;span class="emphasis">' + keys.join(", ") + '&lt;/span>&lt;br>&lt;span>Perform &lt;span class="emphasis">' + (group.lowerFirst || "?") + '&lt;/span>' + (elemental ? (' on element #' + id) : "") + '?&lt;/span>&lt;/div>');
+            }
+            else {
+                bodyHtml  = $('&lt;div class="soda-selector-context">Add widget &lt;span class="bold">' + ui.draggable.attr("data-widget-name") + '&lt;/span> to current list?&lt;/div>');
+            }
+
+            if(elemental &amp;&amp; keys.indexOf("using") === -1) {
+                selectors = $(
+                    '&lt;div class="input-group">' +
+                        '&lt;span class="input-group-addon">&lt;i class="fa fa-minus-circle test-icon">&lt;/i>&lt;/span>' +
+                        '&lt;input type="text" class="selector-input form-control" placeholder="Enter a selector...">' +
+                        '&lt;div class="input-group-btn">' +
+                            '&lt;button type="button" class="btn btn-default test-btn">Test&lt;/button>' +
+                            '&lt;button type="button" class="btn btn-default selector-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Selectors &lt;span class="caret">&lt;/span>&lt;/button>' +
+                            '&lt;ul class="selector-filters dropdown-menu dropdown-menu-right">&lt;/ul>' +
+                        '&lt;/div>' +
+                        '&lt;div class="input-group-btn">' +
+                            '&lt;button type="button" class="btn btn-default selector-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Property Filters &lt;span class="caret">&lt;/span>&lt;/button>' +
+                            '&lt;ul class="property-filters dropdown-menu dropdown-menu-right">&lt;/ul>' +
+                        '&lt;/div>' +
+                    '&lt;div>'
+                );
+
+                selectorsDropdown  = selectors.find("ul.selector-filters");
+                propertiesDropdown = selectors.find("ul.property-filters");
+                $testIcon          = selectors.find(".test-icon");
+                $testBtn           = selectors.find("button.test-btn");
+
+                $input = selectors.find(".selector-input");
+
+                $testBtn.click(function () {
+                    $(".selector-message").html('Checking selector&lt;span class="dot-dot-dot">&lt;/span>');
+                    soda.framework.queryTree("selector", $input.val(), function (err, matchedElementIds) {
+
+                        if(matchedElementIds &amp;&amp; matchedElementIds instanceof Array &amp;&amp; matchedElementIds.indexOf(id) > -1) {
+                            $testIcon.removeClass("fa-times-circle").addClass("fa-check-circle");
+
+                            if(matchedElementIds.length > 1) {
+                                $testIcon.removeClass("fa-check-circle").addClass("fa-minus-circle");
+                                $(".selector-message").html("The selector matches this element and " + (matchedElementIds.length - 1) + " other(s).");
+                            }
+                            else {
+                                $(".selector-message").html("The selector matches this element uniquely");
+                            }
+                        }
+                        else if(err) {
+                            $testIcon.removeClass("fa-check-circle").removeClass("fa-minus-circle").addClass("fa-times-circle");
+                            $(".selector-message").html("Invalid Selector!");
+                        }
+                        else {
+                            $testIcon.removeClass("fa-check-circle").removeClass("fa-minus-circle").addClass("fa-times-circle");
+                            $(".selector-message").html("The selector entered doesn't match this element!");
+                        }
+                    });
+                });
+
+                for(i in Selectors[e.id]) {
+                    if(Selectors[e.id].hasOwnProperty(i)) {
+                        optn = $('&lt;li>&lt;a href="#">' + Selectors[e.id][i] + '&lt;/a>&lt;/li>').appendTo(selectorsDropdown);
+                        opt  = optn.find("a");
+
+                        opt.click(function () { // jshint ignore:line
+                            $input.val($(this).text()).attr("value", $(this).text());
+                            $testBtn.trigger("click");
+                        });
+
+                        if(!triggeredFirst) {
+                            triggeredFirst = true;
+                            opt.trigger("click");
+                        }
+                    }
+                }
+
+                var createPropertyFilters = function (e, parent, rawParent) {
+                    parent    = parent    || "";
+                    rawParent = rawParent || "";
+
+                    for(var n in e) {
+                        if(e.hasOwnProperty(n) &amp;&amp; /^__/.test(n) === false &amp;&amp; /^element/.test(n) === false &amp;&amp; /^wid/.test(n) === false &amp;&amp; /^children/.test(n) === false) {
+                            var localParent = parent + ' &lt;span class="fa fa-caret-right">&lt;/span> ' + n.ucFirst,
+                                localRaw    = rawParent + "." + n;
+
+                            localRaw    = localRaw.replace(/^\./, '');
+                            localParent = localParent.replace(/^ &lt;span class="fa fa-caret-right">&lt;\/span> /, '');
+
+                            if(typeof e[n] !== "object") {
+                                var optn = $('&lt;li>&lt;a href="#" data-value="[' + localRaw + '=' + JSON.stringify(e[n]).replace(/"/g, "'") + ']">' + localParent + '&lt;/a>&lt;/li>').appendTo(propertiesDropdown),
+                                    opt  = optn.find("a");
+
+                                opt.click(function () { // jshint ignore:line
+                                    var val = $input.val().trim() + $(this).attr("data-value");
+                                    $input.val(val).attr("value", val);
+                                    $testBtn.trigger("click");
+                                });
+                            }
+                            else {
+                                createPropertyFilters(e[n], localParent, localRaw);
+                            }
+                        }
+                    }
+                };
+
+                createPropertyFilters(e);
+                createPropertyFilters({ nth: 0 }); // Add a 'pseudo' nth filter
+
+                soda.editor.setContext(
+                    {
+                        header      : "Add " + type + "?",
+                        body        : bodyHtml,
+                        okayText    : "Add Action",
+                        cancelText  : "No, Cancel",
+                        onOkay      : function () {
+                            soda.editor.switchToToolbox("test-editor", function () {
+                                finish(ui, rawType, group, e, $input, keys, elemental, null);
+                            });
+                        }
+                    }
+                );
+
+                bodyHtml.append('&lt;br>&lt;label class="selector-label">Enter a selector...&lt;/label>');
+                bodyHtml.append(selectors);
+                bodyHtml.append('&lt;p class="selector-message">Press the test button to test the selector against the current DOM tree&lt;/p>');
+            }
+            else if(elemental) {
+                var identifierType = "selector",
+                    typeArr        = ["name", "label", "value", "id", "selector"];
+
+                selectors = $(
+                    '&lt;div class="input-group">' +
+                        '&lt;span class="input-group-addon">&lt;i class="fa fa-minus-circle test-icon">&lt;/i>&lt;/span>' +
+                        '&lt;input type="text" class="selector-input form-control" placeholder="Enter a name, label, value, or id...">' +
+                        '&lt;div class="input-group-btn">' +
+                            '&lt;button type="button" class="btn btn-default test-btn">Test&lt;/button>' +
+                            '&lt;button type="button" class="btn btn-default selector-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Name &lt;span class="caret">&lt;/span>&lt;/button>' +
+                            '&lt;ul class="identifier-filters dropdown-menu dropdown-menu-right">&lt;/ul>' +
+                        '&lt;/div>' +
+                    '&lt;div>'
+                );
+
+                selectorsDropdown  = selectors.find("ul.identifier-filters");
+                $testIcon          = selectors.find(".test-icon");
+                $testBtn           = selectors.find("button.test-btn");
+
+                $input = selectors.find(".selector-input");
+
+                $testBtn.click(function () {
+                    $(".selector-message").html('Checking for element match&lt;span class="dot-dot-dot">&lt;/span>');
+                    soda.framework.queryTree(identifierType, $input.val(), function (err, matchedElementIds) {
+
+                        if(matchedElementIds &amp;&amp; matchedElementIds instanceof Array &amp;&amp; matchedElementIds.indexOf(id) > -1) {
+                            $testIcon.removeClass("fa-times-circle").addClass("fa-check-circle");
+
+                            if(matchedElementIds.length > 1) {
+                                $testIcon.removeClass("fa-check-circle").addClass("fa-minus-circle");
+                                $(".selector-message").html("The element " + identifierType.lowerFirst + " matches this element and " + (matchedElementIds.length - 1) + " other(s).");
+                            }
+                            else {
+                                $(".selector-message").html("The element " + identifierType.lowerFirst + " matches this element uniquely");
+                            }
+                        }
+                        else if(err) {
+                            $testIcon.removeClass("fa-check-circle").removeClass("fa-minus-circle").addClass("fa-times-circle");
+                            $(".selector-message").html("Invalid Selector...");
+                        }
+                        else {
+                            $testIcon.removeClass("fa-check-circle").removeClass("fa-minus-circle").addClass("fa-times-circle");
+                            $(".selector-message").html("The element " + identifierType.lowerFirst + " entered doesn't match this element!");
+                        }
+                    });
+                });
+
+                for(i in typeArr) {
+                    if(typeArr.hasOwnProperty(i)) {
+                        optn = $('&lt;li>&lt;a href="#">' + typeArr[i].ucFirst+ '&lt;/a>&lt;/li>').appendTo(selectorsDropdown);
+                        opt  = optn.find("a");
+
+                        opt.click(function () { // jshint ignore:line
+                            var val;
+
+                            identifierType = $(this).text();
+                            val = e[identifierType.lowerFirst] || "Null";
+                            $input.val(val).attr("value", val);
+
+                            $testBtn.trigger("click");
+                            $(".selector-btn").html(identifierType.ucFirst + ' &lt;span class="caret">&lt;/span>');
+
+                        }); // jshint ignore:line
+
+                        if(!triggeredFirst) triggeredFirst = true;
+                    }
+                }
+
+                soda.editor.setContext(
+                    {
+                        header      : "Add " + type + "?",
+                        body        : bodyHtml,
+                        okayText    : "Add Action",
+                        cancelText  : "No, Cancel",
+                        onOkay      : function () {
+                            soda.editor.switchToToolbox("test-editor", function () {
+                                finish(ui, $input, rawType, elemental, { using: identifierType.lowerFirst, assert: $input.val() });
+                            });
+                        }
+                    }
+                );
+
+                bodyHtml.append('&lt;br>&lt;label class="selector-label">Enter a value and select an element property...&lt;/label>');
+                bodyHtml.append(selectors);
+                bodyHtml.append('&lt;p class="selector-message">Press the test button to test the selector against the current DOM tree&lt;/p>');
+            }
+            else {
+                soda.editor.setContext(
+                    {
+                        header      : "Add " + type + "?",
+                        body        : bodyHtml,
+                        okayText    : "Add Action",
+                        cancelText  : "No, Cancel",
+                        onOkay      : function () {
+                            soda.editor.switchToToolbox("test-editor", function () {
+                                if(rawType === "widget") {
+                                    var prefill    = {},
+                                        prefillArr = ui.draggable.attr("data-prefill") ? ui.draggable.attr("data-prefill").split(":") : null,
+                                        list       = soda.testEditor.$currentList.attr("data-type") === "test" ? "test" : soda.testEditor.$currentList.attr("data-type") === "action" ? "action" : "test";
+
+                                    if(prefillArr instanceof Array) {
+                                        prefillArr.forEach(function (item, key) {
+                                            if(keys[key]) prefill[keys[key]] = item;
+                                        });
+                                    }
+
+                                    var vars        = ui.draggable.attr("data-vars") ? ui.draggable.attr("data-vars").split(":VAR:") : [],
+                                        varDesc     = ui.draggable.attr("data-var-desc") ? ui.draggable.attr("data-var-desc").split(":DESC:") : [],
+                                        varDefaults,
+                                        body        = $("&lt;div>&lt;/div>"),
+                                        desc        = "";
+
+                                    if(ui.draggable.attr("data-def")) {
+                                        varDefaults = JSON.parse(ui.draggable.attr("data-def"));
+                                    }
+                                    else {
+                                        varDefaults = [];
+                                    }
+
+                                    for(var i in vars) {
+                                        if(vars.hasOwnProperty(i)) {
+                                            if(varDesc[i]) {
+                                                desc = "&lt;div class=\"widget-var-desc\">" + varDesc[i] + "&lt;/div>";
+                                            }
+                                            else {
+                                                desc = "&lt;div class=\"widget-var-desc\">&lt;span class=\"emphasis\">No description&lt;/span>&lt;/div>";
+                                            }
+
+                                            var inputType = "";
+                                            if(varDefaults[i] !== undefined &amp;&amp; varDefaults[i] !== null) {
+                                                if(varDefaults[i] instanceof Array) {
+                                                    inputType = '&lt;select class="widget-variable" data-var="' + vars[i] + '" data-value="' + varDefaults[i][0] + '">';
+                                                    for(var k in varDefaults[i]) {
+                                                        if(varDefaults[i].hasOwnProperty(k) &amp;&amp; (typeof varDefaults[i][k] === "string" || typeof varDefaults[i][k] === "number" || typeof varDefaults[i][k] === "boolean")) {
+                                                            inputType += '&lt;option value="' + varDefaults[i][k].toString() + '">' + varDefaults[i][k].toString() + '&lt;/option>';
+                                                        }
+                                                    }
+                                                    inputType += "&lt;/select>";
+                                                }
+                                                else {
+                                                    inputType = '&lt;input class="widget-variable" type="text" data-var="' + vars[i] + '" value="' + varDefaults[i] + '">&lt;/input>';
+                                                }
+                                            }
+                                            else {
+                                                inputType = '&lt;input class="widget-variable" type="text" data-var="' + vars[i] + '">&lt;/input>';
+                                            }
+
+                                            $('&lt;div>&lt;label class="widget-var-label">Value for &lt;span class="emphasis">' + vars[i] + '&lt;/span>&lt;/label>' + desc + inputType + '&lt;/div>').appendTo(body);
+                                        }
+                                    }
+
+                                    if(vars.length > 0) {
+                                        soda.editor.setContext({
+                                            header: "Enter widget variables",
+                                            body  : body,
+                                            onOkay: function () {
+                                                var $vars = body.find(".widget-variable");
+
+                                                $vars.sodaeach(function () {
+                                                    if($(this).val() &amp;&amp; $(this).val() !== "") {
+                                                        var val = $(this).val();
+                                                        try {
+                                                            val = JSON.parse(val);
+                                                        }
+                                                        catch(e) { /* No op */ }
+                                                        finish(ui, list, "store", null, null, ["store", "as"], false, { as: $(this).attr("data-var"), store: val });
+                                                    }
+                                                });
+                                                finish(ui, list, group, e, $input, keys, false, prefill);
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        finish(ui, list, group, e, $input, keys, false, prefill);
+                                    }
+                                }
+                                else {
+                                    finish(ui, rawType, group, e, $input, keys, elemental, null);
+                                }
+                            });
+                        }
+                    }
+                );
+            }
+        }
+    }
+
+    function onDraggableReset () {
+        $(this).html(""); // jshint ignore:line
+        lockDraggable = false;
+        soda.editor.hideContext();
+    }
+
+    function onDropOver (e, ui) {
+        e.stopPropagation();
+        $(".droppable-icon-wrapper").parent().html("");
+
+        var rawType  = ui.draggable.attr("data-type"),
+        icon = null;
+
+        if (rawType === "draggable") {
+          icon = "fa-ban";
+        }
+        else {
+          icon = (ui.draggable.attr("data-type") === "action" || ui.draggable.attr("data-type") === "test") ? "fa-bolt" : ui.draggable.attr("data-type") === "widget" ? "fa-puzzle-piece" : "fa-bullseye";
+        }
+
+        $(this) // jshint ignore:line
+            .html('&lt;div class="droppable-icon-wrapper">&lt;i class="droppable-icon-for-screen-element ' + icon + ' fa">&lt;/i>&lt;/div>')
+            .css("color", soda.screen.getColorSchemeForElement(self.getElementWithWid($(this).attr("data-id"))).dark); // jshint ignore:line
+    }
+
+    /**
+     * Generates a list of selectors for the given element "e"
+     * @param  {object} e The element to generate selectors for
+     * @param  {object} exclude An object with keys of selector types to exclude from the selector list
+     * @return {Array} A list of element selectors
+     */
+    function generateSelectorsForElement (e, exclude) {
+        exclude = exclude  || {};
+        var selectors       = [],
+            parentSelectors = [];
+
+        if(e.name  &amp;&amp; !exclude.name  ) selectors.push(".{" + e.name  + "}");
+        if(e.id    &amp;&amp; !exclude.id    ) selectors.push("#{" + e.id    + "}");
+        if(e.label &amp;&amp; !exclude.label ) selectors.push("^{" + e.label + "}");
+        if(e.value &amp;&amp; !exclude.value ) selectors.push("@{" + e.value + "}");
+
+        selectors.sort(function (a, b) {
+            return a &lt; b ? 1 : a > b ? -1 : 0;
+        });
+
+        if(e.parent &amp;&amp; e.parent.id &amp;&amp; elementsById[e.parent.id] &amp;&amp; Selectors[e.parent.id]) {
+            $.sodaeach(Selectors[e.parent.id], function (k, v) {
+                if(parentSelectors.length > SodaSettings.MAX_SELECTORS) return false;
+
+                $.sodaeach(selectors, function (k2, v2) {
+                    if(
+                        v &amp;&amp; v2                                &amp;&amp;
+                        !(exclude.name  &amp;&amp; (/\.{.*?}/g).test(v)) &amp;&amp;
+                        !(exclude.label &amp;&amp; (/\^{.*?}/g).test(v)) &amp;&amp;
+                        !(exclude.value &amp;&amp; (/@{.*?}/g ).test(v)) &amp;&amp;
+                        !(exclude.id    &amp;&amp; (/#{.*?}/g ).test(v))
+                    ) {
+                        parentSelectors.push(v + " " + v2);
+                    }
+                });
+            });
+        }
+        return selectors.concat(parentSelectors);
+    }
+
+    /**
+     * Alias for private verison
+     * @type {Function}
+     */
+    this.generateSelectorsForElement = generateSelectorsForElement;
+
+    /**
+     * Builds the left-toolbox element tree recursively
+     * @param  {object} tree The tree to iterate over
+     * @param  {jQuery} parent The parent to the current "tree"
+     * @param  {jQuery} $parent The parent jQuery element to the current tree
+     * @param  {Array&lt;jQuery>} parents An array ofJQuery parent elements
+     * @param  {number} level The level of the current tree in relation to the initial tree
+     * @return {undefined}
+     */
+    function buildElementTree (tree, parent, $parent, parents, level) {
+
+        $parent = $parent || $tree.hierarchy;
+        parents = parents || [];
+        level   = ++level || 0;
+
+        parents.push($parent);
+
+        for(var i in tree) {
+            if(tree.hasOwnProperty(i)) {
+                var e            = tree[i],
+                    $e           = $tree.elementTemplate.sodaclone(),
+                    $eInfo       = $e.children(".tree-element-info"),
+                    $eInfoSticky = $eInfo.children(".sticky-element"),
+                    hasChildren  = Object.keys(e.children).length !== 0;
+
+                e.wid = wids++;
+                $e.attr("data-wid"  , e.wid);
+                $e.attr("data-eid"  , e.id);
+
+                elements[e.wid] = elementsById[e.id] = e;
+                Selectors[e.id] = generateSelectorsForElement(e);
+
+                $e.addClass("level-" + level);
+                $eInfo.children(".tree-element-id").text(e.id);
+
+                if(level === 0) {
+                    $e.addClass("root");
+                }
+                else if(hasChildren){
+                    $e.addClass("branch");
+                }
+                else {
+                    $e.addClass("leaf");
+                }
+
+                if(hasChildren) {
+                    $eInfo.children(".tree-element-icon")
+                        .removeClass("fa-leaf")
+                        .addClass("fa-caret-right");
+
+                    var parentsClone = [];
+                    for(var n = 0; n &lt; parents.length; n++) parentsClone.push(parents[n]);
+                    buildElementTree(e.children, e, $e.children(".tree-element-children"), parentsClone, level);
+                }
+                else {
+                    $e.removeClass("expandable-parent");
+                }
+
+                var elementOnHover = self.treeElementOnHover(e),
+                    $screenElement;
+
+                if(e.visible) {
+                    $screenElement = soda.screen.createElementBoxForElement(e);
+                    $screenElement.click(expandParents(parents));
+                    $screenElement.click(toggleHoverBoxTacked($eInfoSticky, e));
+                    $screenElement.hover(elementOnHover);
+
+                    $screenElement.droppable({
+                        greedy  : true,
+                        drop    : onActionDropped,
+                        out     : onDraggableReset,
+                        over    : onDropOver,
+                        reset   : onDraggableReset,
+                        activate: onDraggableReset,
+                        tolerance: "pointer"
+                    });
+                }
+
+                $eInfo.hover(elementOnHover);
+                $eInfo.hover(animateHoverBox(e));
+                $eInfoSticky.click(toggleHoverBoxTacked($eInfoSticky, e));
+                $e.appendTo($parent);
+                e.__soda_parents = parents;
+
+                if(e.wid === 0) $eInfo.trigger("mouseout");
+            }
+        }
+    }
+
+    /**
+     * Returns an element with the given web-id (not element id)
+     * @param  {number} wid The web id of the element to retrieve
+     * @return {object} The screen element with web-id "wid", or null if non-existent
+     */
+    this.getElementWithWid = function (wid) {
+        return elements[wid] || null;
+    };
+
+    /**
+     * Returns an element with the given element id
+     * @param  {number} id The id of the element to retrieve
+     * @return {object} The screen element with web-id "wid", or null if non-existent
+     */
+    this.getElementWithId = function (id) {
+        return elementsById[id] || null;
+    };
+
+    /**
+     * Builds the element tree and left-hand tree toolbox
+     * @param  {object} treeObject The tree object, as provided by the server
+     * @param  {Function} done A callback for completion
+     * @return {SodaTree} The current SodaTree instance
+     */
+    this.build = function (treeObject, done) {
+        elements     = {};
+        elementsById = {};
+        Selectors    = {};
+
+        $("#screen-elements").empty();
+        $tree.hierarchy.empty();
+
+        $tree.self.find(".soda-tree-hash").html(treeObject.hash);
+
+        if(!treeObject) {
+            soda.framework.getTree(function (err, treeObject) {
+                if(err) return console.error(err);
+                buildElementTree(treeObject.contents);
+                if(done instanceof Function) done.call(self);
+            });
+        }
+        else {
+            buildElementTree(treeObject.contents);
+        }
+
+        if(done instanceof Function) done.call(self);
+        return self;
+    };
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

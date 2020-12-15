@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaCore/lib/Action.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaCore/lib/Action.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+var EventEmitter = require('events').EventEmitter,
+    util         = require('util'),
+    nodePath     = require("path"),
+    Run          = require(nodePath.join(__dirname, "Classes", "Run")),
+    repl         = require(nodePath.join(__dirname, "..", "..", "SodaREPL"));
+
+/**
+ * @module SodaCore/ActionManager
+ * @description Returns an Action constructor, to create actions from JSON files
+ * @param {object} $ The Soda library
+ * @returns {Action} An action constructor
+ */
+module.exports = function (soda) {
+
+    /**
+     * Create an action from an asset object
+     * @param {object} asset The asset object to create the action from (e.g. Screen, Menu, Action, Test, or Popup object)
+     * @param {object} run The run object to start the action with
+     * @returns {*}
+     * @constructor
+     * @augments EventEmitter
+     */
+    function Action (asset, run) {
+
+        var err = arguments.sodaexpect("object", "object|undefined|null").error;
+        if(err) { throw err; }
+
+        var self = this;
+
+        /////////////////////////////////////////////// HELPER FUNCTIONS ///////////////////////////////////////////////
+
+        /**
+         * Replaces variables using the syntax's variable format,
+         * then clones the action item before sending it to the syntax's event handlers
+         * @param {Array} args The args passed to the syntax event handler
+         * @returns {*}
+         */
+        function cloneAndReplaceWithVariables (args) {
+
+            var modifiedArgs = [args[0], args[1].sodaclone(), args[2], args[3]],
+                m, re = soda.config.get("variableFormat"),
+                obj = modifiedArgs[1];
+
+            // Strip out the ignore key if it exists
+            if(typeof modifiedArgs[1] === "object" &amp;&amp; "ignore" in modifiedArgs[1])
+                delete modifiedArgs[1].ignore;
+
+            // Strip out the "platforms" key, if it exists
+            if(typeof modifiedArgs[1] === "object" &amp;&amp; "platforms" in modifiedArgs[1])
+                delete modifiedArgs[1].platforms;
+
+            var lazy = modifiedArgs[1].lazy === true;
+
+            modifiedArgs[1].sodaeach(function checkForVariable (item, key) {
+                if((item || item === 0) &amp;&amp; typeof item === "object") {
+                    var oo = obj;
+                    obj = item;
+                    if(item) item.sodaeach(checkForVariable);
+                    obj = oo;
+                }
+                else {
+                    if(soda.config.get("variableFormat") &amp;&amp; !lazy) {
+                        re.exec("");
+
+                        while (m = re.exec(item)) { // jshint ignore:line
+                            obj[key] = soda.config.get("variableOnMatch")(soda.vars, m, obj[key]);
+                        }
+
+                        re.exec("");
+                        if(re.test(modifiedArgs[1][key]) === true)
+                            checkForVariable(obj, key);
+                    }
+                }
+            });
+            return modifiedArgs;
+        }
+
+        /**
+         * Strips comments from action items, and logs them to the stdout using Console.comment
+         * @param  {Object} obj The action object to strip and log the comments from
+         * @return {Object} The action object with the comments stripped
+         */
+        function stripAndLogComments (obj) {
+            var keys = obj.getKeys.sodaascending,
+                idx  = keys.indexOf("comment"),
+                comment;
+
+            if(idx > -1) {
+                comment = obj[keys[idx]];
+                keys.splice(idx, 1);
+            }
+
+            idx  = keys.indexOf("platforms");
+            if(idx > -1) keys.splice(idx, 1);
+
+            idx  = keys.indexOf("ignore");
+            if(idx > -1) keys.splice(idx, 1);
+
+            if(comment) soda.console.comment(comment);
+            return keys;
+        }
+
+        function continueToNextAction (useLast, realpath, params, msg) {
+            var item = useLast ? useLast : params.queue.shift();
+
+            if(item) {
+                var newKeys = stripAndLogComments(item[1]),
+                eventArguments, orphanError;
+
+                item[0] = item[3].meta.path + ((newKeys.length > 0) ? ":" + newKeys.join(":") : "");
+                eventArguments = cloneAndReplaceWithVariables(item);
+
+                if(self.listenerCount(eventArguments[0]) > 0 &amp;&amp; eventArguments[0] !== "") {
+                    if(soda.config.get("logVerbose")) soda.console.verbose(eventArguments[1]);
+                    ++params.stats.emissions;
+                    run.emit("current", eventArguments[1]);
+                    self.emit.apply(self, eventArguments);
+                }
+                else if(newKeys &amp;&amp; newKeys.length > 0) {
+                    orphanError = new soda.exception.OrphanedActionError("Orphaned action in `" + asset.getPath() + "`\n" + "    ...at path `" + realpath + "` with key signature `" + eventArguments[0] + "`");
+                    params.complete.call(self, orphanError, false, orphanError.message, false);
+                }
+                else {
+                    process.nextTick(() => continueToNextAction(false, params.realpath, params, msg));
+                }
+            }
+            else {
+                run.popChain().printChain();
+                params.complete.call(null, null, true, msg, false);
+            }
+
+            soda.config.set("syntax"           , params.syntax);
+            soda.config.set("variableFormat"   , params.variableFormat);
+            soda.config.set("variableOnMatch"  , params.variableOnMatch);
+        }
+
+        /**
+         * Invoked after the test keysignature event has called its "reply" callback
+         * @param  {boolean} result The result of the current test action
+         * @param  {string} msg The result message
+         * @return {undefined}
+         */
+        function onReply (result, msg, stopped) {
+            if(run.state === "waiting") run.state = run.tempState || "paused";
+            if(stopped) run.state = "stopped";
+
+            var last   = this, // jshint ignore:line
+                params = last[3].params;
+
+            if(soda.config.get("interactiveMode") !== true) {
+                if(msg &amp;&amp; result === true) {
+                    if(msg) soda.console.pass(" ✔  " + msg);
+                }
+                else if(msg) {
+                    if(msg) soda.console.fail(" ✘  " + msg);
+                }
+
+                if(result &amp;&amp; run.state !== 'stopped') {
+                    process.nextTick(() => continueToNextAction(false, params.realpath, params, msg));
+                }
+                else {
+                    run.popChain().printChain();
+                    params.queue = [];
+                    params.complete.call(null, null, result, msg, false);
+                }
+            }
+            else {
+                if(run.state !== "finished" &amp;&amp; run.state !== "stopped") {
+                    if(msg &amp;&amp; result === true) {
+                        if(msg) soda.console.pass(" ✔  " + msg);
+                    }
+                    else if(msg) {
+                        if(msg) soda.console.fail(" ✘  " + msg);
+                    }
+
+                    if(result !== true) run.state = "failed";
+
+                    // When the user presses 's' or 'c' the following will be invoked
+                    run.onStop = run.onContinue = function () {
+                        var stopped  = (run.state === "stopped");
+                        run.chain    = [];
+                        params.queue = [];
+                        params.complete.call(null, null, result, msg, stopped);
+                    };
+
+                    // When the user presses 'l' the following will be invoked
+                    run.onLast = function () {
+                        params.tree.update(function () {
+                            run.state = run.tempState === "failed" ? "running" : run.tempState;
+                            run.emit("allow", { pause: true, last: false, next: false, resume: false, stop: true, skip: false, end: false });
+                            process.nextTick(() => continueToNextAction(last, params.realpath, params, msg));
+                        });
+                    };
+
+                    // When the user presses 'r' or 'n' the following will be invoked
+                    run.onResume = run.onNext = function () {
+                        run.emit("allow", { pause: true, last: false, next: false, resume: false, stop: true, skip: false, end: false });
+                        process.nextTick(() => continueToNextAction(false, params.realpath, params, msg));
+                    };
+
+                    // When the user presses 'k' the following will be invoked
+                    run.onSkip = function () {
+                        run.emit("allow", { pause: true, last: false, next: false, resume: false, stop: true, skip: false, end: false });
+                        process.nextTick(() => continueToNextAction(false, params.realpath, params, msg));
+                    };
+
+                    run.onInquiry = function () {
+                        console.log("Current Action Info:");
+                        console.log("Path:"                   , params.asset.path);
+                        console.log("Time in asset:"          , (Date.now() - params.stats.started).clockTime());
+                        console.log("Remaining Test Items:"   , params.queue.length);
+                        console.log("Stats:"                  , params.stats);
+                        console.log("Current Syntax:"         , params.syntax);
+                    };
+
+                    if(run.state === "failed") {
+                        /**
+                        * Emitted when a action/test is failed
+                        * @event Run#failed
+                        */
+                        run.emit("failed");
+
+                        run.emit("allow", { pause: false, last: true, next: false, resume: false, stop: false, skip: true, end: true });
+                        soda.console.fail("Action Failed: " + asset.getPath());
+                        soda.console.error("Press (l) to repeat the last evaluation, (k) to skip failed evaluation, or (e) to end test...");
+                        if(soda.config.get("say")) ("Action Failed").say();
+                    }
+                    else if(run.state === "paused") {
+                        /**
+                         * Emitted when a action/test is paused
+                         * @event Run#paused
+                         */
+                        run.emit("paused");
+
+                        run.emit("allow", { pause: false, last: true, next: true, resume: true, stop: true, skip: false, end: false });
+                        soda.console.warn("Test Paused. Press (n) to step to next test evaluation, (l) to repeat the last evaluation, (s) to stop test run, or (r) to resume testing...");
+                        if(soda.config.get("say")) ("Action Paused").say();
+                    }
+                    else if(run.state === "stopped") {
+                        /**
+                         * Emitted when a action/test is stopped
+                         * @event Run#stopped
+                         */
+                        run.emit("stopped");
+
+                        run.emit("allow", { pause: false, last: false, next: false, resume: false, stop: false, skip: false, end: false });
+                        soda.console.warn("Test aborted!");
+                        if(soda.config.get("say")) ("Action Stopped").say();
+                        run.onStop();
+                    }
+                    else {
+                        run.state = "running";
+                        run.emit("running");
+                        run.emit("allow", { pause: true, last: false, next: false, resume: false, stop: true, skip: false, end: false });
+                        process.nextTick(() => continueToNextAction(false, params.realpath, params, msg));
+                    }
+                }
+                else {
+                    var stop = (run.state === "stopped");
+                    run.state = "finished";
+                    run.popChain();
+
+                    if(run.chain.length > 0 &amp;&amp; !stop) run.printChain();
+                    params.queue = [];
+                    params.complete.call(null, null, result, msg, stop);
+                }
+            }
+        }
+
+        /**
+         * Find a match for the given action object and emit the action event keysignature
+         * @param  {Array} keys The keyset of the current action
+         * @param  {object} obj The action object at this particular path
+         * @param  {string} path The current path in the action (using * for Arrays)
+         * @param  {string} realpath The current path in the action (using the actual index for Arrays)
+         * @param  {object} params The testing parameters object (@see Action.evaluate)
+         * @return {undefined}
+         */
+        function findSyntaxMatch (keys, obj, path, realpath, params) {
+            var platform = "all",
+                comment  = null,
+                ignored  = false,
+                idx      = keys.indexOf("platforms");
+
+            if(idx > -1) {
+                platform = obj[keys[idx]];
+                keys.splice(idx, 1);
+            }
+
+            idx = keys.indexOf("comment");
+            if(idx > -1) {
+                comment = obj[keys[idx]];
+                keys.splice(idx, 1);
+            }
+
+            idx = keys.indexOf("ignore");
+            if(idx > -1) {
+                if(
+                    (typeof obj.ignore === "string" &amp;&amp; obj.ignore.toLowerCase() === soda.config.get("platform")) ||
+                    (obj.ignore instanceof Array &amp;&amp; obj.ignore.indexOf( soda.config.get("platform")) > -1)       ||
+                    (obj.ignore === true)
+                ) {
+                    soda.console.warn("Action at " + realpath + " has been flagged for ignore and will be skipped!");
+                    ignored = true;
+                }
+                keys.splice(idx, 1);
+            }
+
+            var keySignature = keys.length > 0 ? ":" + keys.join(":") : "",
+                fullpath     = path + keySignature,
+                toPush;
+
+            if(!ignored &amp;&amp; self.listenerCount(path + keySignature) &lt; 1 &amp;&amp; soda.config.get("stopOnOrphanedAction")) {
+                return new soda.exception.OrphanedActionError(
+                    "Orphaned action in `" + asset.getPath() + "`\n" + "    ...at path `" + realpath + "` with key signature `" + keySignature + "`"
+                );
+            }
+            else if(!ignored &amp;&amp; (platform === "all" ||
+                   (platform instanceof Array &amp;&amp; platform.indexOf(soda.config.get("platform").toLowerCase()) > -1) ||
+                   (typeof platform === "string" &amp;&amp; platform === soda.config.get("platform").toLowerCase())
+               )) {
+
+                params.realpath = realpath;
+                toPush = [
+                    fullpath,
+                    obj,
+                    null,
+                    {
+                        vars        : soda.vars,
+                        framework   : soda.framework,
+                        user        : soda.element,
+                        device      : soda.device,
+                        soda        : soda,
+                        params      : params,
+                        tree        : params.tree,
+                        elements    : params.tree.elements,
+                        config      : soda.config,
+                        console     : soda.console,
+                        assets      : params.asset.collection,
+                        run         : params.run,
+                        meta        : {
+                            signature : fullpath,
+                            path      : path,
+                            realpath  : params.fullpath,
+                            filepath  : asset.getPath(),
+                            keys      : keys
+                        }
+                    }
+                ];
+
+                toPush[2] = onReply.bind(toPush);
+                params.queue.push(toPush);
+            }
+        }
+
+        /**
+         * Recursively rolls through the action (or screen or menu).
+         * @param  {object} obj The object at this iteration through the action file contents
+         * @param  {object} params The testing parameters object (@see Action.evaluate)
+         * @param  {string} path The current path in the action (using * for Arrays)
+         * @param  {string} realpath The current path in the action (using the actual index for Arrays)
+         * @return {undefined}
+         */
+        function buildActionQueue (obj, params, path, realpath) {
+            path     = path     || "";
+            realpath = realpath || "";
+
+            var i, res;
+
+            for(i in obj) {
+                if(obj.hasOwnProperty(i)) {
+
+                    var value     = obj[i],
+                        keys      = value ? value.getKeys.sodaascending : null,
+                        localPath = path,
+                        localReal = realpath;
+
+                    ++params.stats.iterations;
+
+                    if(value &amp;&amp; value.isAnObject) {
+                        localPath = localPath + (obj.isAnArray ? "*" : i) + "/";
+                        localReal = localReal + i + "/";
+
+                        if(params.syntax.actionPaths.indexOf(localPath) > -1) {
+                            res = findSyntaxMatch(keys, value, localPath, localReal, params);
+                            if(res instanceof soda.exception.SodaError || res instanceof Error) {
+                                params.complete.call(
+                                    self,
+                                    res,
+                                    false,
+                                    res.message,
+                                    false
+                                );
+
+                                params.queue = [];
+                                return res;
+                            }
+                        }
+                        res = buildActionQueue(value, params, localPath, localReal);
+                        if(res !== undefined) return;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Runs an action file (or action) using the provided syntax tree...
+         * @param {Function} done A callback for completion
+         * @param {Object=} Tree The initial tree to associate with this action. If no tree is provided, the framework will be polled for a new tree.
+         * @composes Run
+         * @returns {Action} The current Action instance
+         */
+        this.evaluate = function (done, tree) {
+            var err = arguments.sodaexpect("function", "object|undefined|null").error;
+            if(err) {
+                if(done instanceof Function) done.call(self, err, null, false);
+                return self;
+            }
+
+            if(!run)  {
+                run = new Run(soda);
+                soda.console.debug("Action " + asset.name + " has started a new run...");
+            }
+
+            repl.addCommand("set-test-mode-" + run.id, "tm|testMode", run.replTestMode);
+
+            run.pushToChain(asset.name) // Push the basepath (e.g. asset name) into the chain, parents will have lower indices than children actions
+                .setTestMode(true);     // Put the console into raw mode
+
+            soda.console.warn("\r ⚑  Evaluating: `" + asset.path + "`");
+            run.printChain();
+
+            var previousMapping = {
+                suite  : soda.config.get("suiteMapping"),
+                module : soda.config.get("moduleMapping"),
+            };
+
+            // Set the suite mapping
+            soda.config.set("suiteMapping", asset.suite.getMapping);
+
+            // Set the module mapping
+            soda.config.set("moduleMapping", asset.module.getMapping);
+
+            var version, name, lang, params;
+
+            asset.getContents(function (err, contents) {
+                if(err) {
+                    if(done instanceof Function) done.call(self, err, null, false);
+                    return self;
+                }
+
+                // Set the action syntax version
+                version = asset.syntax.version || soda.framework.defaultSyntaxVersion || soda.config.get("defaultSyntaxVersion");
+                name    = asset.syntax.name    || soda.framework.defaultSyntaxName    || soda.config.get("defaultSyntaxName");
+
+                // Load the action's syntax based on the above
+                soda.console.debug("Setting syntax to " + name + " v" + version);
+                lang = soda.syntax.get(self, name, version);
+
+                soda.config.set("syntax", { name: name, version: version });
+                soda.config.set("variableFormat",  lang.syntax.variableFormat  || soda.config.get("defaultVariableFormat"));
+                soda.config.set("variableOnMatch", lang.syntax.variableOnMatch || soda.config.get("defaultVariableMatch"));
+
+                /**
+                 * Emitted when the current syntax is being "defined" in the action. That is, when an action is parsing its
+                 * events, using the current syntax. Listen on this event to add custom syntax definitions to a syntax.
+                 * @event module.SodaCore/Syntax.Syntax#define
+                 * @argument self The current Action instance
+                 */
+                soda.syntax.emit("define", self);
+
+                // Set some testing parameters for this Action
+                params = {
+                    syntax          : { name: name, version: version, actionPaths: lang.syntax.actionPaths },
+                    variableFormat  : soda.config.get("variableFormat"),
+                    variableOnMatch : soda.config.get("variableOnMatch"),
+                    queue           : [],
+                    run             : run,
+                    tree            : tree,
+                    asset           : asset,
+
+                    complete        : function () {
+                        if(done) {
+                            if(run.chain.length === 0) {
+                                run.setTestMode(false);
+                                repl.removeCommand("set-test-mode-" + run.id);
+                            }
+
+                            // Reset the selector mappings
+                            soda.config.set("suiteMapping" , previousMapping.suite );
+                            soda.config.set("moduleMapping", previousMapping.module);
+
+                            done.apply(self, arguments);
+                            done = null;
+                        }
+                    },
+                    stats: {
+                        started      : Date.now(),
+                        totalObjects : contents.countR,
+                        iterations   : 0,
+                        emissions    : 0
+                    }
+                };
+
+                /**
+                 * This callback is invoked after we know there's a tree available for the
+                 * action to execute against
+                 * @param  {object} err The current error
+                 * @param  {object} tree The DOM tree for this action
+                 * @return {undefined}
+                 */
+                function onInitialTree (err, tree) {
+                    if(err) {
+                        done.call(self, err, null, null, false);
+                        return self;
+                    }
+
+                    // Set the tree to work with
+                    params.tree = tree;
+
+                    // Buld the action queue
+                    buildActionQueue(contents, params);
+
+                    // Start shifting the queue and evaluating each action
+                    if(params.queue.length > 0) {
+                        if(self.listenerCount(params.queue[0][0]) > 0) {
+                            ++params.stats.emissions;
+                            var testItem = params.queue.shift();
+                            stripAndLogComments(testItem[1]);
+                            soda.console.verbose(testItem[1]);
+
+                            /**
+                             * Emitted when the run starts or enters a "running" state
+                             * @event Run#running
+                             */
+                            run.emit("running");
+
+                            /**
+                             * Emitted for the Soda VisualEditor to know which states are allowable, based on the Run's current state
+                             * @event Run#allow
+                             * @param {Object} states The allowable states
+                             */
+                            run.emit("allow", { pause: true, last: false, next: false, resume: false, stop: true, skip: false, end: false });
+
+                            /**
+                             * Emitted with the current test item
+                             * @event Run#current
+                             * @param {Object} currentTestItem The current test item object
+                             */
+                            run.emit("current", testItem[1]);
+
+                            self.emit.apply(self, cloneAndReplaceWithVariables(testItem));
+                        }
+                        else {
+                            if(done instanceof Function) done.call(self, null, false, "Initial: Orphaned action", false);
+                        }
+                    }
+                    else {
+                        if(done instanceof Function) done.call(self, null, true, "No test items to evaluate", false);
+                    }
+                }
+
+                // Check that we have a tree to start with, if not get the tree from the framework
+                if(tree) {
+                    onInitialTree(null, tree);
+                }
+                else {
+                    soda.framework.getTree(onInitialTree);
+                }
+            });
+            return self;
+        };
+    }
+
+    util.inherits(Action, EventEmitter);
+    return Action;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

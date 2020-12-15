@@ -1,0 +1,3633 @@
+{
+    "window:0": {
+        "id": "window:0",
+        "element": {},
+        "type": "window",
+        "name": null,
+        "label": null,
+        "value": null,
+        "rect": {
+            "origin": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "width": 768,
+                "height": 1024
+            }
+        },
+        "hitpoint": {
+            "x": 384,
+            "y": 512
+        },
+        "enabled": true,
+        "visible": true,
+        "hasKeyboardFocus": false,
+        "valid": true,
+        "children": {
+            "navigationbar:0": {
+                "id": "navigationbar:0",
+                "element": {},
+                "type": "navigationbar",
+                "name": "AllyDashboardChildView",
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 0,
+                        "y": 20
+                    },
+                    "size": {
+                        "width": 768,
+                        "height": 44
+                    }
+                },
+                "hitpoint": {
+                    "x": 384,
+                    "y": 42
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "image:2": {
+                        "id": "image:2",
+                        "element": {},
+                        "type": "image",
+                        "name": null,
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 64
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "image:3": {
+                                "id": "image:3",
+                                "element": {},
+                                "type": "image",
+                                "name": null,
+                                "label": null,
+                                "value": null,
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 64
+                                    },
+                                    "size": {
+                                        "width": 768,
+                                        "height": 0.5
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "image:2",
+                                    "name": null,
+                                    "value": null,
+                                    "label": null
+                                }
+                            }
+                        },
+                        "index": 0,
+                        "parent": {
+                            "id": "navigationbar:0",
+                            "name": "AllyDashboardChildView",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "button:3": {
+                        "id": "button:3",
+                        "element": {},
+                        "type": "button",
+                        "name": "menuButton",
+                        "label": "menuButton",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 9,
+                                "y": 26
+                            },
+                            "size": {
+                                "width": 44,
+                                "height": 30
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 31,
+                            "y": 41
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 1,
+                        "parent": {
+                            "id": "navigationbar:0",
+                            "name": "AllyDashboardChildView",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "button:4": {
+                        "id": "button:4",
+                        "element": {},
+                        "type": "button",
+                        "name": "Back",
+                        "label": "Back",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 12,
+                                "y": 31.5
+                            },
+                            "size": {
+                                "width": 21,
+                                "height": 21
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 2,
+                        "parent": {
+                            "id": "navigationbar:0",
+                            "name": "AllyDashboardChildView",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "button:5": {
+                        "id": "button:5",
+                        "element": {},
+                        "type": "button",
+                        "name": "callAllyButton",
+                        "label": "callAllyButton",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 61,
+                                "y": 26
+                            },
+                            "size": {
+                                "width": 44,
+                                "height": 30
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 83,
+                            "y": 41
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 3,
+                        "parent": {
+                            "id": "navigationbar:0",
+                            "name": "AllyDashboardChildView",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "button:6": {
+                        "id": "button:6",
+                        "element": {},
+                        "type": "button",
+                        "name": "allyLogo",
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 322.5,
+                                "y": 25
+                            },
+                            "size": {
+                                "width": 123,
+                                "height": 34
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 384,
+                            "y": 42
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 4,
+                        "parent": {
+                            "id": "navigationbar:0",
+                            "name": "AllyDashboardChildView",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "button:7": {
+                        "id": "button:7",
+                        "element": {},
+                        "type": "button",
+                        "name": "logOutButton",
+                        "label": "logOutButton",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 645,
+                                "y": 27
+                            },
+                            "size": {
+                                "width": 62,
+                                "height": 30
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 676,
+                            "y": 42
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 5,
+                        "parent": {
+                            "id": "navigationbar:0",
+                            "name": "AllyDashboardChildView",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "button:8": {
+                        "id": "button:8",
+                        "element": {},
+                        "type": "button",
+                        "name": "helpButton",
+                        "label": "helpButton",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 715,
+                                "y": 26
+                            },
+                            "size": {
+                                "width": 44,
+                                "height": 30
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 737,
+                            "y": 41
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 6,
+                        "parent": {
+                            "id": "navigationbar:0",
+                            "name": "AllyDashboardChildView",
+                            "value": null,
+                            "label": null
+                        }
+                    }
+                },
+                "index": 0,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "button:0": {
+                "id": "button:0",
+                "element": {},
+                "type": "button",
+                "name": "You Have eBills Due",
+                "label": "You Have eBills Due",
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 177,
+                        "y": 17
+                    },
+                    "size": {
+                        "width": 130,
+                        "height": 30
+                    }
+                },
+                "hitpoint": null,
+                "enabled": true,
+                "visible": false,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "statictext:3": {
+                        "id": "statictext:3",
+                        "element": {},
+                        "type": "statictext",
+                        "name": "You Have eBills Due",
+                        "label": "You Have eBills Due",
+                        "value": "You Have eBills Due",
+                        "rect": {
+                            "origin": {
+                                "x": 177.5,
+                                "y": 23
+                            },
+                            "size": {
+                                "width": 129.5,
+                                "height": 18
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "button:0",
+                            "name": "You Have eBills Due",
+                            "value": null,
+                            "label": "You Have eBills Due"
+                        }
+                    }
+                },
+                "index": 1,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "button:1": {
+                "id": "button:1",
+                "element": {},
+                "type": "button",
+                "name": null,
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 290,
+                        "y": 17
+                    },
+                    "size": {
+                        "width": 142,
+                        "height": 30
+                    }
+                },
+                "hitpoint": null,
+                "enabled": true,
+                "visible": false,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 2,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "image:0": {
+                "id": "image:0",
+                "element": {},
+                "type": "image",
+                "name": "alerts-dividing-line",
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 383.5,
+                        "y": 20
+                    },
+                    "size": {
+                        "width": 1,
+                        "height": 30
+                    }
+                },
+                "hitpoint": null,
+                "enabled": true,
+                "visible": false,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 3,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "button:2": {
+                "id": "button:2",
+                "element": {},
+                "type": "button",
+                "name": "You Have Popmoney!",
+                "label": "You Have Popmoney!",
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 410,
+                        "y": 17
+                    },
+                    "size": {
+                        "width": 142,
+                        "height": 30
+                    }
+                },
+                "hitpoint": null,
+                "enabled": true,
+                "visible": false,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "statictext:4": {
+                        "id": "statictext:4",
+                        "element": {},
+                        "type": "statictext",
+                        "name": "You Have Popmoney!",
+                        "label": "You Have Popmoney!",
+                        "value": "You Have Popmoney!",
+                        "rect": {
+                            "origin": {
+                                "x": 411.5,
+                                "y": 23
+                            },
+                            "size": {
+                                "width": 139.5,
+                                "height": 18
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "button:2",
+                            "name": "You Have Popmoney!",
+                            "value": null,
+                            "label": "You Have Popmoney!"
+                        }
+                    }
+                },
+                "index": 4,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "image:1": {
+                "id": "image:1",
+                "element": {},
+                "type": "image",
+                "name": "pull-down-lines",
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 374,
+                        "y": 74
+                    },
+                    "size": {
+                        "width": 20,
+                        "height": 10
+                    }
+                },
+                "hitpoint": null,
+                "enabled": true,
+                "visible": false,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 5,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "element:0": {
+                "id": "element:0",
+                "element": {},
+                "type": "element",
+                "name": "pieChart",
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 151.5,
+                        "y": 133
+                    },
+                    "size": {
+                        "width": 465,
+                        "height": 464
+                    }
+                },
+                "hitpoint": {
+                    "x": 160.5,
+                    "y": 138
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "element:1": {
+                        "id": "element:1",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer0",
+                        "label": null,
+                        "value": "value6ANDcolor00a4d9",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:2": {
+                        "id": "element:2",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer1",
+                        "label": null,
+                        "value": "value8ANDcolor00a4d9",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 1,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:3": {
+                        "id": "element:3",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer2",
+                        "label": null,
+                        "value": "value8ANDcolor33348f",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 2,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:4": {
+                        "id": "element:4",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer3",
+                        "label": null,
+                        "value": "value8ANDcolor33348f",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 3,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:5": {
+                        "id": "element:5",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer4",
+                        "label": null,
+                        "value": "value8ANDcolora44499",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 4,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:6": {
+                        "id": "element:6",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer5",
+                        "label": null,
+                        "value": "value8ANDcolora44499",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 5,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:7": {
+                        "id": "element:7",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer6",
+                        "label": null,
+                        "value": "value8ANDcolora44499",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 6,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:8": {
+                        "id": "element:8",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer7",
+                        "label": null,
+                        "value": "value8ANDcolora44499",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 7,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:9": {
+                        "id": "element:9",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer8",
+                        "label": null,
+                        "value": "value8ANDcolora44499",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 8,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:10": {
+                        "id": "element:10",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer9",
+                        "label": null,
+                        "value": "value8ANDcolora44499",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 9,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:11": {
+                        "id": "element:11",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer10",
+                        "label": null,
+                        "value": "value8ANDcolora44499",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 10,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:12": {
+                        "id": "element:12",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer11",
+                        "label": null,
+                        "value": "value8ANDcolora44499",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 11,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:13": {
+                        "id": "element:13",
+                        "element": {},
+                        "type": "element",
+                        "name": "pieSliceLayer12",
+                        "label": null,
+                        "value": "value8ANDcolora44499",
+                        "rect": {
+                            "origin": {
+                                "x": 151.5,
+                                "y": 133
+                            },
+                            "size": {
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 12,
+                        "parent": {
+                            "id": "element:0",
+                            "name": "pieChart",
+                            "value": null,
+                            "label": null
+                        }
+                    }
+                },
+                "index": 6,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "statictext:0": {
+                "id": "statictext:0",
+                "element": {},
+                "type": "statictext",
+                "name": "totalBalanceLabel",
+                "label": "totalBalanceLabel",
+                "value": "Total Balance",
+                "rect": {
+                    "origin": {
+                        "x": 248,
+                        "y": 308
+                    },
+                    "size": {
+                        "width": 272,
+                        "height": 21
+                    }
+                },
+                "hitpoint": {
+                    "x": 384,
+                    "y": 318.5
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 7,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "statictext:1": {
+                "id": "statictext:1",
+                "element": {},
+                "type": "statictext",
+                "name": "amountLabel",
+                "label": "amountLabel",
+                "value": "$13,004.04",
+                "rect": {
+                    "origin": {
+                        "x": 228,
+                        "y": 337
+                    },
+                    "size": {
+                        "width": 312,
+                        "height": 55
+                    }
+                },
+                "hitpoint": {
+                    "x": 384,
+                    "y": 364.5
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 8,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "statictext:2": {
+                "id": "statictext:2",
+                "element": {},
+                "type": "statictext",
+                "name": "numberOfAccountsLabel",
+                "label": "numberOfAccountsLabel",
+                "value": "for 13 accounts",
+                "rect": {
+                    "origin": {
+                        "x": 248,
+                        "y": 400
+                    },
+                    "size": {
+                        "width": 272,
+                        "height": 21
+                    }
+                },
+                "hitpoint": {
+                    "x": 384,
+                    "y": 410.5
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 9,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "scrollview:0": {
+                "id": "scrollview:0",
+                "element": {},
+                "type": "scrollview",
+                "name": null,
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 169,
+                        "y": 607
+                    },
+                    "size": {
+                        "width": 430,
+                        "height": 45
+                    }
+                },
+                "hitpoint": {
+                    "x": 384,
+                    "y": 629.5
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "webview:0": {
+                        "id": "webview:0",
+                        "element": {},
+                        "type": "webview",
+                        "name": null,
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 169,
+                                "y": 607
+                            },
+                            "size": {
+                                "width": 430,
+                                "height": 45
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 384,
+                            "y": 629.5
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "scrollview:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "image:4": {
+                        "id": "image:4",
+                        "element": {},
+                        "type": "image",
+                        "name": null,
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 596.5,
+                                "y": 607
+                            },
+                            "size": {
+                                "width": 2.5,
+                                "height": 45
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 1,
+                        "parent": {
+                            "id": "scrollview:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "image:5": {
+                        "id": "image:5",
+                        "element": {},
+                        "type": "image",
+                        "name": null,
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 169,
+                                "y": 649.5
+                            },
+                            "size": {
+                                "width": 430,
+                                "height": 2.5
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 2,
+                        "parent": {
+                            "id": "scrollview:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    }
+                },
+                "index": 10,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            },
+            "tableview:0": {
+                "id": "tableview:0",
+                "element": {},
+                "type": "tableview",
+                "name": "accountTableView",
+                "label": "accountTableView",
+                "value": "rows 1 to 4 of 13",
+                "rect": {
+                    "origin": {
+                        "x": 0,
+                        "y": 666
+                    },
+                    "size": {
+                        "width": 768,
+                        "height": 376
+                    }
+                },
+                "hitpoint": {
+                    "x": 384,
+                    "y": 854
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "tablegroup:0": {
+                        "id": "tablegroup:0",
+                        "element": {},
+                        "type": "tablegroup",
+                        "name": null,
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 666
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 0.00009999999747378752
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:0": {
+                        "id": "tablecell:0",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "Interest Checking    ∙∙∙∙∙∙2331;Interest Checking;$79806;Available Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 666.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 384,
+                            "y": 716.0000999999975
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:5": {
+                                "id": "statictext:5",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "Interest Checking    ∙∙∙∙∙∙2331",
+                                "rect": {
+                                    "origin": {
+                                        "x": 78,
+                                        "y": 688.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 245.5,
+                                    "y": 698.5000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:0",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Interest Checking    ∙∙∙∙∙∙2331;Interest Checking;$79806;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:6": {
+                                "id": "statictext:6",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 78,
+                                        "y": 708.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 245.5,
+                                    "y": 726.0000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:0",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Interest Checking    ∙∙∙∙∙∙2331;Interest Checking;$79806;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:7": {
+                                "id": "statictext:7",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Available Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 431,
+                                        "y": 688.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 570.5,
+                                    "y": 698.5000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:0",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Interest Checking    ∙∙∙∙∙∙2331;Interest Checking;$79806;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:8": {
+                                "id": "statictext:8",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$798.06",
+                                "rect": {
+                                    "origin": {
+                                        "x": 431,
+                                        "y": 708.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 570.5,
+                                    "y": 726.0000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:0",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Interest Checking    ∙∙∙∙∙∙2331;Interest Checking;$79806;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 1,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:1": {
+                        "id": "tablecell:1",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "Interest Checking    ∙∙∙∙∙∙2448;Interest Checking;$1,00007;Available Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 766.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 384,
+                            "y": 816.0000999999975
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:9": {
+                                "id": "statictext:9",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "Interest Checking    ∙∙∙∙∙∙2448",
+                                "rect": {
+                                    "origin": {
+                                        "x": 78,
+                                        "y": 788.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 245.5,
+                                    "y": 798.5000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:1",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Interest Checking    ∙∙∙∙∙∙2448;Interest Checking;$1,00007;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:10": {
+                                "id": "statictext:10",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 78,
+                                        "y": 808.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 245.5,
+                                    "y": 826.0000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:1",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Interest Checking    ∙∙∙∙∙∙2448;Interest Checking;$1,00007;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:11": {
+                                "id": "statictext:11",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Available Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 431,
+                                        "y": 788.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 570.5,
+                                    "y": 798.5000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:1",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Interest Checking    ∙∙∙∙∙∙2448;Interest Checking;$1,00007;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:12": {
+                                "id": "statictext:12",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,000.07",
+                                "rect": {
+                                    "origin": {
+                                        "x": 431,
+                                        "y": 808.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 570.5,
+                                    "y": 826.0000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:1",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Interest Checking    ∙∙∙∙∙∙2448;Interest Checking;$1,00007;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 2,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:2": {
+                        "id": "tablecell:2",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "Money Market    ∙∙∙∙∙∙2437;Money Market Savings;$1,10398;Available Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 866.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 384,
+                            "y": 916.0000999999975
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:13": {
+                                "id": "statictext:13",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "Money Market    ∙∙∙∙∙∙2437",
+                                "rect": {
+                                    "origin": {
+                                        "x": 78,
+                                        "y": 888.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 245.5,
+                                    "y": 898.5000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:2",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Money Market    ∙∙∙∙∙∙2437;Money Market Savings;$1,10398;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:14": {
+                                "id": "statictext:14",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 78,
+                                        "y": 908.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 245.5,
+                                    "y": 926.0000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:2",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Money Market    ∙∙∙∙∙∙2437;Money Market Savings;$1,10398;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:15": {
+                                "id": "statictext:15",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Available Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 431,
+                                        "y": 888.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 570.5,
+                                    "y": 898.5000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:2",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Money Market    ∙∙∙∙∙∙2437;Money Market Savings;$1,10398;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:16": {
+                                "id": "statictext:16",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,103.98",
+                                "rect": {
+                                    "origin": {
+                                        "x": 431,
+                                        "y": 908.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 570.5,
+                                    "y": 926.0000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:2",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Money Market    ∙∙∙∙∙∙2437;Money Market Savings;$1,10398;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 3,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:3": {
+                        "id": "tablecell:3",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "Online Savings    ∙∙∙∙∙∙2452;Online Savings Account;$1,10193;Available Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 966.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 384,
+                            "y": 1016.0000999999975
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:17": {
+                                "id": "statictext:17",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "Online Savings    ∙∙∙∙∙∙2452",
+                                "rect": {
+                                    "origin": {
+                                        "x": 78,
+                                        "y": 988.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 245.5,
+                                    "y": 998.5000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:3",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Online Savings    ∙∙∙∙∙∙2452;Online Savings Account;$1,10193;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:18": {
+                                "id": "statictext:18",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 78,
+                                        "y": 1008.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 87,
+                                    "y": 1013.0000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:3",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Online Savings    ∙∙∙∙∙∙2452;Online Savings Account;$1,10193;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:19": {
+                                "id": "statictext:19",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Available Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 431,
+                                        "y": 988.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 570.5,
+                                    "y": 998.5000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:3",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Online Savings    ∙∙∙∙∙∙2452;Online Savings Account;$1,10193;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:20": {
+                                "id": "statictext:20",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,101.93",
+                                "rect": {
+                                    "origin": {
+                                        "x": 431,
+                                        "y": 1008.0000999999975
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": {
+                                    "x": 440,
+                                    "y": 1013.0000999999975
+                                },
+                                "enabled": true,
+                                "visible": true,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:3",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "Online Savings    ∙∙∙∙∙∙2452;Online Savings Account;$1,10193;Available Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 4,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:4": {
+                        "id": "tablecell:4",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "CD    ∙∙∙∙∙∙2352;Raise Your Rate CD;$1,00000;Current Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 1066.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:21": {
+                                "id": "statictext:21",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "CD    ∙∙∙∙∙∙2352",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:4",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2352;Raise Your Rate CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:22": {
+                                "id": "statictext:22",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:4",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2352;Raise Your Rate CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:23": {
+                                "id": "statictext:23",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Current Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:4",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2352;Raise Your Rate CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:24": {
+                                "id": "statictext:24",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,000.00",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:4",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2352;Raise Your Rate CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 5,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:5": {
+                        "id": "tablecell:5",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "CD    ∙∙∙∙∙∙2345;No Penalty CD;$1,00000;Current Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 1166.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:25": {
+                                "id": "statictext:25",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "CD    ∙∙∙∙∙∙2345",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:5",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2345;No Penalty CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:26": {
+                                "id": "statictext:26",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:5",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2345;No Penalty CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:27": {
+                                "id": "statictext:27",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Current Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:5",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2345;No Penalty CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:28": {
+                                "id": "statictext:28",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,000.00",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:5",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2345;No Penalty CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 6,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:6": {
+                        "id": "tablecell:6",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "CD    ∙∙∙∙∙∙2428;No Penalty CD;$1,00000;Current Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 1266.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:29": {
+                                "id": "statictext:29",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "CD    ∙∙∙∙∙∙2428",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:6",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2428;No Penalty CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:30": {
+                                "id": "statictext:30",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:6",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2428;No Penalty CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:31": {
+                                "id": "statictext:31",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Current Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:6",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2428;No Penalty CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:32": {
+                                "id": "statictext:32",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,000.00",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:6",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2428;No Penalty CD;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 7,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:7": {
+                        "id": "tablecell:7",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "CD    ∙∙∙∙∙∙2360;High Yield CD 3-Month;$1,00000;Current Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 1366.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:33": {
+                                "id": "statictext:33",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "CD    ∙∙∙∙∙∙2360",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:7",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2360;High Yield CD 3-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:34": {
+                                "id": "statictext:34",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:7",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2360;High Yield CD 3-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:35": {
+                                "id": "statictext:35",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Current Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:7",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2360;High Yield CD 3-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:36": {
+                                "id": "statictext:36",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,000.00",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:7",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2360;High Yield CD 3-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 8,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:8": {
+                        "id": "tablecell:8",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "CD    ∙∙∙∙∙∙2378;High Yield CD 6-Month;$1,00000;Current Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 1466.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:37": {
+                                "id": "statictext:37",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "CD    ∙∙∙∙∙∙2378",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:8",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2378;High Yield CD 6-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:38": {
+                                "id": "statictext:38",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:8",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2378;High Yield CD 6-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:39": {
+                                "id": "statictext:39",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Current Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:8",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2378;High Yield CD 6-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:40": {
+                                "id": "statictext:40",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,000.00",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:8",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2378;High Yield CD 6-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 9,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:9": {
+                        "id": "tablecell:9",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "CD    ∙∙∙∙∙∙2386;High Yield CD 9-Month;$1,00000;Current Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 1566.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:41": {
+                                "id": "statictext:41",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "CD    ∙∙∙∙∙∙2386",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:9",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2386;High Yield CD 9-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:42": {
+                                "id": "statictext:42",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:9",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2386;High Yield CD 9-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:43": {
+                                "id": "statictext:43",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Current Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:9",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2386;High Yield CD 9-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:44": {
+                                "id": "statictext:44",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,000.00",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:9",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2386;High Yield CD 9-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 10,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:10": {
+                        "id": "tablecell:10",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "CD    ∙∙∙∙∙∙2394;High Yield CD 12-Month;$1,00000;Current Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 1666.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:45": {
+                                "id": "statictext:45",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "CD    ∙∙∙∙∙∙2394",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:10",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2394;High Yield CD 12-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:46": {
+                                "id": "statictext:46",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:10",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2394;High Yield CD 12-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:47": {
+                                "id": "statictext:47",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Current Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:10",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2394;High Yield CD 12-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:48": {
+                                "id": "statictext:48",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,000.00",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:10",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2394;High Yield CD 12-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 11,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:11": {
+                        "id": "tablecell:11",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "CD    ∙∙∙∙∙∙2402;High Yield CD 18-Month;$1,00000;Current Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 1766.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:49": {
+                                "id": "statictext:49",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "CD    ∙∙∙∙∙∙2402",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:11",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2402;High Yield CD 18-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:50": {
+                                "id": "statictext:50",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:11",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2402;High Yield CD 18-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:51": {
+                                "id": "statictext:51",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Current Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:11",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2402;High Yield CD 18-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:52": {
+                                "id": "statictext:52",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,000.00",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:11",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2402;High Yield CD 18-Month;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 12,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablecell:12": {
+                        "id": "tablecell:12",
+                        "element": {},
+                        "type": "tablecell",
+                        "name": "allyDashboardAccountCell",
+                        "label": "allyDashboardAccountCell",
+                        "value": "CD    ∙∙∙∙∙∙2410;High Yield CD 3-Year;$1,00000;Current Balance",
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 1866.0000999999975
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 100
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {
+                            "statictext:53": {
+                                "id": "statictext:53",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNameLabel",
+                                "label": "accountNameLabel",
+                                "value": "CD    ∙∙∙∙∙∙2410",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 0,
+                                "parent": {
+                                    "id": "tablecell:12",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2410;High Yield CD 3-Year;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:54": {
+                                "id": "statictext:54",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountNickNameLabel",
+                                "label": "accountNickNameLabel",
+                                "value": "accountNickNameLabel",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 335,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 1,
+                                "parent": {
+                                    "id": "tablecell:12",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2410;High Yield CD 3-Year;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:55": {
+                                "id": "statictext:55",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountTypeLabel",
+                                "label": "accountAmountTypeLabel",
+                                "value": "Current Balance",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 21
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 2,
+                                "parent": {
+                                    "id": "tablecell:12",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2410;High Yield CD 3-Year;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            },
+                            "statictext:56": {
+                                "id": "statictext:56",
+                                "element": {},
+                                "type": "statictext",
+                                "name": "accountAmountLabel",
+                                "label": "accountAmountLabel",
+                                "value": "$1,000.00",
+                                "rect": {
+                                    "origin": {
+                                        "x": 0,
+                                        "y": 0
+                                    },
+                                    "size": {
+                                        "width": 279,
+                                        "height": 36
+                                    }
+                                },
+                                "hitpoint": null,
+                                "enabled": true,
+                                "visible": false,
+                                "hasKeyboardFocus": false,
+                                "valid": true,
+                                "children": {},
+                                "index": 3,
+                                "parent": {
+                                    "id": "tablecell:12",
+                                    "name": "allyDashboardAccountCell",
+                                    "value": "CD    ∙∙∙∙∙∙2410;High Yield CD 3-Year;$1,00000;Current Balance",
+                                    "label": "allyDashboardAccountCell"
+                                }
+                            }
+                        },
+                        "index": 13,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    },
+                    "tablegroup:1": {
+                        "id": "tablegroup:1",
+                        "element": {},
+                        "type": "tablegroup",
+                        "name": null,
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 0,
+                                "y": 1041.9999000000025
+                            },
+                            "size": {
+                                "width": 768,
+                                "height": 0.00009999999747378752
+                            }
+                        },
+                        "hitpoint": null,
+                        "enabled": true,
+                        "visible": false,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 14,
+                        "parent": {
+                            "id": "tableview:0",
+                            "name": "accountTableView",
+                            "value": "rows 1 to 4 of 13",
+                            "label": "accountTableView"
+                        }
+                    }
+                },
+                "index": 11,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            }
+        },
+        "index": 0,
+        "parent": {}
+    },
+    "window:1": {
+        "id": "window:1",
+        "element": {},
+        "type": "window",
+        "name": null,
+        "label": null,
+        "value": null,
+        "rect": {
+            "origin": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "width": 768,
+                "height": 1024
+            }
+        },
+        "hitpoint": null,
+        "enabled": true,
+        "visible": false,
+        "hasKeyboardFocus": false,
+        "valid": true,
+        "children": {},
+        "index": 1,
+        "parent": {}
+    },
+    "window:2": {
+        "id": "window:2",
+        "element": {},
+        "type": "window",
+        "name": null,
+        "label": null,
+        "value": null,
+        "rect": {
+            "origin": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "width": 768,
+                "height": 1024
+            }
+        },
+        "hitpoint": {
+            "x": 9,
+            "y": 5
+        },
+        "enabled": true,
+        "visible": true,
+        "hasKeyboardFocus": false,
+        "valid": true,
+        "children": {
+            "statusbar:0": {
+                "id": "statusbar:0",
+                "element": {},
+                "type": "statusbar",
+                "name": null,
+                "label": null,
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "size": {
+                        "width": 768,
+                        "height": 20
+                    }
+                },
+                "hitpoint": {
+                    "x": 384,
+                    "y": 10
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {
+                    "element:14": {
+                        "id": "element:14",
+                        "element": {},
+                        "type": "element",
+                        "name": "Swipe down with three fingers to reveal the notification center., Swipe up with three fingers to reveal the control center, Double-tap to scroll to top",
+                        "label": null,
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 6,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 38,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 25,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 0,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:15": {
+                        "id": "element:15",
+                        "element": {},
+                        "type": "element",
+                        "name": "3 of 3 Wi-Fi bars",
+                        "label": "3 of 3 Wi-Fi bars",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 49,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 13,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 55.5,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 1,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:16": {
+                        "id": "element:16",
+                        "element": {},
+                        "type": "element",
+                        "name": "12:32 PM",
+                        "label": "12:32 PM",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 358,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 52,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 384,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 2,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    },
+                    "element:17": {
+                        "id": "element:17",
+                        "element": {},
+                        "type": "element",
+                        "name": "100% battery power",
+                        "label": "100% battery power",
+                        "value": null,
+                        "rect": {
+                            "origin": {
+                                "x": 704,
+                                "y": 0
+                            },
+                            "size": {
+                                "width": 59,
+                                "height": 20
+                            }
+                        },
+                        "hitpoint": {
+                            "x": 750.5,
+                            "y": 10
+                        },
+                        "enabled": true,
+                        "visible": true,
+                        "hasKeyboardFocus": false,
+                        "valid": true,
+                        "children": {},
+                        "index": 3,
+                        "parent": {
+                            "id": "statusbar:0",
+                            "name": null,
+                            "value": null,
+                            "label": null
+                        }
+                    }
+                },
+                "index": 0,
+                "parent": {
+                    "id": "window:2",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+            }
+        },
+        "index": 2,
+        "parent": {}
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "meta": {
+        "name": "Google",
+        "description": "The 'cat meme' Google example from the documentation",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "store": "cat memes",
+            "as": "to_search"
+        },
+        {
+            "execute": "googlesomething"
+        },
+        {
+            "execute": "closebrowser"
+        },
+        {
+            "store": "dog memes",
+            "as": "to_search"
+        },
+        {
+            "execute": "googlesomething"
+        },
+        {
+            "execute": "closebrowser"
+        }
+    ]
+}

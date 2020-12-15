@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+process.argv.splice(2, 0, 'run');
+require(require('path').join(__dirname, '..', 'sodac'));

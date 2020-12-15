@@ -1,0 +1,15 @@
+{
+    "meta": {
+        "name": "setessentials",
+        "description": "Setup some important variables for 'Soda testing Soda'",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "osexec": "mv ${userHome}/sodaFavoritesTemp.json ${userHome}/sodaFavorites.json"
+        }
+    ]
+}

@@ -1,0 +1,70 @@
+{
+    "meta": {
+        "name": "001",
+        "description": "Test soda favorites on the launch page",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "execute": "startlaunchwithcleanfavorites"
+        },
+        {
+            "wait": 2
+        },
+        {
+            "store": "star",
+            "as": "icon"
+        },
+        {
+            "execute": "clickframeworkwithicon"
+        },
+        {
+            "wait": 2
+        },
+        {
+            "store": "android",
+            "as": "icon"
+        },
+        {
+            "execute": "clickframeworkwithicon"
+        },
+        {
+            "wait": 2
+        },
+        {
+            "store": "apple",
+            "as": "icon"
+        },
+        {
+            "execute": "clickframeworkwithicon"
+        },
+        {
+            "wait": 2
+        },
+        {
+            "store": "globe",
+            "as": "icon"
+        },
+        {
+            "execute": "clickframeworkwithicon"
+        },
+        {
+            "wait": 2
+        },
+        {
+            "store": "question-circle",
+            "as": "icon"
+        },
+        {
+            "execute": "clickframeworkwithicon"
+        },
+        {
+            "execute": "printfavorites",
+            "over": [
+            ]
+        }
+    ]
+}

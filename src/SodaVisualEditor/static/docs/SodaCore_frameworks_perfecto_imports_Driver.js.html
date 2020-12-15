@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaCore/frameworks/perfecto/imports/Driver.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaCore/frameworks/perfecto/imports/Driver.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module Perfecto/Driver
+ */
+
+"use strict";
+
+var request = require('request'),
+    xml2js = require('xml2js'),
+    html2js = require('html2json'),
+    fs     = require('fs'),
+    nodePath    = require("path"),
+    mkdirp       = require("mkdirp");
+
+/**
+ * Driver connector for Soda to Perfecto
+ * @param {Soda} soda A Soda instance
+ * @constructor
+ */
+var PerfectoDriver = function (soda) {
+    var self = this,
+        executionId = null,
+        deviceId = null,
+        runtime = null,
+        os = null,
+        applicationName = null,
+        settings = (require('./Config.js'))(soda),
+        stillRunning = true,
+        eyescontext = null,
+        OPERATION_COMMAND = 'operation=command',
+        EXECUTION_STRING = '/services/executions/',
+        RESPONSE_FORMAT = '&amp;responseFormat=JSON',
+        REPOSITORY_STRING = '/services/repositories/',
+        APPLICATION_ELEMENT = '&amp;command=application.element',
+        WEBPAGE_ELEMENT = '&amp;command=webpage.element',
+        APPLICATION_COMMAND = '&amp;command=application',
+        APPLICATION_BROWSER = '&amp;command=browser',
+        APPLICATION_WEBPAGE = '&amp;command=webpage',
+        HANDSET_COMMAND = '&amp;command=handset',
+        FIND_SUB_COMMAND = '&amp;subcommand=find',
+        INSTALL_SUBCOMMAND = '&amp;subcommand=install',
+        UNINSTALL_SUBCOMMAND = '&amp;subcommand=uninstall',
+        EXECUTE_SUBCOMMAND = '&amp;subcommand=execute',
+        OPEN_SUBCOMMAND = '&amp;subcommand=open',
+        SETUP_SUBCOMMAND = '&amp;subcommand=setup',
+        RECOVER_SUBCOMMAND = '&amp;subcommand=recover',
+        CLOSE_SUBCOMMAND = '&amp;subcommand=close',
+        READY_SUBCOMMAND = '&amp;subcommand=ready',
+        LOCK_SUBCOMMAND = '&amp;subcommand=lock',
+        DEVICE_COMMAND = '&amp;command=device',
+        KEY_COMMAND = '&amp;command=key',
+        TOUCH_COMMAND = '&amp;command=touch',
+        INFO_SUBCOMMAND = '&amp;subcommand=info',
+        CLEAN_SUBCOMMAND = '&amp;subcommand=clean',
+        IMAGE_SUBCOMMAND = '&amp;subcommand=image',
+        SCREEN_COMMAND = '&amp;command=screen',
+        KEYBOARD_COMMAND = '&amp;command=keyboard',
+        DISPLAY_SUBCOMMAND = '&amp;subcommand=display',
+        SET_COMMAND = '&amp;subcommand=set',
+        TAP_COMMAND = '&amp;subcommand=tap',
+        CLICK_COMMAND = '&amp;subcommand=click',
+        SWIPE_SUBCOMMAND = '&amp;subcommand=swipe',
+        TYPE_COMMAND = '&amp;command=typetext',
+        KEY_COMMAND = '&amp;command=key',
+        EVENT_SUBCOMMAND = '&amp;subcommand=event',
+        FRAMEWORK_PARAM = '&amp;param.framework=appium-1.3.4',
+        FRAMEWORK_ANDROID_PARAM = '&amp;param.framework=perfectoMobile',
+        CLICKXY_COMMAND = '&amp;subcommand=tap',
+        SCROLL_COMMAND = '&amp;subcommand=swipe',
+        MONITOR_COMMAND = '&amp;command=monitor',
+        START_SUBCOMMAND = '&amp;subcommand=start',
+        STOP_SUBCOMMAND = '&amp;subcommand=stop',
+        TEXT_COMMAND = '&amp;command=text',
+        running = false,
+        /**
+         * @associates PerfectoConfiguration
+         * @type {Object}
+         */
+        settings = (require('./Config.js'))(soda),
+
+        /**
+         * @associates Tree
+         * @type {Object}
+         */
+        Tree = new (require("./Tree.js"))(soda),
+
+        eyes = null;
+
+        process.setMaxListeners(0);
+
+        var Queue = (function(){
+
+          function Queue() {}
+
+          Queue.prototype.running = false;
+
+          Queue.prototype.queue = [];
+
+          Queue.prototype.add_function = function(callback) {
+              var _this = this;
+              //add callback to the queue
+              this.queue.push(function(){
+                  var finished = callback();
+                  if(typeof finished === "undefined" || finished) {
+                     //  if callback returns `false`, then you have to
+                     //  call `next` somewhere in the callback
+                     _this.next();
+                  }
+              });
+
+              if(!this.running) {
+                  // if nothing is running, then start the engines!
+                  this.next();
+              }
+
+              return this; // for chaining fun!
+          };
+
+          Queue.prototype.next = function(){
+              //get the first element off the queue
+              var shift = this.queue.shift();
+              if(shift) {
+                  this.running = true;
+                  shift();
+              }
+          };
+
+          return Queue;
+
+      })();
+
+      var queue = new Queue();
+
+    /**
+     * Upload a file to Perfecto
+     * @param {string} path The path for the command to send
+     * @param {string} file The path to the file
+     * @param {function=} done A callback for completion
+     */
+    function sendFile(path, file, done) {
+      soda.console.debug("Upload Request--------"+settings.PERFECTO_HOST+path+" file: " + file);
+
+      queue.add_function(function(){
+        fs.exists(file, function (exists) {
+            if(exists) {
+              soda.console.debug("File " + file + " exists...creating stream");
+
+              fs.createReadStream(file).pipe(request.put({ url: settings.PERFECTO_HOST+path, timeout: 180000 }, function (err, response, body) {
+                  queue.running = false;
+                  queue.next();
+
+                  if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                  soda.console.debug("File " + file + " upload complete");
+
+                  done(err, body);
+              }).on('drain', () => {
+                console.log('Bytes written so far:', request.req.connection.bytesWritten);
+              })
+            );
+            }
+            else {
+              queue.running = false;
+              queue.next();
+
+              soda.console.debug("File " + file + " not found");
+
+              done(new Error("Could not find application file:" + file), null);
+            }
+        });
+      });
+    }
+
+    /**
+     * Send a command to Perfecto as binary using a get request
+     * @param {string} path The path for the command to send
+     * @param {function=} done A callback for completion
+     */
+    function sendBinaryPerfectoRequest(path, done) {
+        soda.console.debug("Binary URL Request--------"+settings.PERFECTO_HOST+path);
+
+        queue.add_function(function(){
+          request(settings.PERFECTO_HOST+path, { encoding: 'binary', timeout: 15000 }, function (err, response, body) {
+              queue.running = false;
+              queue.next();
+
+              if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+              done(err, body);
+          });
+        });
+    }
+
+    /**
+     * Send a command to Perfecto using a get request
+     * @param {string} path The path for the command to send
+     * @param {function=} done A callback for completion
+     */
+    function sendPerfectoRequest(path, done) {
+      soda.console.debug("URL Request--------"+settings.PERFECTO_HOST+path);
+      queue.add_function(function(){
+        request(settings.PERFECTO_HOST+path, { timeout: 200000 }, function (err, response, body) {
+            queue.running = false;
+            queue.next();
+
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            done(err, body);
+        });
+      });
+    }
+
+    /**
+     * Send a command to Perfecto using a get request
+     * @param {string} path The path for the command to send
+     * @param {number} timeout The number of milliseconds in which to timeout
+     * @param {function=} done A callback for completion
+     */
+    function sendPerfectoRequestWithTimeout(path, timeout, done) {
+      soda.console.debug("URL Request--------"+settings.PERFECTO_HOST+path);
+
+      queue.add_function(function(){
+        request(settings.PERFECTO_HOST+path, { timeout: timeout+15000 }, function (err, response, body) {
+            queue.running = false;
+            queue.next();
+
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            done(err, body);
+        });
+      });
+    }
+
+    /**
+     * The user parameter default string to add to the URL
+     * @returns {string} A string to append to the URL
+     */
+    function userParams() {
+        return '&amp;user='+settings.PERFECTO_USER+'&amp;password='+settings.PERFECTO_PASSWORD+RESPONSE_FORMAT;
+    }
+
+    /**
+     * The handset id parameter default string to add to the URL
+     * @returns {string} A string to append to the URL
+     */
+    function paramHandSetId() {
+        return '&amp;param.handsetId='+self.deviceId;
+    }
+
+    /**
+     * The instrument parameter to add to the URL
+     * @returns {string} A string to append to the URL
+     */
+    function instrumentParam() {
+      if (soda.config.get("platform").toLowerCase() === "android" || soda.config.get("platform").toLowerCase() === "androidtab") {
+          return '&amp;param.instrument=instrument';
+      }
+      else {
+          return '&amp;param.instrument=instrument';
+      }
+    }
+
+    /**
+     * The execution string parameter with the execution id as default string to add to the URL
+     * @returns {string} A string to append to the URL
+     */
+    function executionStringWithId() {
+        return EXECUTION_STRING+self.executionId+'?';
+    }
+
+    /**
+     * The execution string parameter without the execution id as default string to add to the URL
+     * @returns {string} A string to append to the URL
+     */
+    function executionStringWithoutId() {
+        return EXECUTION_STRING;
+    }
+
+    /**
+     * Gets the current execution id
+     * @returns {string} The execution id
+     */
+    this.getExecutionId = function() {
+        return self.executionId;
+    };
+
+    /**
+     * Tells whether a service call is still running
+     * @returns {boolean} Whether the service call is still running
+     */
+    this.isStillRunning = function() {
+        return self.stillRunning;
+    };
+
+    /**
+     * Sets whether a service call is still running
+     * @param {boolean} val Sets whether the service call is still running
+     */
+    this.setIsStillRunning = function(val) {
+        self.stillRunning = val;
+    };
+
+    /**
+     * Returns the list of available handsets in Perfecto
+     * @param {function=} done A callback for completion
+     */
+    self.listAvailableHandsets = function(done) {
+        sendPerfectoRequest('/services/handsets?operation=list'+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            xml2js.parseString(result, { explicitArray: false }, (err, res) => {
+                if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                var devices = [];
+
+                if (res &amp;&amp; res.handsets) {
+                  res.handsets.handset.sodaeach(function (device) {
+                    devices.push(device);
+                  });
+                }
+
+                return err ? done(err, false) : done(null, devices);
+            });
+        });
+    };
+
+    /**
+     * Starts an execution block in Perfecto
+     * @param {function=} done A callback for completion
+     */
+    self.beginExecutionBlock = function(done) {
+        sendPerfectoRequest(EXECUTION_STRING+'?operation=start'+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            var jsonResult = JSON.parse(result);
+
+            if (jsonResult.executionId) {
+                self.executionId = jsonResult.executionId;
+                return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+            }
+            else {
+                done(err, false);
+            }
+        });
+    };
+
+    /**
+     * Ends an execution block in Perfecto
+     * @param {function=} done A callback for completion
+     */
+    this.endExecutionBlock = function(done) {
+        sendPerfectoRequest(EXECUTION_STRING+self.executionId+'?operation=end'+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Sets a persona in Perfecto
+     * @param {string} name Sets a Persona for the current device
+     * @param {function=} done A callback for completion
+     */
+    this.setPersona = function(name, done) {
+      // Georgia or Peter or Ross or Sam or Sara
+      sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+DEVICE_COMMAND+SETUP_SUBCOMMAND+'&amp;param.persona='+name+paramHandSetId()+userParams(), function (err, result) {
+          if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+          soda.console.debug(result);
+          var jsonResult = JSON.parse(result);
+
+          return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+      });
+    };
+
+    /**
+     * Starts monitoring on the current run in Perfecto
+     * @param {function=} done A callback for completion
+     */
+    this.startMonitor = function(done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+MONITOR_COMMAND+START_SUBCOMMAND+'&amp;param.interval=10'+paramHandSetId()+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Stops monitoring on the current run in Perfecto
+     * @param {function=} done A callback for completion
+     */
+    this.stopMonitor = function(done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+MONITOR_COMMAND+STOP_SUBCOMMAND+paramHandSetId()+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Opens the current handset to run tests on in Perfecto
+     * @param {function=} done A callback for completion
+     */
+    this.openHandSet = function(done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+DEVICE_COMMAND+OPEN_SUBCOMMAND+'&amp;param.script=noscript&amp;param.video=record'+paramHandSetId()+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Closes the current handset that tests are running on in Perfecto
+     * @param {function=} done A callback for completion
+     */
+    this.closeHandSet = function(done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+DEVICE_COMMAND+CLOSE_SUBCOMMAND+'&amp;param.script=noscript'+paramHandSetId()+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Recovers the current handset in Perfecto
+     * @param {function=} done A callback for completion
+     */
+    this.recoverHandSet = function(done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+DEVICE_COMMAND+RECOVER_SUBCOMMAND+paramHandSetId()+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Reclaims a particular device in Perfecto
+     * @param {string} deviceId The device id to reclaim
+     * @param {function=} done A callback for completion
+     */
+    this.reclaimDevice = function(deviceId, done) {
+      self.deviceId = deviceId;
+
+      self.getLastExecutionId(function(err, executionId) {
+        if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+        self.executionId = executionId;
+
+        self.closeHandSet(function(err, result) {
+          if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+          soda.console.debug(result);
+
+          self.endExecutionBlock(done);
+        });
+      });
+    };
+
+    /**
+     * Gets the last execution id that ran in Perfecto for this user
+     * @param {function=} done A callback for completion
+     */
+    this.getLastExecutionId = function(done) {
+      sendPerfectoRequest(executionStringWithoutId()+'?operation=list&amp;time.anchor=-1'+userParams(), function (err, result) {
+          if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+          var jsonResult = JSON.parse(result),
+              executionId = null;
+
+          if (jsonResult.executions) {
+              var lastExecutionId = '';
+
+              for (var i = 0; i &lt; jsonResult.executions.length; i++) {
+                if (lastExecutionId &lt; jsonResult.executions[i].executionId) {
+                    lastExecutionId = jsonResult.executions[i].executionId;
+                }
+              }
+
+              executionId = lastExecutionId;
+          }
+
+          return err ? done(err, false) : done(null, executionId);
+      });
+    };
+
+    /**
+     * Takes a handset to the home screen in Perfecto
+     * @param {function=} done A callback for completion
+     */
+    function homeHandSet(done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+HANDSET_COMMAND+READY_SUBCOMMAND+paramHandSetId()+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    }
+
+    /**
+     * Locks a handset for the specified number of seconds in Perfecto
+     * @param {number} seconds The number of seconds to lock the handset
+     * @param {function=} done A callback for completion
+     */
+    function lockHandSet(seconds, done) {
+        sendPerfectoRequestWithTimeout(executionStringWithId()+OPERATION_COMMAND+SCREEN_COMMAND+LOCK_SUBCOMMAND+'&amp;param.timeout='+seconds+paramHandSetId()+userParams(), parseInt(seconds)*1000, function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    }
+
+    /**
+     * Hides the keyboard on the current handset in Perfecto
+     * @param {function=} done A callback for completion
+     */
+    this.hideKeyboard = function(done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+KEYBOARD_COMMAND+DISPLAY_SUBCOMMAND+paramHandSetId()+'&amp;param.mode=off'+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Restores the keyboard on the current handset in Perfecto
+     * @param {function=} done A callback for completion
+     */
+    this.restoreKeyboard = function(done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+KEYBOARD_COMMAND+DISPLAY_SUBCOMMAND+paramHandSetId()+'&amp;param.mode=auto'+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Lists the items in a particular area and respositry in Perfecto
+     * @param {string} area The area to list the items
+     * @param {string} repositoryId The id of the repository to list items in
+     * @param {function=} done A callback for completion
+     */
+    this.listItems = function(area, repositoryId, done) {
+        listRepositoryItems(area, repositoryId, done);
+    };
+
+    /**
+     * Sends the list repository item command to Perfecto
+     * @param {string} area The area to list the items
+     * @param {string} repositoryId The id of the repository to list items in
+     * @param {function=} done A callback for completion
+     */
+    function listRepositoryItems(area, repositoryId, done) {
+        sendPerfectoRequest(REPOSITORY_STRING+area+'/'+repositoryId+'?operation=list'+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.items);
+        });
+    }
+
+    /**
+     * Sends the take screen shot command to Perfecto
+     * @param {string} fileName The filename where the screenshot should be stored
+     * @param {function=} done A callback for completion
+     */
+    function takePerfectoScreenShot(fileName, done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+SCREEN_COMMAND+IMAGE_SUBCOMMAND+paramHandSetId()+'&amp;param.format=png&amp;param.report.resolution=low&amp;param.source=primary&amp;param.key='+settings.PERFECTO_IMAGE_REPOSITORY+'/'+fileName+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    }
+
+    /**
+     * Sends the collect resolution command to Perfecto
+     * @param {function=} done A callback for completion
+     */
+    function getResolution(done) {
+      sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+DEVICE_COMMAND+INFO_SUBCOMMAND+paramHandSetId()+'&amp;param.property=resolution'+userParams(), function (err, result) {
+          if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+          var jsonResult = JSON.parse(result);
+
+          var resolution = jsonResult.returnValue.split('*');
+          console.log(resolution);
+
+          return err ? done(err, false) : done(null, resolution);
+      });
+  }
+
+/**
+ * Sends the get screen command to Perfecto and parses it from XML to JSON
+ * @param {function=} done A callback for completion
+ */
+  function getScreen(done) {
+        if (soda.config.get("platform").toLowerCase() === "android" || soda.config.get("platform").toLowerCase() === "androidtab") {
+          sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_COMMAND+INFO_SUBCOMMAND+paramHandSetId()+'&amp;param.property=source'+FRAMEWORK_ANDROID_PARAM+userParams(), function (err, result) {
+              if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+              var jsonResult = JSON.parse(result);
+
+              if (jsonResult.returnValue) {
+                var strVal = jsonResult.returnValue.toString().replace(/(\r\n|\n|\r)/gm,"");
+
+                xml2js.parseString(strVal, { explicitArray: false, strict: true }, (err, res) => {
+                    if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                    if (!res.device) {
+                        res.device = {};
+                    }
+
+                    return err ? done(err, false) : done(null, res);
+                });
+              }
+              else {
+                done("Could not get screen", false);
+              }
+          });
+        }
+        else if (soda.config.get("platform").toLowerCase() === "iphoneweb" || soda.config.get("platform").toLowerCase() === "ipadweb" || soda.config.get("platform").toLowerCase() === "androidweb" || soda.config.get("platform").toLowerCase() === "androidtabweb") {
+          if (soda.config.get("platform").toLowerCase() === "androidtabweb" || soda.config.get("platform").toLowerCase() === "androidweb") {
+            sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_COMMAND+INFO_SUBCOMMAND+paramHandSetId()+'&amp;param.property=source'+FRAMEWORK_ANDROID_PARAM+userParams(), function (err, result) {
+                if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                var jsonResult = JSON.parse(result);
+
+                if (jsonResult.returnValue) {
+                  var strVal = jsonResult.returnValue.toString().replace(/(\r\n|\n|\r)/gm,"");
+
+                  xml2js.parseString(strVal, { explicitArray: false, strict: true }, (err, res) => {
+                      if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                      if (!res.device) {
+                          res.device = {};
+                      }
+
+                      var aTree = null;
+
+                      if (result.device) {
+                        aTree = Tree.buildTree(result.device, {}, "android");
+                      }
+                      else {
+                        if (done) done(null, false);
+                      }
+
+                      sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_WEBPAGE+EXECUTE_SUBCOMMAND+paramHandSetId()+'&amp;param.repositoryFile='+settings.PERFECTO_SCRIPT_REPOSITORY+'/Script.js'+userParams(), function (err, result) {
+                        if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_WEBPAGE+INFO_SUBCOMMAND+paramHandSetId()+'&amp;param.property=outerHTML'+userParams(), function (err, result) {
+                            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                            var jsonResult = JSON.parse(result);
+
+                            if (jsonResult.returnValue) {
+                                var strVal = jsonResult.returnValue.toString().replace(/(\r\n|\n|\r)/gm,"");
+
+                                return err ? done(err, false) : done(null, strVal);
+                            }
+                            else {
+                              done("Could not get screen", false);
+                            }
+                        });
+                      });
+                  });
+                }
+                else {
+                  done("Could not get screen", false);
+                }
+            });
+          }
+          else {
+            sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_COMMAND+INFO_SUBCOMMAND+paramHandSetId()+'&amp;param.property=source'+FRAMEWORK_PARAM+userParams(), function (err, result) {
+                if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                var jsonResult = JSON.parse(result);
+
+                if (jsonResult.returnValue) {
+                  xml2js.parseString(jsonResult.returnValue.toString(), { explicitArray: false }, (err, res) => {
+                      if (!res.hierarchy) {
+                          res.hierarchy = {};
+                      }
+
+                      var iTree = null;
+
+                      var win = {};
+                      win.UIAWindow = res.AppiumAUT.UIAApplication.UIAWindow;
+                      iTree = Tree.buildTree(win, {}, "ios");
+
+                      if (iTree === false) {
+                        if (done) done(new Error("Could not get tree from Perfecto"), false);
+                      }
+
+                      sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_WEBPAGE+EXECUTE_SUBCOMMAND+paramHandSetId()+'&amp;param.repositoryFile='+settings.PERFECTO_SCRIPT_REPOSITORY+'/Script.js'+userParams(), function (err, result) {
+                        if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_WEBPAGE+INFO_SUBCOMMAND+paramHandSetId()+'&amp;param.property=outerHTML'+userParams(), function (err, result) {
+                            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                            var jsonResult = JSON.parse(result);
+
+                            if (jsonResult.returnValue) {
+                                var strVal = jsonResult.returnValue.toString().replace(/(\r\n|\n|\r)/gm,"");
+
+                                var res = strVal.match(/&lt;sodadom.*>(.*?)&lt;\/sodadom>/g).map(function(val){
+                                   val = val.replace(/&lt;\/?sodadom>/g,'');
+                                   return val.replace(/&lt;sodadom style="visibility: hidden;">/g,'');
+                                });
+
+                                res = res[0];
+
+                                res = JSON.parse(res);
+
+                                var first = res[Object.keys(res).shift()];
+
+                                res = first.children;
+
+                                delete iTree['window:1'].children['scrollview:0'].children['scrollview:1'].children['webview:0'].children;
+
+                                first = res[Object.keys(res).shift()];
+
+                                first.parent = {
+                                  id: 'webview:0',
+                                  name: iTree['window:1'].children['scrollview:0'].children['scrollview:1'].children['webview:0'].name ? iTree['window:1'].children['scrollview:0'].children['scrollview:1'].children['webview:0'].name : null,
+                                  label: iTree['window:1'].children['scrollview:0'].children['scrollview:1'].children['webview:0'].label ? iTree['window:1'].children['scrollview:0'].children['scrollview:1'].children['webview:0'].label : null,
+                                  value: iTree['window:1'].children['scrollview:0'].children['scrollview:1'].children['webview:0'].value ? iTree['window:1'].children['scrollview:0'].children['scrollview:1'].children['webview:0'].value : null
+                                };
+
+                                iTree['window:1'].children['scrollview:0'].children['scrollview:1'].children['webview:0'].children = res;
+
+                                return err ? done(err, false) : done(null, iTree);
+                            }
+                            else {
+                              done("Could not get screen", false);
+                            }
+                        });
+                      });
+                  });
+                }
+                else {
+                  done("Could not get screen", false);
+                }
+
+            });
+          }
+        }
+        else {
+          sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_COMMAND+INFO_SUBCOMMAND+paramHandSetId()+'&amp;param.property=source'+FRAMEWORK_PARAM+userParams(), function (err, result) {
+              if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+              var jsonResult = JSON.parse(result);
+
+              xml2js.parseString(jsonResult.returnValue.toString(), { explicitArray: false }, (err, res) => {
+                  if (!res.hierarchy) {
+                      res.hierarchy = {};
+                  }
+
+                  return err ? done(err, false) : done(null, res);
+             });
+          });
+        }
+    }
+
+    /**
+     * Sends the reset device command to Perfecto
+     * @param {function=} done A callback for completion
+     */
+    function reset(done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_COMMAND+CLEAN_SUBCOMMAND+paramHandSetId()+'&amp;param.name='+ self.applicationName +FRAMEWORK_PARAM+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            var jsonResult = JSON.parse(result);
+
+            xml2js.parseString(jsonResult.returnValue, { explicitArray: false }, (err, res) => {
+                if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                return err ? done(err, false) : done(null, res);
+            });
+        });
+    }
+
+    /**
+     * Sends the back command to Perfecto
+     * @param {function=} done A callback for completion
+     */
+    function back(done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+KEY_COMMAND+EVENT_SUBCOMMAND+'&amp;param.key=4&amp;param.metastate=0' +paramHandSetId()+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    }
+
+    /**
+     * Sends the get screen shot command to Perfecto
+     * @param {string} imageName The name of the image to store in the Perfecto repository area
+     * @param {string} pathToWrite The path where the screenshot should be written to on the local machine
+     * @param {function=} done A callback for completion
+     */
+    function getScreenShot(imageName, pathToWrite, done) {
+        sendBinaryPerfectoRequest(REPOSITORY_STRING+settings.PERFECTO_IMAGE_AREA+'/'+settings.PERFECTO_IMAGE_REPOSITORY+'/'+imageName+'.png?operation=download'+userParams(), function (err, png) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            try {
+                fs.writeFile(pathToWrite, png, 'binary', function (err) { if (err) soda.console.err(err.message); });
+            }
+            catch (e) {
+                soda.console.err(e.message);
+            }
+
+            done(err, png);
+        });
+    }
+
+    /**
+     * Sends the delete screen shot command to Perfecto
+     * @param {string} imageName The name of the image to store in the Perfecto repository area
+     * @param {function=} done A callback for completion
+     */
+    this.deleteScreenShot = function(imageName, done) {
+        sendPerfectoRequest(REPOSITORY_STRING+settings.PERFECTO_IMAGE_AREA+'/'+imageName+'?operation=delete'+userParams(), function (err, result) {
+          soda.console.debug(result);
+          var jsonResult = JSON.parse(result);
+
+          return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Sends the delete repository item command to Perfecto
+     * @param {string} area The area to delete the item from
+     * @param {string} repositoryId The id of the repository to delete from
+     * @param {string} fileName The file name to delete from the repository
+     * @param {function=} done A callback for completion
+     */
+    this.deleteRepositoryItem = function(area, repositoryId, fileName, done) {
+        sendPerfectoRequest(REPOSITORY_STRING+area+'/'+ repositoryId + '/' + fileName+'?operation=delete'+userParams(), function (err, result) {
+          if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+          soda.console.debug(result);
+          var jsonResult = JSON.parse(result);
+
+          return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Sends the open application command to Perfecto
+     * @param {string} applicationName The name of the applciation to open
+     * @param {function=} done A callback for completion
+     */
+    function openApp(applicationName, done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_COMMAND+OPEN_SUBCOMMAND+paramHandSetId()+'&amp;param.name='+applicationName+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    }
+    /**
+     * Sends the close application command to Perfecto
+     * @param {string} applicationName The name of the applciation to close
+     * @param {function=} done A callback for completion
+     */
+    function closeApp(applicationName, done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_COMMAND+CLOSE_SUBCOMMAND+paramHandSetId()+'&amp;param.name='+applicationName+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    }
+
+    /**
+     * Sends the upload command to Perfecto to upload an item to a repository
+     * @param {string} area The area to delete the item from
+     * @param {string} repositoryId The id of the repository to delete from
+     * @param {string} fileName The file name to delete from the repository
+     * @param {string} filePath The path to the local file to upload
+     * @param {function=} done A callback for completion
+     */
+    this.uploadFileToRepository = function(area, repositoryId, fileName, filePath, done) {
+        sendFile(REPOSITORY_STRING+area+'/'+ repositoryId + '/' + fileName +'?operation=upload'+userParams()+'&amp;overwrite=true'+userParams(), filePath, function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Sends the install app command to Perfecto to install from a repository id item
+     * @param {string} repositoryId The id of the repository to delete from
+     * @param {function=} done A callback for completion
+     */
+    this.installApp = function(repositoryId, done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_COMMAND+INSTALL_SUBCOMMAND+paramHandSetId()+'&amp;param.file='+repositoryId+instrumentParam()+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(err, result);
+            var jsonResult = JSON.parse(result);
+
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    };
+
+    /**
+     * Sends the uninstall app command to Perfecto to uninstall from a device
+     * @param {string} applicationName The name of the application id to uninstall
+     * @param {function=} done A callback for completion
+     */
+    this.uninstallApp = function(applicationName, done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_COMMAND+UNINSTALL_SUBCOMMAND+'&amp;param.name='+ applicationName+paramHandSetId()+userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(err, result);
+            var jsonResult = JSON.parse(result);
+
+            if (jsonResult.reason === "Success") {
+                xml2js.parseString(jsonResult.returnValue, { explicitArray: false }, (err, res) => {
+                    if (err) {
+                      soda.console.error("Error: " + err);
+
+                      return done(err, false);
+                    }
+
+                    return done(null, res);
+                });
+            }
+            else {
+              return done(new Error("Application wasn't uninstalled"), false);
+            }
+        });
+    };
+
+    /**
+     * Sends the send key command to Perfecto
+     * @param {string} keyCommand The key to send
+     * @param {function=} done A callback for completion
+     */
+    this.sendKeyCommand = function(keyCommand, done) {
+      sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+KEY_COMMAND+EVENT_SUBCOMMAND+"&amp;param.key="+keyCommand+paramHandSetId()+userParams(), function (err, result) {
+          if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+          soda.console.debug(result);
+          var jsonResult = JSON.parse(result);
+
+          return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+      });
+    };
+
+    function setElement(elementType, elementName, style, value, web, done) {
+        if (web) {
+          // sytle can be: set or append
+          sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+WEBPAGE_ELEMENT+SET_COMMAND+paramHandSetId()+'&amp;param.text='+ value +'&amp;param.by='+ elementType + '&amp;param.value=' + elementName + '&amp;param.edit=' + style + FRAMEWORK_PARAM +userParams(), function (err, result) {
+              if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+              soda.console.debug(result);
+              var jsonResult = JSON.parse(result);
+              return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+          });
+        }
+        else {
+          // sytle can be: set or append
+          sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_ELEMENT+SET_COMMAND+paramHandSetId()+'&amp;param.text='+ value +'&amp;param.by='+ elementType + '&amp;param.value=' + elementName + '&amp;param.edit=' + style + FRAMEWORK_PARAM +userParams(), function (err, result) {
+              if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+              soda.console.debug(result);
+              var jsonResult = JSON.parse(result);
+              return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+          });
+        }
+    }
+
+    /**
+     * Sends the click element command to Perfecto
+     * @param {string} elementType The element type to click, like id, label, etc.
+     * @param {string} elementName The name of the element to click
+     * @param {number} duration How long to hold the click down
+     * @param {boolean} web Whether this is a webview or a native app
+     * @param {function=} done A callback for completion
+     */
+    function clickElement(elementType, elementName, duration, web, done) {
+        var durationString = '';
+        if (parseInt(duration) > 0) {
+          durationString = '&amp;param.duration='+duration;
+        }
+        if (web) {
+          // sytle can be: set or append
+          sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+WEBPAGE_ELEMENT+CLICK_COMMAND+paramHandSetId()+durationString+'&amp;param.by='+ elementType + '&amp;param.value=' + elementName + FRAMEWORK_PARAM +userParams(), function (err, result) {
+              if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+              soda.console.debug(result);
+              var jsonResult = JSON.parse(result);
+              return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+          });
+        }
+        else {
+          // sytle can be: set or append
+          sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_ELEMENT+TAP_COMMAND+paramHandSetId()+durationString+'&amp;param.by='+ elementType + '&amp;param.value=' + elementName + FRAMEWORK_PARAM +userParams(), function (err, result) {
+              if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+              soda.console.debug(result);
+              var jsonResult = JSON.parse(result);
+              return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+          });
+        }
+    }
+
+    /**
+     * Sends the click element command to Perfecto to a particular x, y coordinate
+     * @param {string} x The x coordinate to click
+     * @param {string} y The y coordinate to click
+     * @param {number} duration How long to hold the click down
+     * @param {function=} done A callback for completion
+     */
+    function clickXY(x, y, duration, done) {
+        var durationString = '';
+        if (parseInt(duration) > 0) {
+          durationString = '&amp;param.duration='+duration;
+        }
+
+        // sytle can be: set or append
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+TOUCH_COMMAND+CLICKXY_COMMAND+durationString+'&amp;param.location='+ x + ',' + y + paramHandSetId()+ userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    }
+
+    /**
+     * Sends the find element command to Perfecto based upon a name
+     * @param {string} name The name of the element to find
+     * @param {function=} done A callback for completion
+     */
+    function findElement(name, done) {
+      // sytle can be: set or append
+      sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+APPLICATION_ELEMENT+FIND_SUB_COMMAND+paramHandSetId()+'&amp;param.by=linkText&amp;param.value=' + name + userParams(), function (err, result) {
+          if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+          soda.console.debug(result);
+          var jsonResult = JSON.parse(result);
+          return err ? done(err, false) : done(null, jsonResult.reason === "Success" &amp;&amp; jsonResult.returnValue !== null);
+      });
+    }
+
+    /**
+     * Sends the find element command to Perfecto based upon a name, and scrolls to it if it is not visible
+     * @param {string} name The name of the element to find
+     * @param {function=} done A callback for completion
+     */
+    function findElementWithScroll(name, done) {
+      // sytle can be: set or append
+
+      var urlEncodedName = encodeURIComponent(name);
+
+      sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+FIND_SUB_COMMAND+TEXT_COMMAND+paramHandSetId()+'&amp;param.content=' + urlEncodedName + userParams() + "&amp;param.scrolling=scroll&amp;param.next=SWIPE_UP&amp;param.context=all", function (err, result) {
+          if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+          soda.console.debug(result);
+          var jsonResult = JSON.parse(result);
+
+          if (jsonResult.reason === "ValidationFailure") {
+            sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+FIND_SUB_COMMAND+TEXT_COMMAND+paramHandSetId()+'&amp;param.content=' + urlEncodedName + userParams() + "&amp;param.scrolling=scroll&amp;param.next=SWIPE_DOWN&amp;param.context=all", function (err, result) {
+                if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+                soda.console.debug(result);
+                jsonResult = JSON.parse(result);
+
+                return err ? done(err, false) : done(null, jsonResult.reason === "Success" &amp;&amp; jsonResult.returnValue !== null);
+            });
+          }
+          else {
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success" &amp;&amp; jsonResult.returnValue !== null);
+          }
+      });
+    }
+
+    /**
+     * Sends the scroll command to Perfecto to a particular starting and ending coordinate
+     * @param {string} x0 The x starting coordinate to click from
+     * @param {string} y0 The y starting coordinate to click from
+     * @param {string} x1 The x ending coordinate to click to
+     * @param {string} y1 The y ending coordinate to click to
+     * @param {function=} done A callback for completion
+     */
+    function scroll(x0, y0, x1, y1, done) {
+        // sytle can be: set or append
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+TOUCH_COMMAND+SCROLL_COMMAND+paramHandSetId()+'&amp;param.start='+ x0 + ',' + y0 + '&amp;param.end=' + x1 + ',' + y1 + userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    }
+
+    /**
+     * Sends the swipe command to Perfecto using starting and ending coordinate
+     * @param {string} x0 The x starting coordinate to click from
+     * @param {string} y0 The y starting coordinate to click from
+     * @param {string} x1 The x ending coordinate to click to
+     * @param {string} y1 The y ending coordinate to click to
+     * @param {function=} done A callback for completion
+     */
+    function swipe(x0, y0, x1, y1, done) {
+        // sytle can be: set or append
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+TOUCH_COMMAND+SWIPE_SUBCOMMAND+paramHandSetId()+'&amp;param.start='+ encodeURIComponent(x0) + ',' + encodeURIComponent(y0) + '&amp;param.end=' + encodeURIComponent(x1) + ',' + encodeURIComponent(y1) + userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    }
+
+    /**
+     * Sends the scroll command to Perfecto using a string with start and end already defined
+     * @param {string} startAndEnd The start and end parameters
+     * @param {function=} done A callback for completion
+     */
+    function scrollCalculated(startAndEnd, done) {
+        sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+TOUCH_COMMAND+SCROLL_COMMAND+paramHandSetId()+startAndEnd+ userParams(), function (err, result) {
+            if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+            return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+        });
+    }
+
+    /**
+     * Sends the type command to Perfecto to whatever is waiting for it
+     * @param {string} text The text to type
+     * @param {function=} done A callback for completion
+     */
+    function typeText(text, done) {
+      sendPerfectoRequest(executionStringWithId()+OPERATION_COMMAND+TYPE_COMMAND+paramHandSetId()+'&amp;param.text=' + text + userParams(), function (err, result) {
+          if (err) { soda.console.error("Error: " + err); done(err, false); }
+
+          soda.console.debug(result);
+          var jsonResult = JSON.parse(result);
+          return err ? done(err, false) : done(null, jsonResult.reason === "Success");
+      });
+    }
+
+    /**
+     * Gets the resolution of the device
+     * @param {function=} done A callback for completion
+     */
+    this.getResolution = function(done) {
+      getResolution(function (err, result) {
+          return err ? done(err, false) : done(null, result);
+      });
+    };
+
+    /**
+     * Gets the application tree of the application's screen
+     * @param {function=} done A callback for completion
+     */
+    this.getSourceTree = function(done) {
+      getScreen(function (err, result) {
+          return err ? done(err, false) : done(null, result);
+      });
+    };
+
+    /**
+     * Gets the screen shot of the device
+     * @param {{}=} options Options to capture the screenshot with. Should include destination and filename
+     * @param {function=} done A callback for completion
+     */
+    this.takeScreenshot = function takeScreenshot (options, done) {
+      if(typeof options !== "object") options = {};
+      if(!options.filename) options.filename = "Screenshot " + (new Date()).toLocaleDateString().replace(/\//g, ".") + ".png";
+      if(!options.destination) options.destination = nodePath.join(settings.DEFAULT_FILE_LOCATION, options.filename);
+
+      takePerfectoScreenShot(options.filename, function (err, result) {
+        soda.console.debug('Took screen shot: ' + options.filename);
+
+        listRepositoryItems(settings.PERFECTO_IMAGE_AREA, settings.PERFECTO_IMAGE_REPOSITORY, function (err, items) {
+            soda.console.debug("List Repository Successfull");
+            if (items) {
+                soda.console.debug(items);
+
+                getScreenShot(options.filename, options.destination, function (err, result) {
+                    soda.console.debug('Saved file to: ' + options.destination);
+                    return err ? done(err, false) : done(null, result);
+                });
+            }
+            else {
+              return err ? done(err, false) : done(null, result);
+            }
+        });
+      });
+    };
+
+    /**
+     * Starts an application
+     * @param {string} applicationName The application name to start
+     * @param {function} done A callback for completion
+     */
+    this.startApplication = function(applicationName, done) {
+      var err = arguments.sodaexpect("string", "function|undefined|null").error;
+
+      if(err) {
+          if(done instanceof Function) done.call(self, err, false);
+          return;
+      }
+
+      self.applicationName = applicationName;
+      openApp(applicationName, function (err, result) {
+        soda.console.debug("Open App Complete with result of " + result);
+
+        return err ? done(err, false) : done(null, result);
+      });
+    };
+
+    /**
+     * Closes an application
+     * @param {string} applicationName The application name to stop
+     * @param {function} done A callback for completion
+     */
+     this.stopApplication = function(applicationName, complete) {
+       var err = arguments.sodaexpect("string", "function|undefined|null").error;
+
+       if(err) {
+           if(complete instanceof Function) complete.call(self, err, false);
+           return;
+       }
+
+       self.applicationName = applicationName;
+       closeApp(applicationName, function (err, result) {
+         soda.console.debug("Close App Complete with result of " + result);
+
+         return err ? complete(err, false) : complete(null, result);
+       });
+     };
+
+     /**
+      * Sets the text value on an element
+      * @param {string} element The element to type
+      * @param {string|number} text The text to type
+      * @param {boolean} web Whether this is a webview or a native app
+      * @param {function=} done A callback for completion
+      */
+    this.setValue = function (element, text, web, complete) {
+        var err = arguments.sodaexpect("object", "string|number", "function|undefined|null").error;
+        if(err) {
+            if(complete instanceof Function) complete.call(self, err, null);
+            return;
+        }
+
+        soda.console.debug("Automator: Performing set value on device `" + self.deviceId + "` with element `" + element['name'] + "`");
+
+        if (web) {
+          setElement('id', element['id'], 'set', text, element.web ? element.web : false, function(err, result) {
+            if (!result) {
+              setElement('className', element['name'], 'set', text, element.web ? element.web : false, function(err, result) {
+                if (!result) {
+                  setElement('name', element['id'], 'set', text, element.web ? element.web : false, function(err, result) {
+                    if (!result) {
+                      setElement('linkText', element['value'], 'set', text, element.web ? element.web : false, complete);
+                    }
+                    else {
+                      complete(null, result);
+                    }
+                  });
+                }
+                else {
+                  complete(null, result);
+                }
+              });
+            }
+            else {
+              complete(null, result);
+            }
+          });
+        }
+        else if (element.resourceid) {
+            setElement('id', element.resourceid, 'set', text, element.web ? element.web : false, function(err, result) {
+                if (!result) {
+                      setElement('name', element['value'], 'set', text, element.web ? element.web : false, function(err, result) {
+                        if (!result) {
+                          setElement('id', element['value'], 'set', text, element.web ? element.web : false, complete);
+                        }
+                        else {
+                          complete(null, result);
+                        }
+                      });
+                  }
+                  else {
+                      complete(null, result);
+                  }
+            });
+        }
+        else {
+            setElement('id', element['name'], 'set', text, element.web ? element.web : false, function(err, result) {
+              if (!result) {
+                setElement('name', element['name'], 'set', text, element.web ? element.web : false, function(err, result) {
+                  if (!result) {
+                    setElement('name', element['value'], 'set', text, element.web ? element.web : false, function(err, result) {
+                      if (!result) {
+                        setElement('id', element['value'], 'set', text, element.web ? element.web : false, complete);
+                      }
+                      else {
+                        complete(null, result);
+                      }
+                    });
+                  }
+                  else {
+                    complete(null, result);
+                  }
+                });
+              }
+              else {
+                complete(null, result);
+              }
+            });
+          }
+    };
+
+    /**
+     * Tap on an element on the specified device
+     * @param {string} element The element to tap
+     * @param {{}=} options Options tap with, can include duration
+     * @param {function=} complete A callback for completion
+     */
+    this.tap = function (element, options, complete) {
+        var err = arguments.sodaexpect("object", "object|undefined|null", "function|undefined|null").error,
+            duration = 0;
+        if(err) throw err;
+
+        soda.console.debug("Perfecto: Performing tap on device `" + self.deviceId + "` with element `" + element['name'] + "`");
+
+        if (options.duration) {
+          duration = options.duration;
+        }
+
+        if (element.web) {
+          clickElement('id', element['id'], duration, element.web ? element.web : false, function(err, result) {
+            if (!result) {
+              clickElement('className', element['name'][0], duration, element.web ? element.web : false, function(err, result) {
+                if (!result) {
+                  clickElement('linkText', element['value'], duration, element.web ? element.web : false, function(err, result) {
+                    if (!result) {
+                      clickXY(element.hitpoint.x, element.hitpoint.y, duration, complete);
+                    }
+                    else {
+                      complete(null, result);
+                    }
+                  });
+                }
+                else {
+                  complete(null, result);
+                }
+              });
+            }
+            else {
+              complete(null, result);
+            }
+          });
+        }
+        else if (element.resourceid) {
+            clickElement('id', element.resourceid, duration, element.web ? element.web : false, function(err, result) {
+                if (!result) {
+                  clickXY(element.hitpoint.x, element.hitpoint.y, duration, function(err, result) {
+                    if (!result) {
+                      clickElement('name', element['value'], duration, element.web ? element.web : false, function(err, result) {
+                        if (!result) {
+                          clickElement('id', element['value'], duration, element.web ? element.web : false, complete);
+                        }
+                        else {
+                          complete(null, result);
+                        }
+                      });
+                    }
+                    else {
+                      complete(null, result);
+                    }
+                  });
+                }
+                else {
+                    complete(null, result);
+                }
+            });
+        }
+        else {
+          console.log('clickXY', element);
+          clickXY(element.hitpoint.x, element.hitpoint.y, duration, function(err, result) {
+            if (!result) {
+              clickElement('id', element['name'], duration, element.web ? element.web : false, function(err, result) {
+                if (!result) {
+                  clickElement('name', element['name'], duration, element.web ? element.web : false, function(err, result) {
+                    if (!result) {
+                      clickElement('name', element['value'], duration, element.web ? element.web : false, function(err, result) {
+                        if (!result) {
+                          clickXY(element.hitpoint.x, element.hitpoint.y, duration, complete);
+                        }
+                        else {
+                          complete(null, result);
+                        }
+                      });
+                    }
+                    else {
+                      complete(null, result);
+                    }
+                  });
+                }
+                else {
+                  complete(null, result);
+                }
+              });
+            }
+            else {
+              complete(null, result);
+            }
+          });
+        }
+    };
+
+    /**
+     * Tap screen coordinates
+     * @param {{}=} options Options to capture the screenshot with. May include duration
+     * @param {function} complete A callback for completion
+     */
+    this.tapXY = function (options, complete) {
+      var duration = 0;
+
+      if (options.duration) {
+        duration = options.duration;
+      }
+
+        var err = arguments.sodaexpect("object", "function|undefined|null").error;
+
+        if(err) {
+            if(complete instanceof Function) complete.call(self, err, false);
+            return;
+        }
+
+        clickXY(options.x, options.y, duration, complete);
+    };
+
+    /**
+    * Type on the device keyboard
+    * @param {string=} string The string to type on the keyboard
+    * @param {function=} complete A callback for completion
+    * @returns {*}
+    */
+    this.typeOnKeyboard = function (string, complete) {
+        var err = arguments.sodaexpect("string", "function|undefined|null").error;
+
+        if(err) {
+            if(complete instanceof Function) complete.call(self, err, false);
+            return;
+        }
+
+        typeText(string, complete);
+    };
+
+    /**
+    * Finds an element by name
+    * @param {string=} name The name of the element to find
+    * @param {function=} complete A callback for completion
+    * @returns {*}
+    */
+    this.findElement = function (name, complete) {
+        var err = arguments.sodaexpect("string", "function|undefined|null").error;
+
+        if(err) {
+            soda.console.error(err);
+            if(complete instanceof Function) complete.call(self, err, false);
+            return;
+        }
+
+        findElement(name, complete);
+    };
+
+    /**
+    * Finds an element by name and scrolls to it if not found
+    * @param {string=} name The name of the element to find
+    * @param {function=} complete A callback for completion
+    * @returns {*}
+    */
+    this.findElementWithScroll = function (name, complete) {
+        var err = arguments.sodaexpect("string", "function|undefined|null").error;
+
+        if(err) {
+            soda.console.error(err);
+            if(complete instanceof Function) complete.call(self, err, false);
+            return;
+        }
+
+        findElementWithScroll(name, complete);
+    };
+
+    /**
+    * Scrolls based upon a calculated start and end value
+    * @param {string=} startAndEnd The start and end parameters
+    * @param {function=} complete A callback for completion
+    * @returns {*}
+    */
+    this.scrollCalculated = function (startAndEnd, complete) {
+        var err = arguments.sodaexpect("string", "function|undefined|null").error;
+
+        if(err) {
+            if(complete instanceof Function) complete.call(self, err, false);
+            return;
+        }
+
+        scrollCalculated(startAndEnd, complete);
+    };
+
+    /**
+     * Swipes from point to point using the coordinates provided
+     * @param {{}=} options Options to capture the screenshot with. Must include coordinates
+     * @param {function} complete A callback for completion
+     */
+    this.swipe = function (options, complete) {
+        var err = arguments.sodaexpect("object", "function|undefined|null").error,
+          values = options.coordinates.split(","),
+              x0, y0, x1, y1;
+
+        if(err) {
+            if(complete instanceof Function) complete.call(self, err, false);
+            return;
+        }
+        else if (values.length &lt; 4) {
+          if(complete instanceof Function) complete.call(self, new Error("Not enough parameters"), false);
+          return;
+        }
+
+        x0 = values[0];
+        x1 = values[2];
+        y0 = values[1];
+        y1 = values[3];
+
+        swipe(x0, y0, x1, y1, complete);
+    };
+
+    /**
+     * Press the back button on the current device
+     * @param {{}=} options Options to capture the screenshot with. Should include destination
+     * @param {function} complete A callback for completion
+     */
+    this.back = function (options, complete) {
+        var err = arguments.sodaexpect("object", "function|undefined|null").error;
+
+        if(err) {
+            if(complete instanceof Function) complete.call(self, err, false);
+            return;
+        }
+
+        back(complete);
+    };
+
+    /**
+     * Navigates to the home screen
+     * @param {{}=} options Options to capture the screenshot with.
+     * @param {function} complete A callback for completion
+     */
+    this.home = function (options, complete) {
+        var err = arguments.sodaexpect("object", "function|undefined|null").error;
+
+        if(err) {
+            if(complete instanceof Function) complete.call(self, err, false);
+            return;
+        }
+
+        homeHandSet(complete);
+    };
+
+    /**
+     * Locks the screen for set number of seconds
+     * @param {{}=} options Options to capture the screenshot with.
+     * @param {function} complete A callback for completion
+     */
+    this.lock = function (options, complete) {
+        var err = arguments.sodaexpect("object", "function|undefined|null").error;
+
+        if(err) {
+            if(complete instanceof Function) complete.call(self, err, false);
+            return;
+        }
+
+        lockHandSet(options.seconds, complete);
+    };
+
+    /**
+     * Resets the device to remove all data (be careful with this one)
+     * @param {function} done A callback for completion
+     */
+    this.resetAppData = function (complete) {
+        var err = arguments.sodaexpect("function|undefined|null").error;
+        if(err) {
+            if(complete instanceof Function) complete.call(self, err, false);
+            return;
+        }
+
+        reset(complete);
+    };
+
+    /**
+     * Gets the device screen bounds
+     * @param {function} complete A callback for completion
+     */
+    this.getScreenBounds = function (done) {
+        this.getSourceTree(function(err, screen) {
+              if (soda.config.get("platform").toLowerCase() === "android" || soda.config.get("platform").toLowerCase() === "androidtab") {
+                  var aTree = Tree.buildTree(screen.device, {}, "android");
+
+                  if(done instanceof Function) done.call(self, err, [aTree['view:0'].rect.size.width, aTree['view:0'].rect.size.height]);
+              }
+              else if (soda.config.get("platform").toLowerCase() === "iphoneweb" || soda.config.get("platform").toLowerCase() === "ipadweb" || soda.config.get("platform").toLowerCase() === "androidweb" || soda.config.get("platform").toLowerCase() === "androidtabweb") {
+                  var res = screen.match(/&lt;sodadom>(.*?)&lt;\/sodadom>/g).map(function(val){
+                     return val.replace(/&lt;\/?sodadom>/g,'');
+                  });
+
+                  res = res[0];
+
+                  if (res &amp;&amp; res[soda.config.get("sodaRootId")]) {
+                    res[soda.config.get("sodaRootId")].rect = {
+                        origin: {
+                            x: res[soda.config.get("sodaRootId")].xoffset,
+                            y: res[soda.config.get("sodaRootId")].yoffset
+                        },
+                        size: {
+                            height: res[soda.config.get("sodaRootId")].innerheight,
+                            width: res[soda.config.get("sodaRootId")].innerwidth
+                        }
+                    };
+                  }
+
+                  if(done instanceof Function) done.call(self, err, [res.rect.size.width, res.rect.size.height]);
+              }
+              else {
+                  var win = {};
+                  win.UIAWindow = screen.AppiumAUT.UIAApplication.UIAWindow;
+                  var iTree = Tree.buildTree(win, {}, "ios");
+
+                  if(done instanceof Function) done.call(self, err, [iTree['window:0'].rect.size.width, iTree['window:0'].rect.size.height]);
+            }
+        });
+    };
+};
+
+module.exports = PerfectoDriver;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

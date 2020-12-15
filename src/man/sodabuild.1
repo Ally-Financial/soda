@@ -1,0 +1,115 @@
+.TH sodabuild 1 "JANUARY 2018" Soda "Simple Object Driven Automation"
+.SH NAME
+sodabuild \-\- builds a framework's binary using Soda
+.SH SYNOPSIS
+.B sodar [-odvc]
+.B [-f
+.I framework
+.B ]
+.I arguments
+.B ...
+
+
+.SH DESCRIPTION
+The
+.I sodabuild
+command builds a project binary using the specified framework (if supported).
+
+.I arguments
+are specific to each framework, but typically follow the following format:
+.RS
+.B [
+.I device
+.B ]
+.B [
+.I project path
+.B ]
+.B [
+.I destination
+.B ]
+.RE
+
+For Instruments:
+.RS
+.B [
+.I device
+.B ]
+.B [
+.I project path
+.B ]
+.B [
+.I destination
+.B ]
+.RE
+
+For Automator:
+.RS
+.B [
+.I device
+.B ]
+.B [
+.I myapp.apk
+.B ]
+.RE
+
+For the instruments framework, device is the simulator or device name in the following format:
+.RS
+[ simulator name ] [ runtime ]
+.RE
+.RS
+Example: "iPad Air 9.2" or iPad\\ Air\\ 9.2
+.RE
+
+For the Automator framework the device is the name of the simulator with underscores.
+.RS
+So a simulator named "Nexus 5 API 23" would be "Nexus_5_API_23"
+.RE
+
+.SH OPTIONS
+.IP "-f framework"
+Required. The framework to launch (e.g.
+.I instruments, automator, selenium
+)
+.IP "-c log colors"
+Enables or disable color logging. Use -c to enable color logging and -c
+.I false
+to disable it. It is enabled by default.
+.IP "-v verbose logging"
+Enables or disable verbose logging. Use -v to enable verbose logging and -v
+.I false
+to disable it. It is enabled by default.
+.IP "-d debug logging"
+Enables or disable debug logging. Use -d to enable debug logging and -d
+.I false
+to disable it. It is enabled by default.
+
+.SH FILES
+.B $SODA_PATH/SodaCommon/Config.js
+.RS
+The system wide configuration file.
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/instruments/imports/Config.js
+.RS
+Configuration settings for the Instruments framework
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/automator/imports/Config.js
+.RS
+Configuration settings for the Automator framework
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/selenium/imports/Config.js
+.RS
+Configuration settings for the Selenium framework
+.RE
+
+.SH AUTHOR
+Jason Pollman & James Pavlic
+.SH "SEE ALSO"
+.BR soda (1),
+.BR sodamake (1),
+.BR sodareset (1)
+.BR sodatrace (1)
+.BR sodarun (1)
+.BR sodaeditor (1)

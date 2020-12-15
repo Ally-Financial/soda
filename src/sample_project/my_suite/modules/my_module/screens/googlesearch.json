@@ -1,0 +1,19 @@
+{
+    "meta": {
+        "name": "googlesearch",
+        "id": "googlesearch",
+        "description": "Validates google",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "screen": {
+        "components": [
+            {
+                "assert": "GOOGLE_SEARCH_INPUT_FIELD",
+                "exists": true
+            }
+        ]
+    }
+}

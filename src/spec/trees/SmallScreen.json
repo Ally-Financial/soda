@@ -1,0 +1,66 @@
+{
+    "window:0": {
+        "id": "window:0",
+        "element": {},
+        "type": "window",
+        "name": null,
+        "label": null,
+        "value": null,
+        "rect": {
+            "origin": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "width": 768,
+                "height": 1024
+            }
+        },
+        "hitpoint": {
+            "x": 384,
+            "y": 512
+        },
+        "enabled": true,
+        "visible": true,
+        "hasKeyboardFocus": false,
+        "valid": true,
+        "children": {
+            "button:0": {
+                "id": "button:0",
+                "element": {},
+                "type": "button",
+                "name": "help icon",
+                "label": "help icon",
+                "value": null,
+                "rect": {
+                    "origin": {
+                        "x": 0,
+                        "y": 20
+                    },
+                    "size": {
+                        "width": 40,
+                        "height": 40
+                    }
+                },
+                "hitpoint": {
+                    "x": 20,
+                    "y": 40
+                },
+                "enabled": true,
+                "visible": true,
+                "hasKeyboardFocus": false,
+                "valid": true,
+                "children": {},
+                "index": 0,
+                "parent": {
+                    "id": "window:0",
+                    "name": null,
+                    "value": null,
+                    "label": null
+                }
+          }
+        },
+        "index": 2,
+        "parent": {}
+    }
+}

@@ -1,0 +1,65 @@
+<div id="test-monitor">
+    <div id="test-monitor-wrapper">
+        <div id="test-monitor-controls">
+            <h1 id="test-monitor-status">Stopped</h1>
+            <em id="do-last" class="fa fa-backward" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Repeat last test item"></em>
+            <em id="do-stop" class="fa fa-stop" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Stop Testing"></em>
+            <em id="do-pause" class="fa fa-pause" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Pause Testing"></em>
+            <em id="do-resume" class="fa fa-play" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Resume Testing"></em>
+            <em id="do-skip" class="fa fa-forward" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Skip current test evaluation"></em>
+            <em id="do-next" class="fa fa-fast-forward" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Go to next test evaluation"></em>
+            <em id="do-continue" class="fa fa-eject" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Continue and end test"></em>
+        </div>
+        <div id="test-monitor-items">
+            <div id="test-monitor-info">
+                <h3>Test Info</h3>
+                <div class="attribute-info">
+                    <div class="test-monitor-info-message">Press (s) to skip to the next test evaluation...</div>
+                </div>
+            </div>
+            <div id="test-monitor-test-info">
+                <h3>Test Information</h3>
+                <div class="attribute-info">
+                    <div class="test-monitor-test-name inline attribute-key">Name</div>
+                    <div class="test-monitor-test-name inline attribute-value">Name</div>
+                </div>
+                <div class="attribute-info">
+                    <div class="test-monitor-test-id inline attribute-key">Id</div>
+                    <div class="test-monitor-test-id inline attribute-value">Id</div>
+                </div>
+                <div class="attribute-info">
+                    <div class="test-monitor-test-module inline attribute-key">Module</div>
+                    <div class="test-monitor-test-module inline attribute-value">Module</div>
+                </div>
+                <div class="attribute-info">
+                    <div class="test-monitor-test-suite inline attribute-key">Suite</div>
+                    <div class="test-monitor-test-suite inline attribute-value">Suite</div>
+                </div>
+                <div class="attribute-info">
+                    <div class="test-monitor-test-desc inline attribute-key">Description</div>
+                    <div class="test-monitor-test-desc inline attribute-value">Description</div>
+                </div>
+            </div>
+            <div id="test-monitor-current">
+                <h3>Current Action</h3>
+                <div id="test-monitor-current-wrapper">
+                    <div class="attribute-info root">
+                        <div class="inline attribute-key">Waiting<span class="dot-dot-dot">...</span></div>
+                    </div>
+                </div>
+            </div>
+            <div id="test-monitor-last">
+                <h3>Last Action</h3>
+                <div id="test-monitor-last-wrapper">
+                    <div class="attribute-info root">
+                        <div class="inline attribute-key">Waiting<span class="dot-dot-dot">...</span></div>
+                    </div>
+                </div>
+            </div>
+            <div id="test-monitor-output">
+                <h3>Test Output</h3>
+                <ul id="test-output"></ul>
+            </div>
+        </div>
+    </div>
+</div>

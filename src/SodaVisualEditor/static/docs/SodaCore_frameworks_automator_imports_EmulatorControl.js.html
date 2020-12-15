@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaCore/frameworks/automator/imports/EmulatorControl.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaCore/frameworks/automator/imports/EmulatorControl.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+/**
+ * @module Automator/EmulatorControl
+ */
+
+/**
+ *  Automator/EmulatorControl
+ * @param {object} soda The Soda library
+ * @param {object} settings Automator settings object
+ * @constructor
+ */
+var EmulatorControl = function (soda, settings) {
+
+    var self     = this,
+        adb      = settings.ADB_PATH,
+        aapt     = settings.AAPT_TOOLS_PATH,
+        exec     = require("child_process").exec,
+        spawn    = require("child_process").spawn,
+        fs       = require("fs"),
+        xml2js   = require("xml2js").Parser();
+
+    /**
+     * Find all the ports in that ADB devices are currently running on
+     * @param {function} done A callback for completion
+     */
+    this.findBoundPorts = function (done) {
+        var err = arguments.sodaexpect("function").error;
+
+        if(err) {
+            if(done instanceof Function) done.call(self, err, null);
+            return;
+        }
+
+        exec(adb + " devices", function (err, stdout, stderr) {
+            if(err || stderr) {
+                if(done instanceof Function) done.call(self, err || new Error(stderr), null);
+            }
+            else {
+                var reg = /emulator-(\d+)/g,
+                    res = [], m;
+
+                while((m = reg.exec(stdout)) !== null) res.push(m[1]);
+                if(done instanceof Function) done.call(self, null, res);
+            }
+        });
+    };
+
+    /**
+     * Runs the `adb devices` and looks for the specified device
+     * @param {object} device The device to check availability for
+     * @param {function} done A callback for completion
+     */
+    this.isDeviceAvailable = function (device, done) {
+        var err = arguments.sodaexpect("object", "function").error;
+
+        if(err) {
+            if(done instanceof Function) done.call(self, err, false);
+            return;
+        }
+
+        exec(adb + " kill-server &amp;&amp; " + adb + " devices", function (err, stdout, stderr) {
+            if(err || stderr) {
+                if(done instanceof Function) done.call(self, err || new Error(stderr), false);
+            }
+            else {
+                var res = stdout.match(device.serial);
+                if(done instanceof Function) done.call(self, null, !!res);
+            }
+        });
+    };
+
+    /**
+     * Runs the `adb shell setprop`
+     * @param {object} device The device to check availability for
+     * @param {string} identifier to write
+     * @param {function} done A callback for completion
+     */
+    this.writeUsbIdentifier = function(deviceName, deviceIdentifier, done) {
+        soda.console.debug("Automator: Writing identifier: `" + deviceIdentifier + "` to device `" + deviceName + "`");
+        exec(adb + " -s " + deviceName + " shell setprop persist.usb.serialno " + deviceIdentifier, function (err, stdout, stderr) {
+            if(done instanceof Function) {
+                done(err ? err : stderr ? new Error(stderr) : null);
+            }
+        });
+    };
+
+    /**
+     * Runs the `adb devices` and looks for the specified device
+     * @param {object} device The device to check availability for
+     * @param {function} done A callback for completion
+     */
+    this.attachToDeviceIfPossible = function (device, done) {
+        exec(adb + " kill-server", function (err, stdout, stderr) {
+            if(err || stderr) {
+                if(done instanceof Function) done.call(self, err || new Error(stderr), null);
+            }
+            else {
+                soda.console.warn("Automator: ADB server killed, finding running devices...");
+                exec(adb + " devices", function (err, stdout, stderr) {
+                    if(err || stderr) {
+                        if(done instanceof Function) done.call(self, err || new Error(stderr), null);
+                    }
+                    else {
+                        var found       = false,
+                            deviceRegex = /(.*)\tdevice/g,
+                            devices     = [],
+                            match       = deviceRegex.exec(stdout);
+
+                        while (match !== null) {
+                            devices.push(match[1]);
+                            match = deviceRegex.exec(stdout);
+                        }
+
+                        soda.console.debug("Automator: Found device(s) with serial(s):", (devices.length > 0 ? devices.join(", ") : "(none)"));
+                        if(devices.length === 0) {
+                            if(done instanceof Function) done.call(self, null, null);
+                        }
+                        else {
+                            (function loopDevices (i) {
+                                if (i &lt; devices.length) {
+                                    var serial = devices[i];
+                                    exec(adb + " -s " + serial + " shell getprop persist.usb.serialno", function (err, stdout, stderr) {
+                                        if(err || stderr) {
+                                            if(done instanceof Function) done.call(self, err || new Error(stderr), null);
+                                        }
+                                        else {
+                                            if(stdout.trim() === device.trim() || serial === device.trim()) {
+                                                console.log("Automator: Attaching to device: `" + device + "` with serial `" + serial + "` that matches `" + device + "`");
+                                                found = true;
+                                                if(done instanceof Function) done.call(self, null, serial);
+                                            }
+                                            else {
+                                                loopDevices(++i);
+                                            }
+                                        }
+                                    });
+                                }
+                                else {
+                                    if(done instanceof Function) done(new Error(stdout), null);
+                                }
+                            }(0));
+                        }
+                    }
+                });
+            }
+        });
+    };
+
+    /**
+     * Runs the `adb shell pm list packages` and looks for the specified package
+     * @param {{}} device The device to check availability for
+     * @param {string} apkPackage The .apk package name
+     * @param {function} done A callback for completion
+     */
+    this.isPackageAvailable = function (device, apkPackage, done) {
+        var err = arguments.sodaexpect("object", "string", "function|undefined|null").error;
+
+        if(err) {
+            if(done instanceof Function) done.call(self, err, false);
+            return;
+        }
+        self.getPackageName(apkPackage, function (err, packageNameResult) {
+            if(err) {
+                if(done instanceof Function) done.call(self, err, false);
+            }
+            else if(packageNameResult) {
+                soda.console.debug("Is package available: " + adb + " -s " + device.serial + " shell pm list packages " + packageNameResult);
+
+                exec(adb + " -s " + device.serial + " shell pm list packages " + packageNameResult, function (err, stdout, stderr) {
+                    if(err || stderr) {
+                        if(done instanceof Function) done.call(self, err || new Error(stderr), false);
+                    }
+                    else {
+                        var res = (stdout.trim() === "package:" + packageNameResult);
+                        if(res) device.packagename = packageNameResult;
+                        if(done instanceof Function) done.call(self, null, !!res);
+                    }
+                });
+            }
+            else {
+                if(done instanceof Function) done.call(self, new Error("apkPackage does not contain a packageName"), false);
+            }
+        });
+    };
+
+    /**
+     * Runs the `aapt dump badging` command and finds the package name
+     * @param {string} apkPackage .apk to find the package name for
+     * @param {function} done A callback for completion
+     */
+    this.getPackageName = function (apkPackage, done) {
+        var err = arguments.sodaexpect("string", "function|undefined|null").error;
+        if(err) {
+            if(done instanceof Function) done.call(self, err, false);
+            return;
+        }
+
+        soda.console.debug("Get package name: " + aapt + " dump badging " + apkPackage + " | grep package:\\ name");
+
+        exec(aapt + " dump badging " + apkPackage + " | grep package:\\ name", function (err, stdout, stderr) {
+            if(err || stderr) {
+                if(done instanceof Function) done.call(self, err || new Error(stderr), false);
+            }
+            else {
+                var match  = stdout.match(/^.*name='(\w+(?:\.\w+)+)'/),
+                    result = null;
+
+                if (match &amp;&amp; match[1]) result = match[1];
+                if(done instanceof Function) done.call(self, null, result);
+            }
+        });
+    };
+
+    /**
+     * Runs the `adb shell pm clear` command to clear an application's data
+     * @param {object} device The device to reset
+     * @param {function} done A callback for completion
+     */
+    this.resetAppData = function (device, done) {
+        var err = arguments.sodaexpect("object", "function|undefined|null").error;
+        if(err) {
+            if(done instanceof Function) done.call(self, err, false);
+            return;
+        }
+
+        exec(adb + " -s " + device.serial + " shell pm clear " + device.packagename, function (err, stdout, stderr) {
+            if(err || stderr) {
+                if(done instanceof Function) done.call(self, err || new Error(stderr), false);
+            }
+            else {
+                self.startApp(device, done);
+            }
+        });
+    };
+
+    /**
+     * Stops a device
+     * @param {object} device The device to stop
+     * @param {function} done A callback for completion
+     */
+    this.stopDevice = function (device, done) {
+        var err = arguments.sodaexpect("object", "function|undefined").error;
+        if(err) {
+            if(done instanceof Function) done.call(self, err, false);
+            return;
+        }
+
+        if (device.instance &amp;&amp; device.instance !== settings.NULL_PORT) {
+            soda.console.debug("Automator: Killing app `" + device.packagename + "`");
+            exec(adb + " -s " + device.serial + " shell am force-stop " + device.packagename, function (err) {
+                device = null;
+                if(done instanceof Function) return done.call(self, err, !err);
+            });
+        }
+        else {
+            soda.console.debug("Automator: Killing app `" + device.packagename + "`");
+            exec(adb + " -s " + device.serial + " shell am force-stop " + device.packagename, function (err) {
+                device = null;
+                if(done instanceof Function) return done.call(self, err, !err);
+            });
+        }
+    };
+
+    /**
+     * Starts a device on the specified port
+     * @param {string} deviceName The name of the device to start
+     * @param {number|undefined=} port The port to start the device on
+     * @param {function|undefined=} done A callback for completion
+     */
+    this.startDevice = function (deviceName, port, done) {
+        var err = arguments.sodaexpect("string", "number|function|undefined|null", "function|undefined|null").error,
+            device, spawned, args;
+
+        if(err) {
+            if(done instanceof Function) done.call(self, err, false);
+            return;
+        }
+
+        if(!done &amp;&amp; port instanceof Function) {
+            done = port;
+            port = undefined;
+        }
+
+        port = parseInt(port, 10) || settings.DEFAULT_EMULATOR_PORT;
+        if(port > 5680 || port &lt; 5554) {
+            if(done instanceof Function) done.call(self, new Error("Arugment `port` must be an integer between 5554 and 5680", null));
+            return;
+        }
+
+        self.findBoundPorts(function (err, bound) {
+            soda.console.debug("Automator: ADB ports in use: " + (bound.length > 0 ? bound.join(", ") : "(none)"));
+            soda.console.debug("Automator: Attempting to start device on port `" + port + "`");
+
+            if(bound.indexOf(port.toString()) > -1) {
+                if(settings.AUTO_FIX_BUSY_PORT === false) {
+                    soda.console.warn("Automator: Port `" + port + "` already in use. Unable to start ADB Device!");
+                    if(done instanceof Function) done(new Error("Argument `port` must be an integer between 5554 and 5680", null));
+                    return;
+                }
+                else {
+                    port = 5554;
+                    while(bound.indexOf(port.toString()) > -1) {
+                        port += 2;
+                        if(port > 5680) {
+                            if(done instanceof Function) done.call(self, new Error("Too many emulators in use — no available ports! Unable to continue..."), null);
+                            return;
+                        }
+                    }
+                    soda.console.debug("Automator: Port changed to `" + port + "`, as requested port was in use.");
+                }
+            }
+
+            args = ["-avd", deviceName, "-port", port, "-netdelay", "none", "-netspeed", "full"];
+            if (soda.config.get("proxy")) {
+                soda.console.debug("Automator: Starting AVD Device `" + deviceName + "` with arguments: `" + args.join(", ") + ", -http-proxy, ******`");
+
+                args.push("-http-proxy");
+                args.push(soda.config.get("proxy"));
+            }
+            else {
+              soda.console.debug("Automator: Starting AVD Device `" + deviceName + "` with arguments: `" + args.join(", ") + "`");
+            }
+
+            spawned = spawn(settings.EMULATOR_PATH, args);
+
+            spawned.stderr.on('data', function (err) {
+                soda.console.error("Automator:", err.toString("utf-8").replace(/\n+$/, ''));
+            });
+
+            spawned.stdout.on('data', function (data) {
+                soda.console.debug("Automator:", data.toString("utf-8").replace(/\n+$/, ''));
+            });
+
+            device = {
+                serial   : "emulator-" + port,
+                name     : deviceName,
+                port     : port,
+                instance : spawned
+            };
+
+            self.waitForDevice(device, function (err) {
+                if(done instanceof Function) done.call(self, err, device);
+            });
+        });
+    };
+
+    /**
+     * Waits for the device to boot
+     * @param {object} device The device to wait to boot for
+     * @param {number=} timeout The time to wait for the device to boot, or aconfig.DEVICE_DISCOVERY_TIMEOUT if unspecified
+     * @param {function=} complete A callback for completion
+     */
+    this.waitForBoot = function (device, timeout, complete) {
+        var err      = arguments.sodaexpect("object", "number|undefined|null", "function|undefined|null").error,
+            timedout = false,
+            deviceBootTimeout;
+
+        if(err) {
+            if(complete instanceof Function) complete.call(self, err, false);
+            return;
+        }
+
+        if(!complete &amp;&amp; timeout instanceof Function) {
+            complete = timeout;
+            timeout  = undefined;
+        }
+
+        deviceBootTimeout = setTimeout(function () {
+            soda.console.debug("Automator: Timed out after " + timeout.toString() + " seconds while waiting for device to boot");
+            if(complete instanceof Function) complete.call(self, null, false);
+        }, timeout || settings.DEVICE_BOOT_TIMEOUT);
+
+        (function getBootedProperty () {
+            exec(adb + " -s " + device.serial + " shell getprop sys.boot_completed", function (err, stdout) {
+                if(!timedout) {
+                    if(typeof stdout === "string" &amp;&amp; stdout.toString('utf-8').trim() === "1") {
+                        clearTimeout(deviceBootTimeout);
+                        if(complete instanceof Function) complete.call(self, null, true);
+                    }
+                    else {
+                        soda.console.debug("Automator: Still waiting for boot...");
+                        setTimeout(getBootedProperty, settings.DEVICE_BOOT_INTERVAL);
+                    }
+                }
+            });
+        }());
+    };
+
+    /**
+     * Waits for the device to become available in the `adb devices` list
+     * @param {object} device The device to wait for
+     * @param {number=} timeout The time to wait, or if unspecified: aconfig.DEVICE_DISCOVERY_TIMEOUT
+     * @param {function=} complete A callback for completion
+     */
+    this.waitForDevice = function (device, timeout, done) {
+        var err      = arguments.sodaexpect("object", "number|undefined|null|function", "function|undefined|null").error,
+            timedout = false,
+            deviceDiscoveryTimeout;
+
+        if(!done &amp;&amp; timeout instanceof Function) {
+            done    = timeout;
+            timeout = undefined;
+        }
+
+        if(err) {
+            if(done instanceof Function) done.call(self, err);
+            return;
+        }
+
+        deviceDiscoveryTimeout = setTimeout(function () {
+            timedout = true;
+            soda.console.debug("Automator: Timed out after " + timeout.toString() + " seconds while waiting for device to become available!");
+            if(done instanceof Function) done(null, false);
+        }, timeout || settings.DEVICE_DISCOVERY_TIMEOUT);
+
+        soda.console.debug("Automator: Waiting on ADB Server...");
+        self.isDeviceAvailable(device, function isDeviceAvailable (err, available) {
+            if(!timedout) {
+                if(available || err) {
+                    clearTimeout(deviceDiscoveryTimeout);
+
+                    if(err) {
+                        if (done instanceof Function) done.call(self, err);
+                        return;
+                    }
+
+                    console.log("Automator: Waiting for device `" + device.name + "` to boot...");
+                    self.waitForBoot(device, timeout, function (err) {
+                        if (done instanceof Function) done.call(self, err);
+                    });
+                }
+                else {
+                    setTimeout(function () {
+                        soda.console.debug("Automator: Still waiting on ADB Server...");
+                        self.isDeviceAvailable(device, isDeviceAvailable);
+                    }, settings.DEVICE_DISCOVERY_INTERVAL);
+                }
+            }
+        });
+    };
+
+    /**
+     * Install an .apk on the specified device
+     * @param {object} device The device to install the .apk to
+     * @param {string} apk The path to the apk
+     * @param {object} options Options
+     * @param {function=} complete A callback for completion
+     */
+    this.installApk = function (device, apk, options, done) {
+        var err = arguments.sodaexpect("object", "string", "object|undefined|null", "function|undefined|null").error;
+        if(err) throw err;
+
+        soda.console.debug("Automator: Installing APK on device `" + device.name + "`");
+        exec(adb + " -s " + device.serial + " install -r " + apk, function (err, stdout) {
+            if(done instanceof Function) {
+                done(stdout.includes("Success") ? true : new Error("Unknown Error"));
+            }
+        });
+    };
+
+    /**
+     * Remove an .apk on the specified device
+     * @param {object} device The device to remove the .apk from
+     * @param {function=} done A callback for completion
+     */
+    this.removeApk = function (device, apk, done) {
+        var err = arguments.sodaexpect("object", "string", "function|undefined|null").error;
+        if(err) throw err;
+
+        soda.console.debug("Automator: Removing APK from device `" + device.name + "`");
+        exec(adb + " -s " + device.serial + " uninstall " + apk, function (err, stdout, stderr) {
+            if(done instanceof Function) {
+                done(err ? err : stderr ? new Error(stderr) : stdout.match("Success") ? null : new Error("Unknown Error"));
+            }
+        });
+    };
+
+    /**
+     * Unlock the screen on the specified device
+     * @param {object} device The device to unlock
+     * @param {function=} complete A callback for completion
+     */
+    this.unlockScreen = function (device, complete) {
+        var err = arguments.sodaexpect("object", "function|undefined|null").error;
+        if(err) throw err;
+
+        soda.console.debug("Automator: Performing screen unlock on device `" + device.name + "`");
+        self.doKeyEvent(device, settings['KEY_EVENTS'].UNLOCK, complete);
+    };
+
+    /**
+     * Tap on an element on the specified device
+     * @param {object} device The device to tap on
+     * @param {string} element The element to tap
+     * @param {function=} complete A callback for completion
+     */
+    this.tap = function (device, element, complete) {
+        var err = arguments.sodaexpect("object", "object", "function|undefined|null").error;
+        if(err) throw err;
+
+        soda.console.debug("Automator: Performing tap on device `" + device.name + "` with element `" + element['id'] + "`");
+        exec(adb + " -s " + device.serial + " shell input tap " + element['hitpoint'].x + " " + element['hitpoint'].y, function (err) {
+            if(complete) return err ? complete(err, false) : complete(null, true);
+        });
+    };
+
+    /**
+     * Type into an element on the specified device
+     * @param {object} device The device to type on
+     * @param {string} element The element to type
+     * @param {string|number} text The text to type
+     * @param {function=} complete A callback for completion
+     */
+    this.type = function (device, element, text, complete) {
+        var err = arguments.sodaexpect("object", "object", "string|number", "function|undefined|null").error;
+        if(err) {
+            if(complete instanceof Function) complete.call(self, err, null);
+            return;
+        }
+
+        self.tap(device, element, function(err) {
+            if(err) {
+                if(complete instanceof Function) complete.call(self, err, null);
+                return;
+            }
+
+            soda.console.debug("Automator: Performing type on device `" + device.name + "` with element `" + element['id'] + "`");
+
+            var modifiedText = text.replace(/([\S])/g, "\\$1");
+            modifiedText = modifiedText.replace(/([\s])/g, "%s");
+
+            var shellcmd = adb + " -s " + device.serial + " shell input text \"" + modifiedText + "\"";
+
+            exec(shellcmd, function (err) {
+                if(complete instanceof Function) {
+                    if (err) return complete(err, false);
+                    self.doKeyEvent(device, settings['KEY_EVENTS'].ESCAPE, complete);
+                }
+            });
+        });
+    };
+
+    /**
+     * Delete text and type into an element on the specified device
+     * @param {object} device The device to type on
+     * @param {string} element The element to type
+     * @param {string|number} text The text to type
+     * @param {function=} done A callback for completion
+     */
+    this.setValue = function (device, element, text, done) {
+        var err = arguments.sodaexpect("object", "object", "string|number", "function|undefined|null").error;
+        if(err) {
+            if(done instanceof Function) done.call(self, err, null);
+            return;
+        }
+
+        self.tap(device, element, function(err) {
+            soda.console.debug("Automator: Performing set value on device `" + device.name + "` with element `" + element['id'] + "`");
+
+            if(err) {
+                if(done instanceof Function) done.call(self, err, null);
+                return;
+            }
+
+            var forwardDeletes = " KEYCODE_FORWARD_DEL";
+            var backDeletes = " KEYCODE_DEL";
+
+            if(element.value) {
+                for (var i = 0; i &lt; element.value.length; i++) {
+                    forwardDeletes += " KEYCODE_FORWARD_DEL";
+                    backDeletes += " KEYCODE_DEL";
+                }
+            }
+            exec(adb + " -s " + device.serial + " shell input keyevent" + forwardDeletes, function (err) {
+                if(done instanceof Function) {
+                    exec(adb + " -s " + device.serial + " shell input keyevent" + backDeletes, function (err) {
+                        if(done instanceof Function) {
+                            if (err) return done(err, false);
+
+                            var modifiedText = text.replace(/([\S])/g, "\\$1");
+                            modifiedText = modifiedText.replace(/([\s])/g, "%s");
+
+                            var shellcmd = adb + " -s " + device.serial + " shell input text \"" + modifiedText + "\"";
+
+                            exec(shellcmd, function (err) {
+                                if(done instanceof Function) {
+                                    if (err) return done(err, false);
+                                    self.doKeyEvent(device, settings.KEY_EVENTS.ESCAPE, done);
+                                }
+                            });
+                        }
+                    });
+                  }
+                });
+              });
+    };
+
+    /**
+     * Starts an app on the specified device
+     * @param {object} device The device to to start the app on
+     * @param {function=} done A callback for completion
+     */
+    this.startApp = function (device, done) {
+        var err = arguments.sodaexpect("object", "function|undefined|null").error;
+
+        if(err) {
+            if(done instanceof Function) done.call(self, err, false);
+            return;
+        }
+
+        soda.console.debug("Automator: Launching App `" + device.packagename + "`");
+        exec(adb + " -s " + device.serial + " shell monkey -p " + device.packagename + " -c android.intent.category.LAUNCHER\ 1", function (err) {
+            if(done) return err ? done(err, false) : done(null, true);
+        });
+    };
+
+    /**
+     * Send keyevent to the specified device
+     * @param {object} device The device to perform the key event on
+     * @param {number} keyevent The key to send to the device
+     * @param {function=} done A callback for completion
+     */
+    this.doKeyEvent = function (device, keyevent, done) {
+        var err = arguments.sodaexpect("object", "number|string", "function|undefined|null").error;
+
+        if(err) {
+            if(done instanceof Function) done.call(self, err, false);
+            return;
+        }
+
+        soda.console.debug("Automator: Performing keyevent on device `" + device.name + "`");
+        exec(adb + " -s " + device.serial + " shell input keyevent " + keyevent, function (err) {
+            if(done) return err ? done(err, false) : done(null, true);
+        });
+    };
+
+    /**
+     * Pull a file from the device
+     * @param {object} device The device to pull a file from
+     * @param {string} what The path to the file to pull
+     * @param {string} to The path to copy the file to on the local system
+     * @param {function=} done A callback for completion
+     */
+    this.pull = function (device, what, to, done) {
+        var err = arguments.sodaexpect("object", "string", "string", "function|undefined|null").error;
+
+        if(err) {
+            if(done instanceof Function) done.call(self, err, false);
+            return;
+        }
+
+        exec(adb + " -s " + device['serial'] + " pull " + what + " " + to, function (err) {
+            if(done) return err ? done(err, false) : done(null, true);
+        });
+    };
+
+    /**
+     * Get the XML Screen dump from UIAutomator
+     * @param {object} device The device in which to dump the screen
+     * @param {string} destination The local destination for the screen dump
+     * @param {function=} done A callback for completion
+     * @deprecated
+     */
+    this.getScreenDumpPullMethod = function (device, destination, done) {
+        var err = arguments.sodaexpect("object", "string", "function").error;
+
+        if(err) {
+            if(done instanceof Function) done.call(self, err, false);
+            return;
+        }
+
+        var times = settings.TIMES_TO_REPEAT_DUMP;
+        exec(adb + " -s " + device['serial'] + " shell uiautomator dump", function onPull (err) {
+            if(err) {
+                if(--times === 0) {
+                    if(done instanceof Function) done(err, false);
+                }
+                else {
+                    setTimeout(function () {
+                        exec(adb + " -s " + device.serial + " shell uiautomator dump", onPull);
+                    }, 1000);
+                }
+            }
+            else {
+                self.pull(device, "/sdcard/window_dump.xml", destination, function (err) {
+                    if(done instanceof Function) done.call(self, err, !!err);
+                });
+            }
+        });
+    };
+
+    /**
+     * Get the XML Screen dump from UIAutomator
+     * @param {object} device The device in which to dump the screen
+     * @param {function=} done A callback for completion
+     */
+    this.getScreenDump = function (device, done, tries) {
+        tries = tries || 1;
+        var err = arguments.sodaexpect("object", "function").error;
+
+        if(err) {
+            if(done instanceof Function) done.call(self, err, false);
+            return;
+        }
+
+        var times = settings.TIMES_TO_REPEAT_DUMP;
+        exec(adb + " -s " + device.serial + " shell uiautomator dump /dev/tty", function onStdout (err, stdout, stderr) {
+            if(err) {
+                if(--times === 0) {
+                    if(done instanceof Function) done(err || new Error(stderr.trim()), false);
+                }
+                else {
+                    setTimeout(function () {
+                        exec(adb + " -s " + device.serial + " shell uiautomator dump /dev/tty", onStdout);
+                    }, 1000);
+                }
+            }
+            else {
+                if(/^ERROR/.test(stdout.trim())) {
+                    if(tries &lt;= 3) return self.getScreenDump(device, done, ++tries);
+                    if(done instanceof Function) done(new Error(stdout.trim()), false);
+                }
+                else {
+                    xml2js.parseString(stdout.replace(/UI hierchary dumped to: \/dev\/tty\s*$/, ''), function (err) {
+                        if(err) {
+                            if(--times > 0) exec(adb + " -s " + device.serial + " shell uiautomator dump /dev/tty", onStdout);
+                        }
+                        else {
+                            if(done instanceof Function) done.apply(self, arguments);
+                        }
+                    });
+                }
+            }
+        });
+    };
+
+    /**
+     * Retrieves the dumped XML file and coverts it to JSON
+     * @param {string} dumpPath The path to the dumped XML file
+     * @param {function} done A callback for completion
+     */
+    this.getJSONDump = function (dumpPath, done) {
+        fs.readFile(dumpPath, function (err, fc) {
+            if(err) return done instanceof Function ? done.call(self, err, null) : undefined;
+            return xml2js.parseString(fc.toString('utf-8'), done);
+        });
+    };
+
+    /**
+     * Gets the device orientation
+     * @param {function} done A callback for completion
+     */
+    this.getOrientation = function (device, done) {
+        exec(adb + " -s " + device.serial + " shell dumpsys input | grep 'SurfaceOrientation' | awk '{ print $2 }'", function (err, stdout) {
+            if(err) {
+                if(done instanceof Function) done.call(self, err, null);
+            }
+            else {
+                if(done instanceof Function) done.call(self, err, parseInt(stdout.trim(), 10));
+            }
+        });
+    };
+
+    /**
+     * Gets the device screen bounds
+     * @param {function} complete A callback for completion
+     */
+    this.getScreenBounds = function (device, done) {
+        exec(adb + " -s " + device.serial + " shell wm size", function (err, stdout) {
+            if(err) {
+                if(done instanceof Function) done.call(self, err, null);
+            }
+            else {
+                var ss = stdout.match(/^Physical size: (\d+x\d+)/);
+                if(ss instanceof Array &amp;&amp; ss[1]) ss = ss[1].split('x');
+
+                ss.sodaeach(function (s, i, k, p) { p[k] = parseInt(s, 10); });
+                if(done instanceof Function) done.call(self, err, ss);
+            }
+        });
+    };
+};
+
+module.exports = EmulatorControl;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+.TH soda 1 "JANUARY 2018" Soda "Simple Object Driven Automation"
+.SH NAME
+soda \-\- starts the Soda CLI
+.SH SYNOPSIS
+.B soda [-odvcrz]
+.B [-f
+.I framework
+.B ]
+.B [-e
+.I environment
+.B ]
+.B [-p
+.I port for editor
+.B ]
+.B [-x
+.I platform
+.B ]
+.B [-b
+.I failure distribution
+.B ]
+.B [-s
+.B [-t
+.I scripts path
+.B ]
+.B [-s
+.I suite
+.B ]
+.B [-m
+.I module
+.B ]
+.B [-y
+.I proxy
+.B ]
+.B [--puser
+.I Perfecto username
+.B ]
+.B [--ppassword
+.I Perfecto password
+.B ]
+.I arguments
+.B ...
+.SH DESCRIPTION
+The
+.I soda
+command starts the Soda testing framework's interactive command line interface. Specifying the -f (framework) flag, will
+start the framework and a device along with the CLI.
+
+Testing cannot be done without starting a framework, so typically the -f option is set... however, it is not required.
+
+If -t is unspecified, the current working directory will be used as the project path.
+
+.I arguments
+are specific to each framework, but typically follow the following format:
+.RS
+.I [device] [binary path]
+.RE
+.SH OPTIONS
+.IP "-f framework"
+The framework to launch (e.g.
+.I instruments, automator, selenium, perfecto, rest, terminal, windows
+)
+.IP "-e environment"
+The environment to start Soda with. This alters various testing variables and setting throughout the application.
+.IP "-x platform"
+The platform of the device you're starting. For example, if I start the instruments framework with the device
+.I iPad Air 9.2,
+you would set this flag to
+.I ipad
+If the -f flag isn't specified, this is unnecessary.
+.IP "-t scripts path"
+The path to your Soda test scripts (Soda project). If -t unspecified, the current working directory will be used.
+.IP "-s suite"
+The suite to start Soda with. If unspecified, Soda will use the default suite in
+.I SodaCommon/Config.
+You can always set the suite using the
+.I :suite command in the CLI
+.IP "-m module"
+The module to start Soda with. If unspecified, Soda will use the default module in
+.I SodaCommon/Config.
+You can always set the suite using the
+.I :module command in the CLI
+.IP "-y proxy"
+The proxy settings to pass to Soda. Should be entered in the following format:
+.I http://[proxy ip]
+or
+.I http://[username]:[password]@[proxy ip]
+.IP "-o supress output"
+Supresses all console output
+.IP "-p port for editor"
+Port for the sODA editor, defaults to 1337
+.IP "--puser Perfecto username"
+The username to log into Perfecto
+.IP "--ppassword Perfecto password"
+The password to log into Perfecto
+.IP "-b array of comma separated emails"
+The list of emails in the format email1@email.com,email2@email.com
+.IP "-c log colors"
+Enables or disable color logging. Use -c to enable color logging and -c
+.I false
+to disable it. It is enabled by default.
+.IP "-v verbose logging"
+Enables or disable verbose logging. Use -v to enable verbose logging and -v
+.I false
+to disable it. It is enabled by default.
+.IP "-d debug logging"
+Enables or disable debug logging. Use -d to enable debug logging and -d
+.I false
+to disable it. It is enabled by default.
+.IP "-r reset device"
+If a framework and device is specified, resets the device upon launch.
+.IP "-z test dev mode"
+Enables test
+.I dev mode
+Which prevents Soda from reporting test results and taking screenshots on failures. This is helpful if you are editing or creating scripts and don't want to report results.
+.SH FILES
+.B $SODA_PATH/SodaCommon/Config.js
+.RS
+The system wide configuration file.
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/instruments/imports/Config.js
+.RS
+Configuration settings for the Instruments framework
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/automator/imports/Config.js
+.RS
+Configuration settings for the Automator framework
+.RE
+
+.B $SODA_PATH/SodaCore/frameworks/selenium/imports/Config.js
+.RS
+Configuration settings for the Selenium framework
+.RE
+
+.SH AUTHOR
+Jason Pollman & James Pavlic
+.SH "SEE ALSO"
+.BR sodabuild (1),
+.BR sodamake (1),
+.BR sodareset (1)
+.BR sodatrace (1)
+.BR sodarun (1)
+.BR sodaeditor (1)

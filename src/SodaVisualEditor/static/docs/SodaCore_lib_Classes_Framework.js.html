@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaCore/lib/Classes/Framework.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaCore/lib/Classes/Framework.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module SodaCore/Framework
+ */
+
+"use strict";
+
+var EventEmitter = require('events').EventEmitter,
+    util         = require("util"),
+    nodePath     = require("path"),
+    mkdirp       = require("mkdirp");
+
+/**
+ * Loads and manages frameworks. A generic wrapper around each frameworks index.js module.
+ * @constructor
+ * @augments EventEmitter
+ * @composes Instruments
+ * @composes Automator
+ * @composes Selenium
+ * @composes Shell
+ * @param {object} soda The Soda library
+ */
+var Framework = function (soda) {
+
+    var self = this,
+    namelessProcessTitle = null,
+
+    /**
+     * A generic "error" function used as placeholders for getTree, performElementInteraction, start, stop, and restart
+     * before any framework is loaded.
+     */
+    noFramework = function () {
+        soda.console.error("No framework loaded...");
+        if(arguments.sodalast() instanceof Function) {
+            arguments.sodalast().call(
+                Framework,
+                new soda.exception.InvalidFrameworkError("No framework loaded."),
+                null
+            );
+        }
+    },
+
+    /**
+     * A local object to store the current framework object for retrieval between modules
+     * @type {Object}
+     */
+    framework = {
+        name     : null,
+        platform : null,
+        version  : null,
+        object   : null,
+        args     : null,
+        device   : null,
+        started  : false,
+        process  : null,
+
+        defaultSyntaxName    : null,
+        defaultSyntaxVersion : null
+    };
+
+    /**
+     * When the framework process is exited, perform this function...
+     * @param {Number} code The code of the exited child process
+     * @param {String=} signal The signal (if one was provided) of the closed process
+     */
+    function frameworkExit (code, signal) {
+        soda.console[code === 0 ? "log" : "error"](framework.name + " has exited with code: " + code + (signal ? " and signal " + signal : ""));
+        framework.started = false;
+
+        /**
+         * Emitted when the framework instance process has exited completely
+         * @event module.SodaCore/Framework.Framework#exited
+         * @argument {Instruments|Automator|Selenium} The framework class
+         */
+        self.emit("exited", framework);
+
+        self.getTree                   = noFramework;
+        self.performElementInteraction = noFramework;
+        self.performDeviceInteraction  = noFramework;
+        self.start                     = noFramework;
+        self.stop                      = noFramework;
+        self.restart                   = noFramework;
+        self.build                     = noFramework;
+        self.upload                    = noFramework;
+        self.reset                     = noFramework;
+    }
+
+    /**
+     * Validates a framework, ensuring it contains the necessary properties and methods...
+     * @param {object} f The framework to validate
+     */
+    function validateFramework (f) {
+        var err = arguments.sodaexpect("object").error,
+            properties = ["name", "version", "platform", "defaultSyntaxVersion", "defaultSyntaxName"],
+            methods    = f.platform === 'Rest' ? ["getTree", "start", "stop"] : ["getTree", "getOrientation", "getScreenBounds", "performElementInteraction", "performDeviceInteraction", "start", "stop", "restart", "listAvailableDevices"],
+            hasAllProperties, hasAllMethods;
+
+        if(err) throw err;
+
+        hasAllProperties = properties.sodaeach(function (prop) {
+            if(!f[prop] || typeof f[prop] !== "string") return false;
+        });
+
+        hasAllMethods = methods.sodaeach(function (method) {
+            if(!f[method] || typeof f[method] !== "function") return false;
+        });
+
+        if(hasAllProperties === false) throw new soda.exception.InvalidFrameworkError("Framework is invalid: missing properties.");
+        if(hasAllMethods    === false) throw new soda.exception.InvalidFrameworkError("Framework is invalid: missing methods."   );
+
+        return f;
+    }
+
+    Object.defineProperties(self, {
+
+        /**
+         * The loaded framework's name
+         * @type {string}
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        name: {
+            enumerable: true,
+            get: function () { return framework.name; }
+        },
+
+        /**
+         * The loaded framework's version
+         * @type {string}
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        version: {
+            enumerable: true,
+            get: function () { return framework.version; }
+        },
+
+        /**
+         * The loaded framework's platform
+         * @type {string}
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        platform: {
+            enumerable: true,
+            get: function () { return framework.platform; }
+        },
+
+        /**
+         * The loaded framework's start arguments
+         * @type {String}
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        args: {
+            enumerable: true,
+            get: function () { return framework.args; }
+        },
+
+        /**
+         * Whether or not the current framework is started
+         * @type {string}
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        started: {
+            enumerable: true,
+            get: function () { return framework.started; }
+        },
+
+        /**
+         * The device the framework is running
+         * @type {string}
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        device: {
+            enumerable: true,
+            get: function () { return framework.device; }
+        },
+
+        /**
+         * The actual framework process instance (ChildProcess)
+         * @type {object}
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        process: {
+            enumerable: true,
+            get: function () { return framework.process; }
+        },
+
+        /**
+         * The framework's default syntax name
+         * @type {object}
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        defaultSyntaxName: {
+            enumerable: true,
+            get: function () { return framework.defaultSyntaxName; }
+        },
+
+        /**
+         * The framework's default syntax version
+         * @type {object}
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        defaultSyntaxVersion: {
+            enumerable: true,
+            get: function () { return framework.defaultSyntaxVersion; }
+        },
+
+    });
+
+    /**
+     * Gets a list of available devices for the specified framework
+     * @return {Array} A list of currently available devices
+     */
+    this.listAvailableDevices = function (forFramework, done) {
+        try {
+            var framework = (require(nodePath.join(__dirname, "..", "..", "frameworks", forFramework.toLowerCase(), "index.js")))(soda);
+
+            framework.listAvailableDevices(done);
+            framework = null;
+        }
+        catch(e) {
+            if(done instanceof Function) done.call(null, []);
+        }
+    };
+
+    /**
+     * Gets a list of available devices for the specified framework
+     * @return {Array} A list of currently available devices
+     */
+    this.findDevice = function (forFramework, device, done) {
+        try {
+            var framework = (require(nodePath.join(__dirname, "..", "..", "frameworks", forFramework.toLowerCase(), "index.js")))(soda);
+
+            framework.findDevice(device, done);
+            framework = null;
+        }
+        catch(e) {
+            if(done instanceof Function) done.call(null, []);
+        }
+    };
+
+    /**
+     * Sets and loads the current framework
+     * @param {string} name The name of the framework to load as it relates to its directory name
+     * @returns {null|*}
+     */
+    this.load = function (name) {
+        var f = null;
+
+        if(typeof name !== "string")
+            throw new soda.exception.InvalidFrameworkError("No framework specified. Framework.load expected parameter `name` to receive a string, but got " + typeof name + ".");
+        try {
+            f = validateFramework(require("../../frameworks/" + name.toLowerCase() + "/index.js")(soda));
+
+            framework = {
+                name     : f.name,
+                version  : f.version,
+                platform : f.platform,
+                object   : f,
+                started  : false,
+
+                defaultSyntaxName    : f.defaultSyntaxName,
+                defaultSyntaxVersion : f.defaultSyntaxVersion
+            };
+
+            /**
+             * Emitted when a new Framework is loaded
+             * @event module.SodaCore/Framework.Framework#load
+             * @argument {Error|null} err An error
+             * @argument f The framework object
+             */
+            self.emit("load", null, f);
+            console.log(framework.name.ucFirst + " (" + framework.platform + ")" + " v" + framework.version + " loaded");
+
+        }
+        catch (e) {
+            self.emit("load", e, null);
+            throw new soda.exception.InvalidFrameworkError("Couldn't load framework " + name + " because: " + e.message);
+        }
+
+        self.isSimulator = function() {
+            return f.isDeviceASimulator();
+        };
+
+        /**
+         * Gets the current device orientation
+         * @memberof module.SodaCore/Framework.Framework
+         * @param {function} complete A callback for completion
+         */
+        self.getOrientation = function (complete) {
+            /**
+             * Emitted when the device orientation is requested
+             * @event module.SodaCore/Framework.Framework#get orientation
+             * @argument {Error|null} err An error
+             * @argument f The framework object
+             */
+            self.emit("get orientation", null, f);
+            return f.getOrientation(function (err, orientation) {
+
+                /**
+                 * Emitted when the device orientation request is finished
+                 * @event module.SodaCore/Framework.Framework#got orientation
+                 * @argument {Error|null} err An error
+                 * @argument f The framework object
+                 */
+                self.emit("got orientation", null, f);
+                if(complete instanceof Function) complete(err, orientation);
+            });
+        };
+
+        /**
+         * Gets the current device screen bounds as an [width, height] array
+         * @memberof module.SodaCore/Framework.Framework
+         * @param {function} complete A callback for completion
+         */
+        self.getScreenBounds = function (complete) {
+            /**
+             * Emitted when the device screen bounds are requested
+             * @event module.SodaCore/Framework.Framework#get screen bounds
+             * @argument {Error} err An error, if one occured while trying to get the screen bounds
+             * @argument {Automator|Instruments|Selenium} f The framework object
+             */
+            self.emit("get screen bounds", null, f);
+            return f.getScreenBounds(function (err, bounds) {
+
+                /**
+                 * Emitted when the device screen bound request is finished
+                 * @event module.SodaCore/Framework.Framework#got screen bounds
+                 * @argument {Error} err An error, if one occured while trying to get the screen bounds
+                 * @argument {Automator|Instruments|Selenium} f The framework object
+                 */
+                self.emit("got screen bounds", null, f);
+                if(complete instanceof Function) complete(err, bounds);
+            });
+        };
+
+        /**
+         * Gets the DOM tree using the current framework
+         * @memberof module.SodaCore/Framework.Framework
+         * @param {function=} complete A callback for completion
+         * @param {boolean} dontInstantiate Return a new Tree item, or just the response?
+         */
+        self.getTree = function (complete, dontInstantiate, times) {
+            soda.console.debug(f.name + ": Getting element tree...");
+            times = times || 0;
+
+            f.getTree(function (err, tree) {
+                if(err) {
+                    complete.call(self, err, null);
+                    soda.console.error(f.name + ": Tree retrieval failed...\n" + (err instanceof Error ? err.message : err));
+                    return;
+                }
+
+                try {
+                    if(typeof tree === "string") tree = JSON.parse(tree);
+                }
+                catch (e) {
+                    if(++times &lt; 3) {
+                        self.getTree.apply(self, complete, dontInstantiate, times);
+                    }
+                    else {
+                        if (complete instanceof Function)
+                            complete.call(self, new Error("Unable to get tree after 3 attempts. Framework tree retrieval error."), null);
+                    }
+                    return;
+                }
+
+                tree = dontInstantiate ? tree : new soda.Tree(tree);
+                soda.console.debug(f.name + ": Element tree retrieval successful...");
+
+                if(!dontInstantiate) {
+                    /**
+                     * Sets the update function for this tree...
+                     * @memberof module.SodaCore/Tree.TreeWrapper.Tree
+                     * @param {function=} complete A callback for completion
+                     */
+                    tree.update = function (complete) {
+                        var err = arguments.sodaexpect("function|undefined").error;
+                        if (err) throw err;
+
+                        self.getTree(function (err, newTree) {
+                            if (err) {
+                                soda.console.error(f.name + ": Tree retrieval failed...\n" + (err instanceof Error ? err.message : err));
+                                if (complete) complete.call(this, err, null);
+                                return;
+                            }
+
+                            tree.contents = newTree;
+                            if (complete instanceof Function) complete.call(this, null, tree);
+                        }, true);
+                    };
+                }
+
+                if(soda.config.get("SSOnDOM")) {
+                    var dir = nodePath.join(soda.config.get("SSOnDOMDir"), soda.config.get("platform"), soda.config.get("module"), soda.config.get("test"));
+                    var hash = tree.hash || new soda.Tree(tree).hash,
+                        hashes = soda.config.get("treeHashes");
+
+                    soda.console.debug("Got tree with hash: " + hash);
+                    if(!hashes[hash]) {
+                        hashes[hash] = hash;
+                        mkdirp(dir, function () {
+                            var dest = nodePath.join(dir, Date.now().toString() + "-" + hash + ".png");
+                            soda.config.set("treeHashes", hashes);
+                            soda.device.captureScreen({ filename: Date.now().toString() + "-" + hash, destination: dest }, function (err) {
+                                if(err) soda.console.warn(err.message);
+                                if(complete instanceof Function) complete.call(self, err, tree);
+                            });
+                        });
+                    }
+                    else {
+                        if(complete instanceof Function) complete.call(self, err, tree);
+                    }
+                }
+                else {
+                    if(complete instanceof Function) complete.call(self, err, tree);
+                }
+            });
+        };
+
+        /**
+         * Performs a user interaction on an element using the current framework
+         * @memberof module.SodaCore/Framework.Framework
+         * @param {string} interaction The name of the element interaction to perform
+         * @param {Array} elems An array of elements to perform the interaction upon
+         * @param {object|function} options Options to be used to perform the interaction
+         * @param {function=} complete A callback for completion
+         */
+        self.performElementInteraction = function (interaction, elems, options, complete) {
+            soda.console.debug(f.name + ": Performing element interaction `" + interaction + "`...");
+            var err = arguments.sodaexpect("string", "object|undefined|null", "object|string|undefined", "function|undefined").error;
+
+            if(!complete &amp;&amp; options instanceof Function) {
+                complete = options;
+                options  = {};
+            }
+
+            if(err) {
+                soda.console.error(f.name + ": Performing element interaction `" + interaction + "`...with error `" + err + "`");
+                if(complete) complete.call(self, err, false);
+                return;
+            }
+
+            if(!(elems instanceof Array)) elems = [elems];
+
+            f.performElementInteraction(interaction, elems, options, function (err, performed) {
+                /**
+                 * Emitted when an element interaction has been performed
+                 * @event module.SodaCore/Framework.Framework#performed element interaction
+                 * @argument {Error} err An error, if one occured while trying to get the screen bounds
+                 * @argument {String} interaction The name of the interaction performed
+                 * @argument {Array&lt;Object>} elems The elements the interaction was performed upon
+                 * @argument {Object} options The options used in the interaction
+                 */
+                self.emit("performed element interaction", err, interaction, elems, options);
+
+                if(err) {
+                    soda.console.error(f.name + ": Device interaction failed");
+                    if(complete) complete.call(self, err, false);
+                    return;
+                }
+
+                soda.console.debug(f.name + ": Element interaction returned: " + performed);
+                if(complete) complete.call(self, err, performed);
+            });
+        };
+
+        /**
+         * Performs a device interaction on the loaded device using the current framework
+         * @memberof module.SodaCore/Framework.Framework
+         * @param {string} interaction The name of the element interaction to perform
+         * @param {object|function} options Options to be used to perform the interaction
+         * @param {function=} complete A callback for completion
+         */
+        self.performDeviceInteraction = function (interaction, options, complete) {
+            soda.console.debug(f.name + ": Performing device interaction `" + interaction + "`...");
+            var err = arguments.sodaexpect("string", "object|string|undefined", "function|undefined").error;
+
+            if(!complete &amp;&amp; options instanceof Function) {
+                complete = options;
+                options  = {};
+            }
+
+            if(err) {
+                if(complete) complete.call(self, err, false);
+                return;
+            }
+
+            f.performDeviceInteraction(interaction, options, function (err, performed) {
+                /**
+                 * Emitted when a device interaction has been performed
+                 * @event module.SodaCore/Framework.Framework#performed device interaction
+                 * @argument {Error} err An error, if one occured while trying to get the screen bounds
+                 * @argument {String} interaction The name of the interaction performed
+                 * @argument {Object} options The options used in the interaction
+                 */
+                self.emit("performed device interaction", err, interaction, options);
+
+                if(err) {
+                    soda.console.error(f.name + ": Device interaction " + interaction + " failed!");
+                    if(complete) complete.call(self, err, false);
+                    return;
+                }
+
+                soda.console.debug(f.name + ": Device interaction `" + interaction + "` completed successfully");
+                if(complete) complete.apply(self, arguments);
+            });
+        };
+
+        /**
+         * Starts a framework using the provided arguments
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        self.start = function () {
+            var args         = arguments.getArray,
+                originalArgs = arguments.getArray;
+
+            console.log("Starting " + framework.name + " on device " + args[0] + "...");
+
+            /**
+             * Emitted just before a framework is started
+             * @event module.SodaCore/Framework.Framework#start
+             * @argument {Object} f The framework object
+             */
+            self.emit("start", f);
+
+            if(args.sodalast() instanceof Function) {
+                var complete = args.sodalast();
+                args[args.length - 1] = function (err, started, instance) {
+                    if(instance &amp;&amp; typeof instance === "object" &amp;&amp; instance.on instanceof Function)
+                        instance.on("exit", frameworkExit);
+                        
+                    if(err) {
+                        soda.console.error("Framework " + framework.name.ucFirst + " failed to start...");
+                    }
+                    else {
+                        soda.config.set("resetDevice", false);
+                        framework.args    = originalArgs;
+                        framework.device  = args[0];
+                        framework.process = instance;
+
+                        if(!soda.config.get("noTitle")) {
+                            namelessProcessTitle = process.title;
+                            process.title += " - " + framework.name.ucFirst + " (" + framework.device + ")";
+                        }
+
+                        /**
+                         * Emitted just after a framework is started
+                         * @event module.SodaCore/Framework.Framework#started
+                         * @argument {boolean} started True if the framework was successfully started, false otherwise
+                         * @argument {Automator|Instruments|Selenium} f The framework object
+                         */
+                        self.emit("started", started, f);
+                        console.log("Framework " + framework.name.ucFirst + " started successfully!");
+                    }
+                    complete.apply(self, arguments);
+                };
+            }
+            else {
+                args.push(function (err, started, instance) {
+                    if(err) return soda.console.error(err.message);
+                    soda.config.set("resetDevice", false);
+
+                    if(typeof instance === "object" &amp;&amp; instance.on instanceof Function)
+                        instance.on("exit", frameworkExit);
+
+                    framework.args    = originalArgs;
+                    framework.device  = args[0];
+                    framework.process = instance;
+
+                    self.emit("started", started, f);
+                    console.log("Framework " + framework.name.ucFirst + " started successfully!");
+                });
+            }
+
+            // Defer the start of the framework, to the next event loop tick.
+            process.nextTick(() => f.start.apply(null, args));
+            return self;
+        };
+
+        /**
+         * Stops a framework
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        self.stop = function () {
+            soda.console.warn("Stopping " + framework.name + " framework...");
+
+            /**
+             * Emitted just before a framework is stopped
+             * @event module.SodaCore/Framework.Framework#stop
+             * @argument {Automator|Instruments|Selenium} f The framework object
+             */
+            self.emit("stop", f);
+            var args = arguments.getArray;
+
+            if(args.sodalast() instanceof Function) {
+                var complete = args.sodalast();
+                args[args.length - 1] = function (err, stopped) {
+                    if(namelessProcessTitle) process.title = namelessProcessTitle;
+                    /**
+                     * Emitted just after a framework is stopped
+                     * @event module.SodaCore/Framework.Framework#stopped
+                     * @argument {boolean} stopped True if the framework was successfully stopped, false otherwise
+                     * @argument {Automator|Instruments|Selenium} f The framework object
+                     */
+                    self.emit("stopped", stopped, f);
+                    complete.apply(self, arguments);
+                };
+            }
+            else {
+                args.push(function (err, stopped) {
+                    if(namelessProcessTitle) process.title = namelessProcessTitle;
+                    self.emit("stopped", stopped, f);
+                });
+            }
+
+            f.stop.apply(null, args);
+            return self;
+        };
+
+        /**
+         * Performs a device interaction on the loaded device using the current framework
+         * @memberof module.SodaCore/Framework.Framework
+         * @param {string} interaction The name of the element interaction to perform
+         * @param {object|function} options Options to be used to perform the interaction
+         * @param {function=} complete A callback for completion
+         */
+        self.restartApplication = function (complete) {
+            soda.console.debug("Performing restart application...");
+
+            f.restartApplication(function (err, performed) {
+                soda.console.debug("Restart applciation completed successfully");
+                if(complete) complete.apply(self, arguments);
+            });
+        };
+
+        /**
+         * Restarts a framework by first shutting it down, then uses the last start options to re-start it.
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        self.restart = function () {
+            soda.console.warn("Restarting " + framework.name + " framework...");
+
+            /**
+             * Emitted just before a framework is restarted
+             * @argument {Automator|Instruments|Selenium} f The framework object
+             * @event module.SodaCore/Framework.Framework#restart
+             */
+            self.emit("restart", f);
+            f.restart.apply(null, arguments);
+
+            /**
+             * Emitted just after a framework is restarted
+             * @event module.SodaCore/Framework.Framework#restarted
+             * @argument {Automator|Instruments|Selenium} f The framework object
+             */
+            self.emit("restarted", f);
+        };
+
+        /**
+         * Builds a project via the framework
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        self.build = function () {
+            var args          = arguments.getArray,
+                count         = 0,
+                listenerCount = self.listenerCount("build");
+
+            var done = function (err) {
+                if(err) console.error(err);
+                if(++count === listenerCount) {
+                    f.build.apply(f, args);
+                    /**
+                     * Emitted just after a framework is built
+                     * @event module.SodaCore/Framework.Framework#post build
+                     */
+                    self.emit("post build", f, args);
+                }
+            };
+
+            /**
+             * Emitted just before a framework is built
+             * @event module.SodaCore/Framework.Framework#build
+             */
+            self.emit("build", f, args, done);
+            if(listenerCount === 0) {
+                count = -1;
+                done(null);
+            }
+        };
+
+        /**
+         * Uploads a project via the framework
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        self.upload = function () {
+            var args          = arguments.getArray,
+                count         = 0,
+                listenerCount = self.listenerCount("upload");
+
+            var done = function (err) {
+                if(err) console.error(err);
+                if(++count === listenerCount) {
+                    f.upload.apply(f, args);
+                    /**
+                     * Emitted just after a framework is built
+                     * @event module.SodaCore/Framework.Framework#post build
+                     */
+                    self.emit("post upload", f, args);
+                }
+            };
+
+            /**
+             * Emitted just before a framework is built
+             * @event module.SodaCore/Framework.Framework#build
+             */
+            self.emit("upload", f, args, done);
+            if(listenerCount === 0) {
+                count = -1;
+                done(null);
+            }
+        };
+
+        /**
+         * Reset a simulator via the framework
+         * @memberof module.SodaCore/Framework.Framework
+         */
+        self.reset = f.reset;
+
+        return self;
+    };
+
+    /**
+     * Get's the device orientation
+     * @type {function}
+     */
+    this.getOrientation = noFramework;
+
+    /**
+     * Get's the device screen size
+     * @type {function}
+     */
+    this.getScreenBounds = noFramework;
+
+    /**
+     * Get's the element tree
+     * @type {function}
+     */
+    this.getTree = noFramework;
+
+    /**
+     * Perform an interaction on an element
+     * @type {function}
+     */
+    this.performElementInteraction = noFramework;
+
+    /**
+     * Perform an interaction on the device
+     * @type {function}
+     */
+    this.performDeviceInteraction = noFramework;
+
+    /**
+     * Start the framework
+     * @type {function}
+     */
+    this.start = noFramework;
+
+    /**
+     * Stop the currently loaded framework
+     * @type {function}
+     */
+    this.stop = noFramework;
+
+    /**
+     * Restart the currently loaded framework
+     * @type {function}
+     */
+    this.restart = noFramework;
+
+    /**
+     * Call the currently loaded framework's build method
+     * @type {function}
+     */
+    this.build = noFramework;
+
+    /**
+     * Call the currently loaded framework's upload method
+     * @type {function}
+     */
+    this.upload = noFramework;
+
+    /**
+     * Call the framework's reset method
+     * @type {function}
+     */
+    this.reset = noFramework;
+
+    // Modify the started property when the framework starts and stops
+    self.on("started", function () {
+        framework.started = true;
+    });
+
+    self.on("stopped", function () {
+        framework.started = false;
+    });
+};
+
+util.inherits(Framework, EventEmitter);
+module.exports = Framework;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

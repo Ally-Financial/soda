@@ -1,0 +1,565 @@
+<!-- Landing Page -->
+<section id="soda-landing">
+    <div class="soda-favorite">
+        <em class="f-icon inline"></em>
+        <div class="inline favorite-info">
+            <em class="f-delete fa fa-close"></em>
+            <div class="f-alias">My favorite</div>
+            <div class="f-framework inline bold">Framework</div>
+            <div class="f-device inline bold">Device Name</div>
+            <div class="f-deviceid inline bold">Device Id</div>
+            <div class="f-platform inline bold">Platform</div>
+            <div class="f-env inline bold">Environment</div>
+            <div class="f-testPath">Test Path</div>
+            <div class="f-testResultsPath">Test Results Path</div>
+            <div class="f-app">Build Path</div>
+        </div>
+    </div>
+
+    <em id="soda-startup-error-button" class="fa fa-arrow-circle-left"></em>
+
+    <div id="soda-landing-content">
+        <div id="bkg-logo-content-landing"><span>S</span>oda</div>
+        <div id="soda-startup-status">
+            <h2>Starting <span id="soda-startup-stauts-framework-name"></span> Framework<div class="dot-dot-dot">...</div></h2>
+            <div id="soda-startup-status-content-message">Sending startup request to server</div>
+        </div>
+
+        <div id="soda-start">
+            <div id="soda-select-framework">
+                <em class="fa fa-3x fa-star fa-inline inactive" data-framework="favorites"></em>
+                <em class="fa fa-3x fa-android fa-inline active" data-framework="automator"></em>
+                <em class="fa fa-3x fa-apple fa-inline inactive" data-framework="instruments"></em>
+                <em class="fa fa-3x fa-group fa-inline inactive" data-framework="perfecto"></em>
+                <em class="fa fa-3x fa-globe fa-inline inactive" data-framework="selenium"></em>
+                <em class="fa fa-3x fa-windows fa-inline inactive" data-framework="windows"></em>
+                <em class="fa fa-3x fa-question-circle fa-inline inactive" data-framework="help"></em>
+            </div>
+
+            <div id="soda-framework-options">
+
+                <!-- Instruments Startup Dialog -->
+                <form id="instruments-options" class="soda-framework-options-form instruments" data-framework="instruments">
+                    <h2>Instruments (iOS)</h2>
+                    <table>
+                        <tr>
+                            <td>Platform</td>
+                            <td>
+                                <select name="platform">
+                                    <option value="iphone">iPhone</option>
+                                    <option value="ipad">iPad</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Simulator</td>
+                            <td>
+                                <select name="device" class="required"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Test Scripts</td>
+                            <td>
+                                <input name="testPath" class="required" placeholder=".../automationscripts" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Test Results</td>
+                            <td>
+                                <input name="testResultsPath" class="required" placeholder=".../results" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Environment</td>
+                            <td>
+                                <input name="env" placeholder="Environment" type="text" value="env">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>App Name</td>
+                            <td>
+                                <input name="app" class="required" placeholder="App Name" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Workspace</td>
+                            <td>
+                                <input name="workspace" placeholder="Path to workspace" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Build Path</td>
+                            <td>
+                                <input name="buildpath" placeholder="Build Path" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Target</td>
+                            <td>
+                                <input name="target" placeholder="Target" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Bundle Identifier</td>
+                            <td>
+                                <input name="bundleid" placeholder="Bundle Identifer" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy URL</td>
+                            <td>
+                                <input name="proxy" placeholder="http://my.proxy.ip" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy Username</td>
+                            <td>
+                                <input name="proxyUser" placeholder="Username" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy Password</td>
+                            <td>
+                                <input name="proxyPass" type="password">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="button" class="save purple" disabled="disabled" data-framework="instruments">Save</button>
+                            </td>
+                            <td>
+                                <button type="submit" class="start" disabled="disabled" data-framework="instruments">Start</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <!-- Automator Startup Dialog -->
+                <form id="automator-options" class="soda-framework-options-form automator" data-framework="automator">
+                    <h2>Automator (Android)</h2>
+                    <table>
+                        <tr>
+                            <td>Platform</td>
+                            <td>
+                                <select name="platform">
+                                    <option value="android">Android Phone</option>
+                                    <option value="androidtab">Android Tablet</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>AVD Emulator Name</td>
+                            <td>
+                                <select name="device" class="required"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Test Scripts</td>
+                            <td>
+                                <input name="testPath" class="required" placeholder=".../automationscripts" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Test Results</td>
+                            <td>
+                                <input name="testResultsPath" class="required" placeholder=".../results" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Environment</td>
+                            <td>
+                                <input name="env" placeholder="Environment" type="text" value="env">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to APK</td>
+                            <td>
+                                <input name="app" class="required" placeholder=".../apk/MyApk.apk" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy URL</td>
+                            <td>
+                                <input name="proxy" placeholder="http://my.proxy.ip" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy Username</td>
+                            <td>
+                                <input name="proxyUser" placeholder="Username" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy Password</td>
+                            <td>
+                                <input name="proxyPass" type="password">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="button" class="save purple" disabled="disabled" data-framework="automator">Save</button>
+                            </td>
+                            <td>
+                                <button type="submit" class="start" disabled="disabled" data-framework="automator">Start</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <!-- Instruments Startup Dialog -->
+                <form id="perfecto-options" class="soda-framework-options-form perfecto" data-framework="perfecto">
+                  <input type="hidden" name="deviceid" value="required">
+                    <h2>Perfecto (Android/iOS)</h2>
+                    <table>
+                        <tr>
+                            <td>Platform</td>
+                            <td>
+                                <select name="platform">
+                                    <option value="iphone">iPhone</option>
+                                    <option value="ipad">iPad</option>
+                                    <option value="android">Android</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Device</td>
+                            <td>
+                                <select name="device" class="required"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Test Scripts</td>
+                            <td>
+                                <input name="testPath" class="required" placeholder=".../automationscripts" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Test Results</td>
+                            <td>
+                                <input name="testResultsPath" class="required" placeholder=".../results" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Environment</td>
+                            <td>
+                                <input name="env" placeholder="Environment" type="text" value="env">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>App Name</td>
+                            <td>
+                                <input name="app" class="required" placeholder="MobileBanking" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Workspace</td>
+                            <td>
+                                <input name="workspace" placeholder="Path to workspace" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Build Path</td>
+                            <td>
+                                <input name="buildpath" placeholder="Build Path" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Target</td>
+                            <td>
+                                <input name="target" placeholder="Target" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Bundle Identifier</td>
+                            <td>
+                                <input name="bundleid" placeholder="Bundle Identifer" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy URL</td>
+                            <td>
+                                <input name="proxy" placeholder="http://my.proxy.ip" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy Username</td>
+                            <td>
+                                <input name="proxyUser" placeholder="Username" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy Password</td>
+                            <td>
+                                <input name="proxyPass" type="password">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="button" class="save purple" disabled="disabled" data-framework="perfecto">Save</button>
+                            </td>
+                            <td>
+                                <button type="submit" class="start" disabled="disabled" data-framework="perfecto">Start</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <!-- Web Startup Dialog -->
+                <form id="selenium-options" class="soda-framework-options-form selenium" data-framework="selenium">
+                    <input type="hidden" name="platform" value="web">
+                    <h2>Selenium (Web)</h2>
+                    <table>
+                        <tr>
+                            <td>Browser</td>
+                            <td>
+                                <select name="device" class="required"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Test Scripts</td>
+                            <td>
+                                <input name="testPath" class="required" placeholder=".../automationscripts" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Test Results</td>
+                            <td>
+                                <input name="testResultsPath" class="required" placeholder=".../results" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Environment</td>
+                            <td>
+                                <input name="env" placeholder="Environment" type="text" value="env">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Starting URL</td>
+                            <td>
+                                <input name="app" placeholder="about:blank" value="about:blank" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy URL</td>
+                            <td>
+                                <input name="proxy" placeholder="http://my.proxy.ip" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy Username</td>
+                            <td>
+                                <input name="proxyUser" placeholder="Username" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy Password</td>
+                            <td>
+                                <input name="proxyPass" type="password">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="button" class="save purple" disabled="disabled" data-framework="selenium">Save</button>
+                            </td>
+                            <td>
+                                <button type="submit" class="start" disabled="disabled" data-framework="selenium">Start</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <!-- Automator Startup Dialog -->
+                <form id="windows-options" class="soda-framework-options-form windows" data-framework="windows">
+                    <input type="hidden" name="platform" value="windows">
+                    <input type="hidden" name="device" value="Desktop">
+                    <h2>Windows (Desktop)</h2>
+                    <table>
+                        <tr>
+                            <td>Path to Test Scripts</td>
+                            <td>
+                                <input name="testPath" class="required" placeholder=".../automationscripts" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Test Results</td>
+                            <td>
+                                <input name="testResultsPath" class="required" placeholder=".../results" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Environment</td>
+                            <td>
+                                <input name="env" placeholder="Environment" type="text" value="env">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Path to Windows Home Folder</td>
+                            <td>
+                                <input name="app" class="required" placeholder="/Users/myusername" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy Username</td>
+                            <td>
+                                <input name="proxyUser" placeholder="Username" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Proxy Password</td>
+                            <td>
+                                <input name="proxyPass" type="password">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="button" class="save purple" disabled="disabled" data-framework="windows">Save</button>
+                            </td>
+                            <td>
+                                <button type="submit" class="start" disabled="disabled" data-framework="windows">Start</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+                <!-- Favorites Startup Dialog -->
+                <div id="favorites-options" class="soda-framework-options-form favorites">
+                    <h2>Favorites</h2>
+                    <div id="favorite-settings"></div>
+                </div>
+
+                <!-- Help Startup Dialog -->
+                <div id="help-options" class="soda-framework-options-form help">
+                    <h2>Startup Help</h2>
+                    <ul class="soda-help-list contents">
+                        <li class="soda-help-list-item">
+                            <a href="#" onclick="$('#help-options').mCustomScrollbar('scrollTo', '.start-help-fields')">Startup Settings</a>
+                            <ul class="soda-help-list l2">
+                                <li class="soda-help-list-item">
+                                    <a href="#" onclick="$('#help-options').mCustomScrollbar('scrollTo', '.start-help-fields-basic')">Basic</a>
+                                </li>
+                                <li class="soda-help-list-item">
+                                    <a href="#" onclick="$('#help-options').mCustomScrollbar('scrollTo', '.start-help-fields-instruments')">Instruments Specific</a>
+                                </li>
+                                <li class="soda-help-list-item">
+                                    <a href="#" onclick="$('#help-options').mCustomScrollbar('scrollTo', '.start-help-fields-automator')">Automator Specific</a>
+                                </li>
+                                <li class="soda-help-list-item">
+                                    <a href="#" onclick="$('#help-options').mCustomScrollbar('scrollTo', '.start-help-fields-web')">Web Specific</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="soda-help-list-item">
+                            <a href="#" onclick="$('#help-options').mCustomScrollbar('scrollTo', '.start-help-framework-config')">Framework Configuration</a>
+                            <ul class="soda-help-list l2">
+                                <li class="soda-help-list-item">
+                                    <a href="#" onclick="$('#help-options').mCustomScrollbar('scrollTo', '.start-help-framework-config-instruments')">Instruments</a>
+                                </li>
+                                <li class="soda-help-list-item">
+                                    <a href="#" onclick="$('#help-options').mCustomScrollbar('scrollTo', '.start-help-framework-config-automator')">Automator</a>
+                                </li>
+                                <li class="soda-help-list-item">
+                                    <a href="#" onclick="$('#help-options').mCustomScrollbar('scrollTo', '.start-help-framework-config-web')">Web</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="soda-help-list-item">
+                            <a href="docs/" target="_blank">Soda JSDocs</a>
+                        </li>
+                    </ul>
+
+                    <h2 class="soda-help-topic start-help-fields">Startup Settings</h2>
+                    <h4 class="soda-help-list-heading start-help-fields-basic">Basic Information</h4>
+                    <ul class="soda-help-list">
+                        <li class="soda-help-list-item">
+                            <span class="bold">Every framework requires a platform, device, and path to your Soda scripts project.</span> Some frameworks require more information...
+                        </li>
+                        <li class="soda-help-list-item">
+                            <span class="bold">The "Platform", "Device", and "Path to Project" fields are all required.</span>
+                        </li>
+                        <li class="soda-help-list-item">
+                            The "Platform" is the type of device. For Instruments, the options are iPhone and iPad. For Automator: Android Tablet and Android Phone. For web: it's always just "web".
+                        </li>
+                        <li class="soda-help-list-item">
+                            The "Device" is the simulator/emulator/physical device you wish to start Soda on. These fields are pre-populated by Soda based on what's currently available on the server.
+                        </li>
+                        <li class="soda-help-list-item">
+                            If you wish to start Soda on a physical device, ensure it's plugged in before launching this page (or you'll have to refresh the page).
+                        </li>
+                        <li class="soda-help-list-item">
+                            The "Path to Project" is the path to your Soda project. It must contain the "soda.json" file.
+                        </li>
+                        <li class="soda-help-list-item">
+                            So you may be wondering why you have to chose a platform, when clearly you've chosen a simulator that is specific to a certain platform (i.e. iPhone). This is because, <span class="bold">The platform option is used to determine which non-generic test scripts to use.</span>
+                            This allows you to change the platform and use different scripts on different devices.
+                        </li>
+                        <li class="soda-help-list-item">
+                            Use the "environment" field to specify a testing environment
+                        </li>
+                    </ul>
+                    <h4 class="soda-help-list-heading start-help-fields-instruments">Instruments Specific Settings</h4>
+                    <ul class="soda-help-list">
+                        <li class="soda-help-list-item">
+                            <span class="bold">Path to App</span>: Required. The path to the binary for the app you'd like to start Soda on.
+                        </li>
+                    </ul>
+                    <h4 class="soda-help-list-heading start-help-fields-automator">Automator Specific Settings</h4>
+                    <ul class="soda-help-list">
+                        <li class="soda-help-list-item">
+                            <span class="bold">Path to APK</span>: Required. The path to the .APK file for the app you'd like to start Soda on.
+                        </li>
+                        <li class="soda-help-list-item">
+                            <span class="bold">Proxy URL</span>: Optional. An optional proxy url (if behind a corporate proxy)
+                        </li>
+                        <li class="soda-help-list-item">
+                            <span class="bold">Proxy Username/Password</span>: Optional. For use in proxy authentication
+                        </li>
+                    </ul>
+                    <h4 class="soda-help-list-heading start-help-fields-web">Web Specific Settings</h4>
+                    <ul class="soda-help-list">
+                        <li class="soda-help-list-item">
+                            <span class="bold">Starting URL</span>: Optional. The inital web page to navigate to. If none is specified, "about:blank" will be used.
+                        </li>
+                        <li class="soda-help-list-item">
+                            <span class="bold">Proxy URL</span>: Optional. An optional proxy url (if behind a corporate proxy)
+                        </li>
+                        <li class="soda-help-list-item">
+                            <span class="bold">Proxy Username/Password</span>: Optional. For use in proxy authentication
+                        </li>
+                    </ul>
+
+                    <h2 class="soda-help-topic start-help-framework-config">Framework Configuration</h2>
+                    <h4 class="soda-help-list-heading start-help-framework-config-instruments">Instruments Configuration</h4>
+                    <ul class="soda-help-list">
+                        <li class="soda-help-list-item">
+                            The Instruments framework requires no real setup—Apple makes it fairly easy. However, if you're having problems starting up check the settings defined in <span class="emphasis">Soda/SodaCore/frameworks/instruments/imports/Config.js</span>.
+                        </li>
+                        <li class="soda-help-list-item">
+                            Soda queries Instruments to find all available devices, if the desired device isn't listed... read on.
+                        </li>
+                        <li class="soda-help-list-item">
+                            <span class="bold">Can't find the right simulator version?</span> Run the command: <span class="emphasis">sudo xcode-select --switch /path/to/XCodeIWantToUse.app</span> to switch XCode binaries.<br>Once the desired version is selected, refresh the page and the available device list will update.
+                        </li>
+                    </ul>
+                    <h4 class="soda-help-list-heading start-help-framework-config-automator">Automator Configuration</h4>
+                    <ul class="soda-help-list">
+                        <li class="soda-help-list-item">
+                            If you're having issues, ensure that the environment variable <span class="bold">ANDROID_SDK_HOME</span> is set and points the the path where you've installed the Android SDK tools.
+                        </li>
+                        <li class="soda-help-list-item">
+                            Soda searches the file system to find all available ADB devices, if the desired device isn't listed, there is likely a problem with your ADB device. Try removing and re-creating it, then refreshing the page.
+                        </li>
+                        <li class="soda-help-list-item">
+                            Since ADB Emulators take *forever* to startup, Soda makes use of attaching to running emulators. For faster startup, leave the emulator running between sessions, if possible.
+                        </li>
+                    </ul>
+                    <h4 class="soda-help-list-heading start-help-framework-config-web">Web Configuration</h4>
+                    <ul class="soda-help-list">
+                        <li class="soda-help-list-item">
+                            <span class="bold">Chrome Driver must be installed for the Selenium framework to work with Google Chrome!</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,38 @@
+{
+  "tags": {
+    "allowUnknownTags": true
+  },
+  "source": {
+    "exclude": [
+      ".git",
+      "node_modules",
+      "plugins",
+      "WebDriverAgent",
+      "Documentation",
+      "chromedriver",
+      "ffprofile",
+      "man",
+      "mobiledevice",
+      "sample_project",
+      "support",
+      "test",
+      ".docx"
+    ],
+    "includePattern": ".+\\.js(x|doc)?$"
+  },
+  "opts": {
+      "type": "flowdiagram",
+      "vizdataname": "vizdata",
+      "recurse": true,
+      "destination": "./SodaVisualEditor/static/docs/",
+      "readme": "./Readme.md"
+  },
+  "templates": {
+    "applicationName": "Simple Object Driven Automation (SODA)",
+    "linenums": true,
+    "default": {
+      "outputSourceFiles": true,
+      "includeDate": true
+    }
+  }
+}

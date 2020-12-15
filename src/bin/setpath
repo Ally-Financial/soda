@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+
+var path = require('path'),
+    os   = require('os'),
+    fs   = require('fs'),
+    home = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'],
+    dir  = path.resolve(path.join(__dirname, '..')),
+    rootdir  = path.resolve(path.join(__dirname, '..', '..'));
+
+if(os.platform !== 'win32' && os.platform !== 'win64') {
+    fs.appendFile(path.join(home, '.bash_profile'), '\nexport SODA_HOME=' + dir + '\n');
+    fs.appendFile(path.join(home, '.bash_profile'), '\nexport SODA_ROOT=' + rootdir + '\n');
+}

@@ -1,0 +1,94 @@
+<div id="soda-editor">
+    <!-- Navigation Bar -->
+    <nav id="soda-navbar" class="navbar navbar-default fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <span class="logo-text"><span class="logo-text-y">S</span>oda</span>
+                    <span class="logo-slogan">Testing is simple, do it!</span>
+                </a>
+            </div>
+            <div class="navbar-expand-sm justify-content-end">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="nav-item active">
+                        <a id="soda-refresh-button"><em class="fa fa-recycle" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Refresh DOM"></em></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a id="soda-force-update-project-button" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Force update project files"><em class="fa fa-sitemap"></em></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a id="soda-download-screen-button" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Download Current Screenshot"><em class="fa fa-image"></em></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a id="soda-download-tree-button" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Download Current DOM"><em class="fa fa-download"></em></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a id="soda-download-scripts-button" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Download Current Scripts"><em class="fa fa-cloud-download"></em></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a id="soda-shutdown-framework-button"><em class="fa fa-power-off" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Shutdown Framework"></em></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a id="soda-shutdown-button" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Shutdown Server"><em class="fa fa-plug"></em></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Context Menu -->
+    <div id="soda-editor-context-wrapper">
+        <div id="soda-editor-context">
+            <h2 id="soda-editor-context-header"><em class="fa fa-warning"></em><span>Header</span></h2>
+            <div id="soda-editor-context-body">
+                <div id="soda-editor-context-body-content">Body</div>
+            </div>
+            <div id="soda-editor-context-button-wrapper">
+                <form id="soda-editor-context-form">
+                    <button id="soda-editor-context-button-cancel" value="context-button-cancel" class="inline btn btn-default btn-yellow">Button Cancel</button>
+                    <button id="soda-editor-context-button-okay" value="context-button-okay" class="inline btn btn-default">Button Okay</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- BKG Logo -->
+    <div class="bkg-logo">
+        <div class="bkg-logo-content">
+            <div class="bkg-logo-content-header"><span>S</span>oda</div>
+        </div>
+    </div>
+
+    <!-- Toolboxes -->
+    <div id="soda-toolboxes">
+        <div id="soda-toolbox-wrapper-right" class="soda-toolbox-wrapper">
+            <div id="soda-toolbox-menu-right" class="soda-toolbox-menu">
+                <div class="soda-toolbox-menu-icons"></div>
+            </div>
+        </div>
+        <div id="soda-toolbox-wrapper-left" class="soda-toolbox-wrapper">
+            <div id="soda-toolbox-menu-left" class="soda-toolbox-menu">
+                <div class="soda-toolbox-menu-icons"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <nav id="soda-status-bar" class="navbar navbar-default fixed-bottom">
+      <div class="container-fluid">
+        <div id="soda-status-right" class="soda-status-message right">
+            <em class="fa"></em>
+            <span class="status"></span>
+            <div id="xy-coords" class="bold inline">[0, 0]</div>
+        </div>
+        <div id="soda-status-left" class="soda-status-message left">
+            <em class="fa"></em>
+            <span class="status"></span>
+        </div>
+        <div id="soda-status-center" class="soda-status-message center">
+            <em class="fa"></em>
+            <span class="status"></span>
+        </div>
+      </div>
+    </nav>
+</div>

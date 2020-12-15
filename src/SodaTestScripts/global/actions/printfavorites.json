@@ -1,0 +1,24 @@
+{
+    "meta": {
+        "name": "setessentials",
+        "description": "Setup some important variables for 'Soda testing Soda'",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "debug": "${temp.name}"
+        },
+        {
+            "debug": "${temp.settings.framework}"
+        },
+        {
+            "debug": "${temp.settings.device}"
+        },
+        {
+            "debug": "${temp.settings.testPath}"
+        }
+    ]
+}
