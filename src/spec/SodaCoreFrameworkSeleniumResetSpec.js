@@ -23,7 +23,7 @@ require(path.join(__dirname, "..", "SodaCommon", "ProtoLib"));
 
 Object.freeze = function(obj) { return obj; };
 
-describe('Framework selenium should pass all validation tests', function () {
+describe('Framework selenium reset should pass all validation tests', function () {
   var soda, seleniumFramework, settings, buildTree, seleniumControl, savedMethod1, savedMethod2, savedMethod3, spy, spy1, spy2;
 
     beforeAll(function (done) {
