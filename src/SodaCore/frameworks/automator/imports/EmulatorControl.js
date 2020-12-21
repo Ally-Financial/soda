@@ -69,7 +69,7 @@ var EmulatorControl = function (soda, settings) {
             return;
         }
 
-        require("child_process").exec(adb + " kill-server && " + adb + " devices", function (err, stdout, stderr) {
+        require("child_process").exec(adb + " devices", function (err, stdout, stderr) {
             if(err || stderr) {
                 if(done instanceof Function) done.call(self, err || new Error(stderr), false);
             }
@@ -182,7 +182,7 @@ var EmulatorControl = function (soda, settings) {
                         if(done instanceof Function) done.call(self, err || new Error(stderr), false);
                     }
                     else {
-                        var res = (stdout.trim() === "package:" + packageNameResult);
+                        var res = (stdout.trim().includes("package:" + packageNameResult));
                         if(res) {
                           device.apk = apkPackage;
                           device.packagename = packageNameResult;
@@ -353,9 +353,11 @@ var EmulatorControl = function (soda, settings) {
                 instance : spawned
             };
 
-            self.waitForDevice(device, function (err) {
-                if(done instanceof Function) done.call(self, err, device);
-            });
+            setTimeout(function() {
+                self.waitForDevice(device, function (err) {
+                    if(done instanceof Function) done.call(self, err, device);
+                });
+            }, 5000);
         });
     };
 
@@ -471,7 +473,13 @@ var EmulatorControl = function (soda, settings) {
         require("child_process").exec(adb + " -s " + device.serial + " install -r " + apk, function (err, stdout) {
             if(done instanceof Function) {
                 device.apk = apk;
-                done(stdout.includes("Success") ? true : new Error("Unknown Error"));
+
+                if (stdout.includes("Success")) {
+                    done(null)
+                }
+                else {
+                    done(new Error("Unknown Error"));
+                }
             }
         });
     };
@@ -667,7 +675,7 @@ var EmulatorControl = function (soda, settings) {
             if(done instanceof Function) done.call(self, err, false);
             return;
         }
-
+        
         require("child_process").exec(adb + " -s " + device['serial'] + " pull " + what + " " + to, function (err) {
             if(done) return err ? done(err, false) : done(null, true);
         });
@@ -690,7 +698,6 @@ var EmulatorControl = function (soda, settings) {
 
         var times = settings.TIMES_TO_REPEAT_DUMP;
         require("child_process").exec(adb + " -s " + device['serial'] + " shell uiautomator dump", function onPull (err) {
-          console.log(err);
             if(err) {
                 if(--times === 0) {
                     if(done instanceof Function) done(err, false);
@@ -724,7 +731,7 @@ var EmulatorControl = function (soda, settings) {
         }
 
         var times = settings.TIMES_TO_REPEAT_DUMP;
-        require("child_process").exec(adb + " -s " + device.serial + " shell uiautomator dump /dev/tty", function onStdout (err, stdout, stderr) {
+        require("child_process").exec(adb + " -s " + device.serial + " shell uiautomator dump /dev/tty", function onStdout (err, stdout, stderr) {            
             if(err) {
                 if(--times === 0) {
                     if(done instanceof Function) done(err || new Error(stderr.trim()), false);
