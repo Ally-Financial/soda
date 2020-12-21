@@ -96,7 +96,7 @@ module.exports = function automatorConfiguration (soda) {
          * @memberof module.Automator/Configuration.AutomatorConfiguration
          * @type {String}
          */
-        EMULATOR_PATH: path.join(sdkPath, 'tools', 'emulator'),
+        EMULATOR_PATH: path.join(sdkPath, 'emulator', 'emulator'),
 
         /**
          * The path to the Android SDK AAPT directory
@@ -183,7 +183,7 @@ module.exports = function automatorConfiguration (soda) {
          * @memberof module.Automator/Configuration.AutomatorConfiguration
          * @type {String}
          */
-        DUMP_METHOD : "tty",
+        DUMP_METHOD : "pull",
 
         /**
          * Key even mapping
