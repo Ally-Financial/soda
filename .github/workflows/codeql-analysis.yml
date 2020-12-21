@@ -17,9 +17,14 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ main ]
+    paths-ignore:
+      - '**/src/node_modules'
+      - '**/SodaVisualEditor/static/fonts/**'
+      - '**/spec/**'
+      - '**/dummy_db_data/**'
   schedule:
     - cron: '29 2 * * 6'
-
+      
 jobs:
   analyze:
     name: Analyze
