@@ -300,12 +300,14 @@ describe('Framework selenium core should pass all validation tests', function ()
         seleniumFramework.restart(function(err) {
           expect(err).toEqual(null);
 
-          seleniumFramework.stop(function(err, result) {
-            expect(err).toEqual(null);
-            expect(result).toEqual(true);
-
-            done();
-          });
+          setTimeout(function() {
+            seleniumFramework.stop(function(err, result) {
+              expect(err).toEqual(null);
+              expect(result).toEqual(true);
+  
+              done();
+            });
+          }, 5000);
         });
       });
     });
