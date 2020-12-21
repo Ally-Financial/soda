@@ -39,7 +39,7 @@
     "./man/sodaeditor.1"
   ],
   "scripts": {
-    "test": "find ./spec -name '*Spec.js' -exec jasmine --random=false {} \\;"
+    "test": "find ./spec -name '*Spec.js' \\( -exec jasmine --random=false {} \\; -o -quit \\)"
   },
   "dependencies": {
     "archiver": "^5.1.0",
