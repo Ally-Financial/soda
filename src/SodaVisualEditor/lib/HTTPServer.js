@@ -41,11 +41,19 @@ module.exports = function (soda, useExpress, options) {
             res.end('(\/)(;,,;)(\/)'); 
         },
         minify  = require("express-minify"),
-        server  = require('https').createServer({
-            key: fs.readFileSync(path.join(__dirname, "..", "..", "server.key")),
-            cert: fs.readFileSync(path.join(__dirname, "..", "..", "server.cert"))
-          },app),
-        sodaInstance = soda,
+        server = null;
+        
+        if (fs.existsSync(path.join(__dirname, "..", "..", "server.cert")) && fs.existsSync(path.join(__dirname, "..", "..", "server.key"))) {
+            server  = require('https').createServer({
+                key: fs.readFileSync(path.join(__dirname, "..", "..", "server.key")),
+                cert: fs.readFileSync(path.join(__dirname, "..", "..", "server.cert"))
+              }, app);
+        }
+        else {
+            server  = require('http').createServer(app);
+        }
+
+        var sodaInstance = soda,
         driver = null;
 
         app.use(helmet.frameguard({action: "deny"}));
