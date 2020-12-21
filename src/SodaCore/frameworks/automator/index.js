@@ -112,14 +112,7 @@ var Automator = function (soda) {
             soda.console.debug("Automator: Device `" + device.name + "` started in " + ((Date.now() - startTime) / 1000) + " seconds");
             Device = device;
 
-            emulatorControl.writeUsbIdentifier(device.serial, device.name, function (err) {
-                if(err) {
-                    if(done instanceof Function) done(err, false, null);
-                }
-                else {
-                    if(done instanceof Function) done(err, true, device);
-                }
-            });
+            if(done instanceof Function) done(err, true, device);
         });
     }
 
