@@ -309,7 +309,7 @@ describe('SodaCommon Config should work properly', function () {
     });
 
     it('SodaConfig perfectoHost should have default value', function () {
-        expect(config.get("perfectoHost")).toEqual('https://ally.perfectomobile.com');
+        expect(config.get("perfectoHost")).toEqual('https://mydomain.perfectomobile.com');
     });
 
     it('SodaConfig perfectoUser should have default value', function () {
