@@ -31,6 +31,12 @@ module.exports = function (soda, repl) {
     // Start the VisualEditor
     repl.addCommand("repl-start-ve", "ve|Ve|startve", function () {
         if(!vesStarted[soda.yid]) {
+            var url_prefix = 'http';
+
+            if (fs.existsSync(nodePath.join(__dirname, "..", "..", "server.cert")) && fs.existsSync(nodePath.join(__dirname, "..", "..", "server.key"))) {
+                url_prefix = 'https'
+            }
+
             var server = new Server(soda, true, true);
             server
                 .add(visualEditorEvents(server, repl, soda, function (err) { if(err) throw err; }))
@@ -38,7 +44,7 @@ module.exports = function (soda, repl) {
                     vesStarted[soda.yid] = server;
                     soda.console.warn("*** Visual Editor for " + (soda.alias ? soda.alias : "Soda #" + soda.yid) + " started on port " + server.port + " ***");
                     repl.prompt();
-                    exec.openBrowser('https://localhost:' + server.port + '/');
+                    exec.openBrowser(url_prefix+'://localhost:' + server.port + '/');
                 })
                 .on("stop", function () {
                     vesStarted[soda.yid] = null;
