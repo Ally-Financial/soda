@@ -34,14 +34,22 @@ function VisualEditorLauncher() {
      * @composes VisualEditorEvents
      */
     server = new Server(repl, true, true);
+
+    var url_prefix = 'http';
+
+    if (fs.existsSync(path.join(__dirname, "..", "..", "server.cert")) && fs.existsSync(path.join(__dirname, "..", "..", "server.key"))) {
+        url_prefix = 'https'
+    }
+
+    if (server.is)
     server
         .add(visualEditorEvents(server, repl, function (err) { if(err) throw err; }))
         .start(process.argv[2], function () {
             if (require("os").platform() === "win32" || require("os").platform() === "win64") {
-                if (!process.argv[3]) exec('start " " "https://localhost:' + server.port + '/"');
+                if (!process.argv[3]) exec('start " " "' + url_prefix + '://localhost:' + server.port + '/"');
             }
             else {
-                if (!process.argv[3]) exec('open "https://localhost:' + server.port + '/"');
+                if (!process.argv[3]) exec('open "' + url_prefix + '://localhost:' + server.port + '/"');
             }
         });
 }
