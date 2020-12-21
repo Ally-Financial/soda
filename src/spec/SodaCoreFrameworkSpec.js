@@ -103,10 +103,12 @@ describe('Core Framework should pass all validation tests', function () {
                     expect(err.name).toEqual('InvalidFrameworkError');
                     expect(err.message).toEqual('No framework loaded.');
 
+                    setTimeout(function() {
                       framework.stop(function(err, res) {
                         expect(err.name).toEqual('InvalidFrameworkError');
                         expect(err.message).toEqual('No framework loaded.');
 
+                        setTimeout(function() {
                           framework.restart(function(err, res) {
                             expect(err.name).toEqual('InvalidFrameworkError');
                             expect(err.message).toEqual('No framework loaded.');
@@ -123,20 +125,24 @@ describe('Core Framework should pass all validation tests', function () {
                                   expect(err.name).toEqual('InvalidFrameworkError');
                                   expect(err.message).toEqual('No framework loaded.');
 
-                                  framework.stop(function () {
-                                    done();
-                                  });
+                                  setTimeout(function() {
+                                    framework.stop(function () {
+                                      done();
+                                    });
+                                  }, 5000);
                                 });
                               });
                             });
                           });
-                        });
+                        }, 5000);
                       });
-                    });
+                    }, 5000);
                   });
                 });
               });
             });
+          });
+        });
     });
 
     it('Should validate a valid selenium framework', function (done) {
@@ -180,12 +186,15 @@ describe('Core Framework should pass all validation tests', function () {
                     expect(err).toEqual(null);
                     expect(res).toEqual(true);
 
-                    framework.stop(function (err, res) {
-                      expect(err).toEqual(null);
-                      expect(res).toEqual(true);
+                    setTimeout(function() {
 
-                      done();
-                    });
+                      framework.stop(function (err, res) {
+                        expect(err).toEqual(null);
+                        expect(res).toEqual(true);
+
+                        done();
+                      });
+                    }, 5000);
                   });
                 });
               });
