@@ -41,3 +41,20 @@ jobs:
           npm test
         env:
           CI: true
+          LAMBDA_ASSET_PATH: lambda:/soda/assets:KEY:SECRET
+          SODA_SECRET:
+          AUTH_HOST: dev.api.mydomain.com
+          AUTH_PATH: /oauth2/token
+          API_HOST: dev.api.mydomain.com
+          PERFECTO_USER: someone@somewhere.com
+          PERFECTO_HOST: mydomain.perfectomobile.com
+          PERFECTO_PASSWORD: something
+          MAINTAINER_NAME: Some Name
+          SMTP_FROM_ADDRESS: '"sODA" <soda@mydomain.com>'
+          MAINTAINER_EMAIL: soda_name@mydomain.com
+          SMTP_HOST: mail.mydomain.com
+          SMTP_FROM_ADDRESS: soda@mydomain.com
+          KEY16: jdhfuejehdmeushd
+          KEY24: jdhfuejehdmeushdJJJ@KJDF
+          KEY32: jdhfuejehdmeushdJJJ@JHUHGTFEDSCV
+          WINDOWS_SERVER: MYSERVERNAME
