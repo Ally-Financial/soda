@@ -18,13 +18,12 @@ on:
     # The branches below must be a subset of the branches above
     branches: [ main ]
     paths-ignore:
-      - '**/src/node_modules'
-      - '**/SodaVisualEditor/static/fonts/**'
-      - '**/SodaVisualEditor/static/docs/**'
-      - '**/SodaVisualEditor/static/external/**'
-      - '**/SodaVisualEditor/static/img/**'
-      - '**/spec/**'
-      - '**/dummy_db_data/**'
+      - './src/node_modules'
+      - './src/SodaVisualEditor/static/fonts/**'
+      - './src/SodaVisualEditor/static/docs/**'
+      - './src/SodaVisualEditor/static/external/**'
+      - './src/SodaVisualEditor/static/img/**'
+      - './src/spec/**'
   schedule:
     - cron: '29 2 * * 6'
       
