@@ -33,7 +33,7 @@ var path = require("path"),
  * @param {string} type The type of browser being used
  */
 function loadScript(type) {
-    if (type === "ie") {
+    if (type === "ie" || type === "edge" || type === "explorer" || type === "internet explorer") {
         // Get the script that will be injected into each page, that builds the element tree...
         fs.readFile(path.resolve(path.join(__dirname, "ScriptIE.js")), (err, src) => {
             treeScript = src ? src.toString('utf-8') : '';
@@ -916,7 +916,30 @@ var SeleniumDriver = function (soda) {
 
         Driver.instance = new webdriver.Builder()
   			.withCapabilities(capabilities)
-  			.forBrowser('ie')
+  			.forBrowser('internet explorer')
+  			.build();
+
+        done(null, true, Driver);
+        return self;
+    }
+
+    /**
+     * Launches the Edge browser for Selenium
+     * @param {Object} options Options to start the browser with
+     * @param {Function} done A callback for completion
+     * @returns {SeleniumDriver} The current SeleniumDriver instance
+     */
+    function launchEdge (options, done) {
+        done = arguments.sodalast() instanceof Function ? arguments.sodalast() : function () {};
+        Driver.session.name = options.sessionName || Date.now();
+        var capabilities = webdriver.Capabilities.edge();
+        capabilities.set('ignoreProtectedModeSettings', true);
+
+        loadScript("ie");
+
+        Driver.instance = new webdriver.Builder()
+  			.withCapabilities(capabilities)
+  			.forBrowser('MicrosoftEdge')
   			.build();
 
         done(null, true, Driver);
@@ -1024,6 +1047,10 @@ var SeleniumDriver = function (soda) {
             case "explorer":
             case "internet explorer":
                 launchExplorer(options, postLaunch);
+                break;
+
+            case "edge":
+                launchEdge(options, postLaunch);
                 break;
 
             case "safari":
