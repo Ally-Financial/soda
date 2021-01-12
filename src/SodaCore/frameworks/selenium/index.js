@@ -83,11 +83,11 @@ module.exports = function (soda) {
          */
         this.listAvailableDevices = function (done) {
             var appExists = ["phantom"], totalReceived = 0,
-                browsers  = ["chrome", "firefox", "safari", "internet explorer"],
+                browsers  = ["chrome", "firefox", "safari", "internet explorer", "edge"],
                 useList   = browsers;
             // Parallel Arrays, use "useList" with modified browser paths for Windows
             if(os.platform() === "win32") {
-                useList = ["Google", "Mozilla Firefox", "Safari", "Internet Explorer"];
+                useList = ["Google", "Mozilla Firefox", "Safari", "Internet Explorer", "Edge"];
             }
 
             for(var i = 0; i < browsers.length; i++) {
