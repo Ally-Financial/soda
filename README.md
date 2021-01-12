@@ -45,13 +45,12 @@ $ npm install
 
 - **Setup environment variables**
     - Add the following to your profile (Mac: ~/.bash_profile, Windows: env variables)
-    - You will need to create a server public cert and private key pair and put them in the src/ directory
     - Replace ID with your ID, and change the path accordingly
     ```bash
     export SODA_VERSION=2.7.12
     export SODA_ROOT=/Users/ID/Source/soda/
     export SODA_HOME=/Users/ID/Source/soda/src
-    export LAMBDA_ASSET_PATH=@lambda:/soda/assets:KEY:SECRET
+    export LAMBDA_ASSET_PATH=@lambda:/soda/assets:FIntar9KTZmJB2mwlH67wD6IScVlBrHz:VjjWb5omGld2lv3k
     export SODA_SECRET=SECRET_TO_REPLACE
     export AUTH_HOST=your.api.host.com
     export AUTH_PATH=/oauth2/token
@@ -71,7 +70,6 @@ $ npm install
     ```
     - Update your path to include the soda/bin directory
     - Replace ID with your ID, and change the path accordingly
-    - Set SODA_SECRET to empty to run locally
     ```bash
     export PATH="$HOME/Users/ID/Source/soda/src/bin:$PATH"
     ```
@@ -82,8 +80,45 @@ $ npm install
     - Run this from within the src directory of soda
     - Use the below command, replacing PATH_TO_SCRIPTS with ./sample_project (full path)
 ---
+**Chrome with Puppeteer**
 ```bash
 $ ./soda chrome about:blank -f puppeteer -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+```
+---
+**Chrome with Selenium**
+- Download the selenium driver that matches your installed version of Chrome from https://chromedriver.chromium.org/downloads
+- Unzip the download and move the contents to a directory that is in your system's path
+```bash
+$ ./soda chrome about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+```
+---
+**Firefox with Selenium**
+- Download the gecko driver that matches your installed version of Firefox from https://github.com/mozilla/geckodriver/releases
+- Unzip the download and move the contents to a directory that is in your system's path
+```bash
+$ ./soda firefox about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+```
+---
+**Safari with Selenium on MacOS**
+- Run /usr/bin/safaridriver --enable
+- Enable the ‘Show Developer’ menu in Safari through Safari -> Preferences -> Advanced -> Select ‘Show Develop menu in menu bar’ (if it is not checked).
+- In the menu in Safari, choose Develop > Allow Remote Automation.
+- Authorize safaridriver to launch the XPC service that hosts the local webserver. For this, run /usr/bin/safaridriver once and follow the authentication prompt. /usr/bin/safaridriver --enable
+```bash
+$ ./soda firefox about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+```
+**IE with Selenium on Windows 10**
+- Download the correct version of the Internet Explorer driver from https://selenium.dev/downloads
+- Unzip the download and move the contents to a directory that is in your system's path
+```bash
+$ ./soda ie about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+```
+**Edge with Selenium on Windows 10**
+- Download the correct version of the edge driver that matches your installed version of Edge from https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver
+- Unzip the download and move the contents to a directory that is in your system's path
+- You may need to rename the executable to MicrosoftWebDriver.exe from msedgedriver.exe
+```bash
+$ ./soda edge about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
 ```
 
 ## Table of Contents
@@ -3625,4 +3660,10 @@ People who have done an awesome job writing the Soda Testing Framework...
 
 ## License
 ---
-**To be determined**
+Copyright 2020 Ally Financial, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the Licenseis distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
