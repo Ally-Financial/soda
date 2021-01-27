@@ -36,15 +36,13 @@ Server = function (soda, exitOnNoConnections, useExpress, options) {
 
         self        = this,
         port        = null,
-        io          = sio(http.server),
+        io          = sio(http.server, { cors: { origin: '*.*' } }),
         terminationTimeout = null,
 
         status = {
             get started     () { return started;        },
             get connections () { return sockets.length; }
         };
-
-    io.set('transports', ['websocket']);
 
     var connections = [];
     http.server.on("connection", function (client) {

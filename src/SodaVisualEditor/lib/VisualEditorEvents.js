@@ -121,7 +121,7 @@ function VisualEditorEvents (server, repl, sodaToAttach, done) {
             soda.config.set("port", server.port);
 
             // Handle errors by not handling them...
-            socket.on("error", function (err) {
+            socket.on("connect_error", function (err) {
                 soda.console.error(err ? err.stack : new Error("Unknown Error").stack);
             });
 
