@@ -215,7 +215,7 @@ window.SodaNamespace = (function SodaNamespace () {
         SodaEmitter.call(this);
 
         var self              = this,
-            socket            = window.io.connect({upgrade: false, transports: ['websocket'], secure: true, timeout: 5000, connect_timeout: 5000}),
+            socket            = window.io.connect({upgrade: true, transports: ['websocket'], secure: true, timeout: 5000, connect_timeout: 5000}),
             connectionTimeout = null,
             favoritesLoaded   = false,
             exitStatus        = -1,

@@ -42,8 +42,9 @@
     "test": "find ./spec -name '*Spec.js' \\( -exec jasmine --random=false {} \\; -o -quit \\)"
   },
   "dependencies": {
-    "archiver": "^5.1.0",
-    "aws-sdk": "^2.804.0",
+    "@babel/code-frame": "^7.10.4",
+    "archiver": "^5.2.0",
+    "aws-sdk": "^2.831.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "child_process": "^1.0.2",
@@ -60,27 +61,27 @@
     "log4js": "^6.3.0",
     "minimist": "^1.2.5",
     "node-watch": "^0.7.1",
-    "nodemailer": "^6.4.16",
+    "nodemailer": "^6.4.17",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "png-crop": "0.0.2",
     "puppeteer-core": "^5.5.0",
-    "query-string": "^6.13.7",
+    "query-string": "^6.13.8",
     "selenium-webdriver": "^4.0.0-alpha.8",
     "setheader": "^1.0.2",
-    "socket.io": "^2.3.0"
+    "socket.io": "^3.1.0"
   },
   "devDependencies": {
     "istanbul": "^0.4.5",
-    "jasmine": "^3.6.3",
+    "jasmine": "^3.6.4",
     "jasmine-core": "^3.6.0",
     "karma": "^5.2.3",
     "karma-chrome-launcher": "^3.1.0",
     "karma-coverage": "^2.0.3",
     "karma-jasmine": "^4.0.1",
-    "nock": "^13.0.5",
+    "nock": "^13.0.6",
     "rewire": "^5.0.0",
-    "sinon": "^9.2.1"
+    "sinon": "^9.2.4"
   },
   "publishConfig": {
     "registry": "https://nexus.int.ally.com/nexus/repository/npm-hosted/"
