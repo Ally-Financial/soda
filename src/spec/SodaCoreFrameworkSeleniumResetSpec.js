@@ -79,12 +79,7 @@ describe('Framework selenium reset should pass all validation tests', function (
           expect(err).toEqual(null);
           expect(result).toEqual(true);
 
-          seleniumFramework.stop(function(err, result) {
-            expect(err).toEqual(null);
-            expect(result).toEqual(true);
-
-            done();
-          });
+          done();
         });
       });
     });

@@ -80,16 +80,16 @@ describe('Soda', () => {
   });
 
   it('should have a yid of 0', function(done) {
-    soda = new Soda({});
+    soda = new Soda();
     expect(soda.yid).toEqual(0);
 
     done();
   });
 
   it ('should support multiple sodas properly', function(done) {
-    soda1 = new Soda({});
+    soda1 = new Soda();
     expect(soda1.yid).toEqual(1);
-    soda2 = new Soda({});
+    soda2 = new Soda();
     expect(soda2.yid).toEqual(2);
     soda1.kill();
     soda2.kill();
@@ -245,6 +245,9 @@ describe('Soda', () => {
 
     var stub = sinon.stub(child_process, 'exec').callsFake((command, cb) => {
       switch(command) {
+        case "tasklist /FI \"IMAGENAME eq node.exe\" /FO CSV":
+          cb.call(null, null, "\"Image Name\",\"PID\",\"Session Name\",\"Session#\",\"Mem Usage\"\r\n\"node.exe\",\"227007\",\"Console\",\"1\",\"42,452 K\"", null);
+          break;
         case "pgrep -a Soda":
           cb.call(null, null, '1');
           break;
@@ -274,7 +277,7 @@ describe('Soda', () => {
       }
     });
 
-    var soda3 = new Soda({});
+    var soda3 = new Soda();
     expect(soda3.sids()).toEqual(1);
 
     soda3.init(function() {
@@ -291,7 +294,7 @@ describe('Soda', () => {
   });
 
   it ('should kill a running soda', function(done) {
-    var soda4 = new Soda({});
+    var soda4 = new Soda();
 
       soda4.init(function() {
           expect(soda4.sids()).toEqual(1);
@@ -303,12 +306,12 @@ describe('Soda', () => {
   });
 
   it ('should have correct number of sids', function(done) {
-    var soda5 = new Soda({});
+    var soda5 = new Soda();
 
       soda5.init(function() {
         expect(soda5.sids()).toEqual(1);
 
-          var soda6 = new Soda({});
+          var soda6 = new Soda();
           soda6.init(function() {
             expect(soda5.sids()).toEqual(2);
             expect(soda6.sids()).toEqual(2);
@@ -329,7 +332,7 @@ describe('Soda', () => {
   });
 
   it ('should set options properly', function(done) {
-    var soda7 = new Soda({});
+    var soda7 = new Soda();
 
     soda7.init(function() {
       soda7.setOptions({
@@ -368,7 +371,7 @@ describe('Soda', () => {
   });
 
   it ('should set a single option properly', function(done) {
-    var soda8 = new Soda({});
+    var soda8 = new Soda();
 
     soda8.init(function() {
       soda8.setOption('logSupressed', true);
@@ -391,7 +394,7 @@ describe('Soda', () => {
   });
 
   it ('should send save events to listeners', function(done) {
-    var soda9 = new Soda({});
+    var soda9 = new Soda();
     var saveCount = 0;
 
     soda9.use(function(tempSoda) {
@@ -411,7 +414,7 @@ describe('Soda', () => {
   });
 
   it ('should send get events to listeners', function(done) {
-    var soda10 = new Soda({});
+    var soda10 = new Soda();
     var getCount = 0;
 
     soda10.use(function(tempSoda) {
@@ -432,7 +435,7 @@ describe('Soda', () => {
   });
 
   it ('should remove a listener', function (done) {
-    var soda10 = new Soda({});
+    var soda10 = new Soda();
     var getCount = 0;
 
     var getFunction = function(tempSoda) {
@@ -465,7 +468,7 @@ describe('Soda', () => {
   });
 
   it ('should support dumping the temp directory', function(done) {
-    var soda11 = new Soda({});
+    var soda11 = new Soda();
 
     soda11.init(function() {
       soda11.dumpTemp(function(err, result) {
@@ -481,7 +484,7 @@ describe('Soda', () => {
   });
 
   it ('should dump the contents of what we ask for with a temp directory', function(done) {
-    var soda12 = new Soda({});
+    var soda12 = new Soda();
 
     var toStringify = {'onevar':'oneval', 'twovar':'twoval'};
     var stringified = JSON.stringify(toStringify, jsonFunctionReplacer, '    ');
@@ -499,7 +502,7 @@ describe('Soda', () => {
   });
 
   it ('should dump the contents of what we ask for without a temp directory', function(done) {
-    var soda13 = new Soda({});
+    var soda13 = new Soda();
 
     var toStringify = {'onevar':'oneval', 'twovar':'twoval'};
     var stringified = JSON.stringify(toStringify, jsonFunctionReplacer, '    ');
@@ -520,6 +523,9 @@ describe('Soda', () => {
     var stub = sinon.stub(child_process, 'exec').callsFake((command, cb) => {
       console.log(command);
       switch(command) {
+        case "tasklist /FI \"IMAGENAME eq node.exe\" /FO CSV":
+          cb.call(null, null, "\"Image Name\",\"PID\",\"Session Name\",\"Session#\",\"Mem Usage\"\r\n\"node.exe\",\"227007\",\"Console\",\"1\",\"42,452 K\"", null);
+          break;
         case "pgrep -a Soda":
           cb.call(null, null, '1');
           break;
@@ -549,7 +555,7 @@ describe('Soda', () => {
       }
     });
 
-    var soda14 = new Soda({});
+    var soda14 = new Soda();
 
     soda14.init(function() {
       expect(soda14.exception).not.toEqual(null);

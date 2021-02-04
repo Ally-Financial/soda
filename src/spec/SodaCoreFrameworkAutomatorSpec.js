@@ -296,7 +296,7 @@ describe('Framework automator should pass all validation tests', function () {
         expect(result).toEqual(true);
 
         var Tree = require(path.join(__dirname, "..", "SodaCore", "lib", "Tree"))(soda);
-        var tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+        var tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
         tree.findElementById('textfield:1', function(err, result) {
          expect(err).toEqual(null);

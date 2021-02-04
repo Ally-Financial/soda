@@ -39,22 +39,29 @@ describe('SodaCommon Exec should work properly', function () {
       spy = sinon.spy(console, 'log');
 
       spy1 = sinon.stub(child_process, 'exec').callsFake((command, cb) => {
-        switch(command) {
+        switch(command) {                    
+          case "tasklist /FI \"IMAGENAME eq node.exe\" /FO CSV":
+            cb.call(null, null, "\"Image Name\",\"PID\",\"Session Name\",\"Session#\",\"Mem Usage\"\r\n\"node.exe\",\"227007\",\"Console\",\"1\",\"42,452 K\"", null);
+            break;
           case "pgrep -a Soda":
             cb.call(null, null, '227007');
             break;
           case "rm -rf directory":
+          case "rmdir directory /s /q":
             cb.call(null, null, 'rmdir');
             break;
           case "mkdir directory":
+          case "mkdir directory /s /q":
             cb.call(null, null, 'mkdir');
             break;
           case "echo \"command\"":
             cb.call(null, null, 'print');
             break;
+          case "start /max url":
           case "open url":
             cb.call(null, null, 'openurl');
             break;
+          case 'IF EXIST "C:\\Program Files\\Safari" ( echo exists )':
           case 'if [ -f "/Applications/Safari.app" -o "/Applications/Safari.app" ]; then echo "exists"; fi':
             cb.call(null, null, "exists", null);
             break;

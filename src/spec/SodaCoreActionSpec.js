@@ -116,7 +116,7 @@ describe('Core Action should pass all validation tests', function () {
 
         var Action = action(soda);
         var tempAction = new Action(asset);
-        tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+        tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
         tempAction.evaluate(function(err, result) {
           expect(err).toEqual(null);

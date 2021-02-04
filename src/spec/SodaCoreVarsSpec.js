@@ -23,7 +23,9 @@ delete require.cache[require(path.join(__dirname, "..", "SodaCore", "lib", "Clas
 require(path.join(__dirname, "..", "SodaCommon", "ProtoLib"));
 
 describe('Vars should pass all validation tests', function () {
-  var soda, localVars, Soda   = require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")), Vars = require(path.join(__dirname, "..", "SodaCore", "lib", "Classes", "Vars"));
+  var soda, localVars, 
+  Soda   = require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")),
+  Vars = require(path.join(__dirname, "..", "SodaCore", "lib", "Classes", "Vars"));
 
     function clearRequireCache() {
       Object.keys(require.cache).forEach(function (key) {
@@ -36,7 +38,7 @@ describe('Vars should pass all validation tests', function () {
 
       clearRequireCache();
       
-      soda = new Soda({ testPath: path.join(__dirname, '..', 'sample_project'), logSupressed: true });
+      soda = new Soda({ testPath: path.join(__dirname, '..', 'sample_project'), logSupressed: true, reset: true });
 
       soda.init(function() {
         soda.config.set("headless", true, true, true);

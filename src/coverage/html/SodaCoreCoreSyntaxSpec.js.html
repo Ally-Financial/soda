@@ -4617,7 +4617,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
 <span class="cstat-no" title="statement not covered" >          soda.config.set("platform", "web", true, true);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >          Tree = require(path.join(__dirname, "..", "SodaCore", "lib", "Tree"))(soda);</span>
-<span class="cstat-no" title="statement not covered" >          tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+<span class="cstat-no" title="statement not covered" >          tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >          done();</span>
         });
@@ -5596,7 +5596,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
         var run = <span class="cstat-no" title="statement not covered" >new Run(soda);</span>
 <span class="cstat-no" title="statement not covered" >        run.state = "running";</span>
 &nbsp;
-        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));</span>
+        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        soda.framework.getTree = <span class="fstat-no" title="function not covered" >fu</span>nction (complete, dontInstantiate, times) {</span>
 <span class="cstat-no" title="statement not covered" >          complete('null', tempTree);</span>
@@ -5644,7 +5644,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
         var run = <span class="cstat-no" title="statement not covered" >new Run(soda);</span>
 <span class="cstat-no" title="statement not covered" >        run.state = "running";</span>
 &nbsp;
-        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));</span>
+        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        soda.framework.getTree = <span class="fstat-no" title="function not covered" >fu</span>nction (complete, dontInstantiate, times) {</span>
 <span class="cstat-no" title="statement not covered" >          complete('null', tempTree);</span>
@@ -5692,7 +5692,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
         var run = <span class="cstat-no" title="statement not covered" >new Run(soda);</span>
 <span class="cstat-no" title="statement not covered" >        run.state = "running";</span>
 &nbsp;
-        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));</span>
+        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        soda.framework.getTree = <span class="fstat-no" title="function not covered" >fu</span>nction (complete, dontInstantiate, times) {</span>
 <span class="cstat-no" title="statement not covered" >          complete('null', tempTree);</span>
@@ -5738,7 +5738,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
         var run = <span class="cstat-no" title="statement not covered" >new Run(soda);</span>
 <span class="cstat-no" title="statement not covered" >        run.state = "running";</span>
 &nbsp;
-        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));</span>
+        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        soda.framework.getTree = <span class="fstat-no" title="function not covered" >fu</span>nction (complete, dontInstantiate, times) {</span>
 <span class="cstat-no" title="statement not covered" >          complete('null', tempTree);</span>
@@ -5784,7 +5784,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
         var run = <span class="cstat-no" title="statement not covered" >new Run(soda);</span>
 <span class="cstat-no" title="statement not covered" >        run.state = "running";</span>
 &nbsp;
-        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));</span>
+        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        soda.framework.getTree = <span class="fstat-no" title="function not covered" >fu</span>nction (complete, dontInstantiate, times) {</span>
 <span class="cstat-no" title="statement not covered" >          complete('null', tempTree);</span>
@@ -5831,7 +5831,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
         var run = <span class="cstat-no" title="statement not covered" >new Run(soda);</span>
 <span class="cstat-no" title="statement not covered" >        run.state = "running";</span>
 &nbsp;
-        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));</span>
+        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        soda.framework.getTree = <span class="fstat-no" title="function not covered" >fu</span>nction (complete, dontInstantiate, times) {</span>
 <span class="cstat-no" title="statement not covered" >          complete('null', tempTree);</span>
@@ -5877,7 +5877,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
         var run = <span class="cstat-no" title="statement not covered" >new Run(soda);</span>
 <span class="cstat-no" title="statement not covered" >        run.state = "running";</span>
 &nbsp;
-        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));</span>
+        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        soda.framework.getTree = <span class="fstat-no" title="function not covered" >fu</span>nction (complete, dontInstantiate, times) {</span>
 <span class="cstat-no" title="statement not covered" >          complete('null', tempTree);</span>
@@ -5924,7 +5924,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
         var run = <span class="cstat-no" title="statement not covered" >new Run(soda);</span>
 <span class="cstat-no" title="statement not covered" >        run.state = "running";</span>
 &nbsp;
-        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));</span>
+        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        soda.framework.getTree = <span class="fstat-no" title="function not covered" >fu</span>nction (complete, dontInstantiate, times) {</span>
 <span class="cstat-no" title="statement not covered" >          complete('null', tempTree);</span>
@@ -5971,7 +5971,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
         var run = <span class="cstat-no" title="statement not covered" >new Run(soda);</span>
 <span class="cstat-no" title="statement not covered" >        run.state = "running";</span>
 &nbsp;
-        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));</span>
+        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));</span>
 &nbsp;
         var newTree = <span class="cstat-no" title="statement not covered" >{</span>
          assets: assetCollection,
@@ -6012,7 +6012,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
         var run = <span class="cstat-no" title="statement not covered" >new Run(soda);</span>
 <span class="cstat-no" title="statement not covered" >        run.state = "running";</span>
 &nbsp;
-        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));</span>
+        var tempTree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));</span>
 &nbsp;
         var newTree = <span class="cstat-no" title="statement not covered" >{</span>
          assets: assetCollection,

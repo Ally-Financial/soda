@@ -17,6 +17,7 @@
  */
 
 var path  = require("path"),
+    os       = require('os').platform(),
     spawn = require("child_process").spawn;
 
 module.exports = function (soda) {
@@ -91,7 +92,7 @@ module.exports = function (soda) {
             };
 
         this.name     = "Shell";
-        this.platform = "OSX";
+        this.platform = os;
         this.version  = "1.0";
 
         this.defaultSyntaxVersion = "1.0";
@@ -113,7 +114,15 @@ module.exports = function (soda) {
          * @return {Array} A list of available browsers
          */
         this.listAvailableDevices = function (done) {
-            var appExists = ["sh", "bash"];
+            var appExists = [];
+
+            if (os === "win32" || os === "win64") {        
+                appExists = ["cmd", "powershell"];
+            }
+            else {
+                appExists = ["sh", "bash"];
+            }
+
             if(done instanceof Function) done.call(self, appExists);
         };
 

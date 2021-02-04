@@ -121,7 +121,7 @@ var path   = <span class="cstat-no" title="statement not covered" >require("path
     var tree, elements;
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    beforeAll(<span class="fstat-no" title="function not covered" >fu</span>nction () {</span>
-<span class="cstat-no" title="statement not covered" >        tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/webTree.json")).toString('utf-8')));</span>
+<span class="cstat-no" title="statement not covered" >        tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "webTree.json")).toString('utf-8')));</span>
 <span class="cstat-no" title="statement not covered" >        elements = tree.elements();</span>
     });
 &nbsp;

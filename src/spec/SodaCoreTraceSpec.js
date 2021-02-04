@@ -38,7 +38,7 @@ describe('Trace should pass all validation tests', function () {
     beforeAll(function (done) {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
 
-      soda = new Soda({ testPath: path.join(__dirname, '..', 'sample_project'), logSupressed: true, platform: "web", framework: "selenium", suite: "my_suite", module: "my_module" });
+      soda = new Soda({ testPath: path.join(__dirname, '..', 'sample_project'), logSupressed: true, platform: "web", framework: "selenium", suite: "my_suite", module: "my_module", reset: true });
 
       soda.init(function() {
         soda.config.set("headless", true, true, true);

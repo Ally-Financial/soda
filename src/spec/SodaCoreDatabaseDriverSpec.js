@@ -14,7 +14,9 @@
 
 var sinon = require('sinon'),
     path   = require("path"),
+    child_process   = require("child_process"),
     Soda   = require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")),
+    os       = require('os').platform(),
 
     AssetCollection = require(path.join(__dirname, "..", "SodaCore", "lib", "Classes", "AssetCollection")),
     Suite           = require(path.join(__dirname, "..", "SodaCore", "lib", "Classes", "Suite")),
@@ -29,11 +31,28 @@ var sinon = require('sinon'),
 describe('Soda Database Driver Test, Part I', function () {
     "use strict";
 
-    var soda, framework, stub;
+    var soda, framework, stub, spy;
 
     beforeAll(function (done) {
         // Allow up to 30 seconds for framework initialization
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 200000;
+
+        if (os === "win32" || os === "win64") {
+            spy = sinon.stub(child_process, 'exec').callsFake((command, cb) => {
+                switch(command) {  
+                    case "tasklist /FI \"IMAGENAME eq node.exe\" /FO CSV":
+                        cb.call(null, null, "\"Image Name\",\"PID\",\"Session Name\",\"Session#\",\"Mem Usage\"\r\n\"node.exe\",\"227007\",\"Console\",\"1\",\"42,452 K\"", null);
+                        break;
+                    case "mkdir":                                
+                    case "mkdir directory":
+                    case "mkdir directory /s /q":
+                        cb.call(null, null, 'mkdir');
+                        break;
+                    default:
+                        cb.call(null, null, null);
+                    }
+            });
+        }
 
         soda = new Soda({ testPath: "@database", logSupressed: true, platform: "web", framework: "selenium", suite: "my_suite", module: "my_module" });
 
@@ -352,6 +371,10 @@ describe('Soda Database Driver Test, Part I', function () {
     });
 
     afterAll(function (done) {
+        if (os === "win32" || os === "win64") {
+            spy.restore();
+        }
+
         soda.kill();
 
         soda = null;
@@ -364,11 +387,28 @@ describe('Soda Database Driver Test, Part I', function () {
 describe('Soda Database Driver Test, Part II', function () {
     "use strict";
 
-    var soda, framework, db, suites, modules, assets, contents, stub;
+    var soda, framework, db, suites, modules, assets, contents, stub, spy;
 
     beforeAll(function (done) {
         // Allow up to 30 seconds for framework initialization
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 800000;
+
+        if (os === "win32" || os === "win64") {
+            spy = sinon.stub(child_process, 'exec').callsFake((command, cb) => {
+                switch(command) {  
+                    case "tasklist /FI \"IMAGENAME eq node.exe\" /FO CSV":
+                        cb.call(null, null, "\"Image Name\",\"PID\",\"Session Name\",\"Session#\",\"Mem Usage\"\r\n\"node.exe\",\"227007\",\"Console\",\"1\",\"42,452 K\"", null);
+                        break;
+                    case "mkdir":                                
+                    case "mkdir directory":
+                    case "mkdir directory /s /q":
+                        cb.call(null, null, 'mkdir');
+                        break;
+                    default:
+                        cb.call(null, null, null);
+                    }
+            });
+        }
 
         soda = new Soda({ testPath: "@database:2", logSupressed: true, platform: "web", framework: "selenium", suite: "my_suite", module: "my_module" });
 
@@ -443,6 +483,10 @@ describe('Soda Database Driver Test, Part II', function () {
     });
 
     afterAll(function (done) {
+        if (os === "win32" || os === "win64") {
+            spy.restore();
+        }
+
         soda.kill();
 
         soda = null;

@@ -31,9 +31,12 @@ var util         = require("util"),
  * @extends EventEmitter
  * @param {Soda} soda The soda instance this run is associated with
  * @param {number} id Force a specific run identifier
+ * @param {boolean} reset Force reset of the runId
  */
-Run = function (soda, id) {
+Run = function (soda, id, reset= false) {
     var self = this;
+
+    if (reset) runIds = 0;
 
     /**
      * This Run's unique id

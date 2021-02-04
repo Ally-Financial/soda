@@ -98,7 +98,6 @@ var TreeWrapper = function (soda) {
      * @augments EventEmitter
      */
     Tree = function TreeObject (JSONTree) {
-
         var self = this,
             tree = null,
             err, elements;

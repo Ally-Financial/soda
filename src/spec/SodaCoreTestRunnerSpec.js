@@ -52,7 +52,7 @@ describe('TestRunner should pass all validation tests', function () {
         soda.config.set("platform", "web", true, true);
 
         Tree = require(path.join(__dirname, "..", "SodaCore", "lib", "Tree"))(soda);
-        tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+        tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
         testRunner = new TestRunner(soda);
 
@@ -148,7 +148,7 @@ describe('TestRunner should pass all validation tests', function () {
           expect(err).toEqual(null);
           expect(soda.vars.get("_suite_info_")).toEqual('my_suite');
           expect(JSON.stringify(soda.vars.get("_module_info_"))).toEqual(JSON.stringify({ name: 'my_module', suite: 'my_suite' }));
-          expect(JSON.stringify(soda.vars.get("_test_info_"))).toEqual(JSON.stringify({"name":"closebrowser","suite":"my_suite","module":"my_module","platform":"web","description":"Navigates to Google and searches for the value of the variable ${to_search}","id":"google","path":path.join(__dirname, '..')+"/sample_project/my_suite/modules/my_module/actions/closebrowser.web.json"}));
+          expect(JSON.stringify(soda.vars.get("_test_info_"))).toEqual(JSON.stringify({"name":"closebrowser","suite":"my_suite","module":"my_module","platform":"web","description":"Navigates to Google and searches for the value of the variable ${to_search}","id":"google","path":path.join(__dirname, '..', "sample_project", "my_suite", "modules", "my_module", "actions", "closebrowser.web.json")}));
           expect(soda.config.get("testingInProgress")).toEqual(false);
           expect(soda.config.get("test-last")).toEqual("001");
           expect(soda.config.get("test")).toEqual("001");
@@ -163,7 +163,7 @@ describe('TestRunner should pass all validation tests', function () {
       soda.loadAssets(path.join(__dirname, '..', 'sample_project'), function(err, assetCollection) {
         tree.update = function() { return tree; };
 
-        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));
+        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));
 
         soda.framework.getTree = function (complete, dontInstantiate, times) {
           complete('null', tempTree);
@@ -179,7 +179,7 @@ describe('TestRunner should pass all validation tests', function () {
               expect(err).toEqual(null);
               expect(suite_info).toEqual('my_suite');
               expect(JSON.stringify(soda.vars.get("_module_info_"))).toEqual(JSON.stringify({ name: 'my_module', suite: 'my_suite' }));
-              expect(JSON.stringify(soda.vars.get("_test_info_"))).toEqual(JSON.stringify({"name":"closebrowser","suite":"my_suite","module":"my_module","platform":"web","description":"Navigates to Google and searches for the value of the variable ${to_search}","id":"google","path":path.join(__dirname, '..')+"/sample_project/my_suite/modules/my_module/actions/closebrowser.web.json"}));
+              expect(JSON.stringify(soda.vars.get("_test_info_"))).toEqual(JSON.stringify({"name":"closebrowser","suite":"my_suite","module":"my_module","platform":"web","description":"Navigates to Google and searches for the value of the variable ${to_search}","id":"google","path":path.join(__dirname, '..', "sample_project", "my_suite", "modules", "my_module", "actions", "closebrowser.web.json")}));
               expect(soda.config.get("testingInProgress")).toEqual(false);
               expect(soda.config.get("test-last")).toEqual("001");
               expect(soda.config.get("test")).toEqual("001");
