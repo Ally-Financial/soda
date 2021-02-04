@@ -1,0 +1,88 @@
+<div id="soda-runner">
+
+    <div class="runner-run-item test">
+        <em class="r-icon fa"></em>
+        <div class="test-item-info">
+            <div class="r-name">My Test</div>
+            <div class="r-id">001</div>
+            <div class="r-suite">My Suite</div>
+            <div class="r-module">My Module</div>
+            <div class="r-description">This is an exmaple test description</div>
+        </div>
+    </div>
+    <div class="runner-run-item module">
+        <em class="r-icon fa"></em>
+        <div class="test-item-info">
+            <div class="r-name">My Module</div>
+            <div class="r-suite">My Suite</div>
+        </div>
+    </div>
+    <div class="runner-run-item suite">
+        <em class="r-icon fa"></em>
+        <div class="test-item-info">
+            <div class="r-name">My Suite</div>
+            <div class="r-misc">Soda Project Suite</div>
+        </div>
+    </div>
+
+    <div id="runner-options">
+        <div class="btn-group btn-group-toggle" role="group" aria-label="...">
+            <button id="runner-options-all-button" type="button" class="btn btn-default active" data-show="#runner-list-all-wrapper" data-group="#runner-list-wrapper">All</button>
+            <button type="button" class="btn btn-default" data-show="#runner-list-suites-wrapper" data-group="#runner-list-wrapper">Suites</button>
+            <button type="button" class="btn btn-default" data-show="#runner-list-modules-wrapper" data-group="#runner-list-wrapper">Modules</button>
+            <button type="button" class="btn btn-default" data-show="#runner-list-tests-wrapper" data-group="#runner-list-wrapper">Tests</button>
+        </div>
+    </div>
+
+    <div id="runner-list-wrapper">
+        <div id="runner-list-suites-wrapper" class="runner-list">
+            <h4>Suites</h4>
+            <div id="runner-suite-search" class="runner-search-wrapper">
+                <div class="input-group">
+                    <em class="fa fa-close search-close"></em>
+                    <span class="input-group-addon" id="runner-suite-search-addon"><em class="fa fa-search"></em></span>
+                    <input class="form-control search-filter" type="text" placeholder="Search..." data-filter="#runner-list-suites-wrapper .runner-run-item.suite" data-title="runner suite search" aria-describedby="runner-suite-search-addon">
+                </div>
+            </div>
+            <div id="runner-list-suites"></div>
+        </div>
+        <div id="runner-list-modules-wrapper" class="runner-list">
+            <h4>Modules</h4>
+            <div id="runner-module-search" class="runner-search-wrapper">
+                <select id="test-filter-suite-modules" class="suite-filter category-filter" data-parent="true" data-name="suite-filter" data-filter="#runner-list-modules-wrapper .runner-run-item" data-selector=".inline-info.suite"></select>
+                <div class="input-group">
+                    <em class="fa fa-close search-close"></em>
+                    <span class="input-group-addon" id="runner-module-search-addon"><em class="fa fa-search"></em></span>
+                    <input class="form-control search-filter" type="text" placeholder="Search..." data-filter="#runner-list-modules-wrapper .runner-run-item.module" data-title="runner module search" aria-describedby="runner-module-search-addon">
+                </div>
+            </div>
+            <div id="runner-list-modules"></div>
+        </div>
+        <div id="runner-list-tests-wrapper" class="runner-list">
+            <h4>Tests</h4>
+            <div id="runner-test-search" class="runner-search-wrapper">
+                <select id="test-filter-suite" class="suite-filter category-filter" data-parent="true" data-name="suite-filter" data-filter="#runner-list-tests-wrapper .runner-run-item" data-selector=".inline-info.suite"></select>
+                <select id="test-filter-module" class="category-filter" data-child="true" data-name="module-filter" data-filter="#runner-list-tests-wrapper .runner-run-item" data-selector=".inline-info.module">
+                    <option value="all">Filter tests by module...</option>
+                </select>
+                <div class="input-group">
+                    <em class="fa fa-close search-close"></em>
+                    <span class="input-group-addon" id="runner-test-search-addon"><em class="fa fa-search"></em></span>
+                    <input class="form-control search-filter" type="text" placeholder="Search..." data-filter="#runner-list-tests-wrapper .runner-run-item.test" data-title="runner test search" aria-describedby="runner-test-search-addon">
+                </div>
+            </div>
+            <div id="runner-list-tests"></div>
+        </div>
+        <div id="runner-list-all-wrapper" class="runner-list">
+            <h4>All</h4>
+            <div id="runner-all-search" class="runner-search-wrapper">
+                <div class="input-group">
+                    <em class="fa fa-close search-close"></em>
+                    <span class="input-group-addon" id="runner-all-search-addon"><em class="fa fa-search"></em></span>
+                    <input class="form-control search-filter" type="text" placeholder="Search..." data-filter="#runner-list-all-wrapper .runner-run-item" data-title="runner all search" aria-describedby="runner-all-search-addon">
+                </div>
+            </div>
+            <div id="runner-list-all"></div>
+        </div>
+    </div>
+</div>

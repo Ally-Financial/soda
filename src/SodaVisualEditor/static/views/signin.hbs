@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign in</title>
+    <script src="external/jquery.min.js"></script>
+    <script src="external/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="external/bootstrap/js/bootstrap.min.js"></script>
+    <script src="external/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="external/jquery-ui/jquery-ui.css">
+    <link rel="stylesheet" href="external/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="external/bootstrap/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="external/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="external/jquery.mCustomScrollbar.css">
+    <link rel="stylesheet" href="fonts/stylesheet.css">
+    <link rel="stylesheet" href="style/soda.css">
+    <script src="external/socket.io.min.js"></script>
+    <script src="external/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="external/ace/ace.js"></script>
+    <script src="external/ace/mode-json.js"></script>
+</head>
+<body>
+    <div id="soda-wrapper">
+        <div id="signin-board">
+            <h1>Login</h1>
+            <form id="signin" name="signin" method="post" action="signin">
+                <div class="input-container">
+                    <em class="fa fa-envelope icon"></em>
+                    <input class="text" name="email" type="text" placeholder="Email" />
+                </div>
+                <div class="input-container">
+                    <em class="fa fa-lock icon"></em>
+                    <input name="password" type="password" placeholder="Password" />
+                </div>
+                    <button type="submit" class="signin-button" name="signin">Sign In</button>
+                <button class="lbl-button" type="submit" name="signup" value="Sign Up">Sign Up</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

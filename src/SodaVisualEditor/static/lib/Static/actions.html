@@ -1,0 +1,55 @@
+<div id="soda-actions-menu">
+
+    <div class="action-list-group">
+        <h4>Group Name</h4>
+        <div class="action-list-group-actions"></div>
+    </div>
+
+    <div class="action-item">
+        <em class="a-icon fa"></em>
+        <div class="action-item-info">
+            <div class="a-key-signature">Tap, Using</div>
+            <div class="a-description">Tap an element</div>
+        </div>
+    </div>
+
+    <div id="action-options">
+        <select id="action-select-language" name="action-select-language">
+            <option value="mobile-2-0" class="syntax-mobile-2-0" data-name="mobile" data-version="2.0">Mobile v2.0</option>
+            <option value="perfecto-2-0" class="syntax-perfecto-2-0" data-name="perfecto" data-version="2.0">Perfecto v2.0</option>
+            <option value="web-1-0" class="syntax-web-1-0" data-name="web" data-version="1.0">Web v1.0</option>
+        </select>
+        <div id="action-search" class="action-search-wrapper">
+            <div class="input-group">
+                <em class="fa fa-close search-close"></em>
+                <span class="input-group-addon" id="action-search-addon"><em class="fa fa-search"></em></span>
+                <input id="action-search-input" class="form-control search-filter" type="text" placeholder="Search Actions..." data-filter="#action-list-wrapper .action-item" data-filter-using=".a-key-signature" data-title="action search" aria-describedby="action-search-addon">
+            </div>
+        </div>
+        <div class="btn-group btn-group-toggle" role="group" aria-label="...">
+            <button type="button" class="btn btn-default test-tab" data-type="test" data-show="#action-list-test-wrapper" data-group="#action-list-wrapper">Test</button>
+            <button type="button" class="btn btn-default action-tab" data-type="action" data-show="#action-list-action-wrapper" data-group="#action-list-wrapper">Action</button>
+            <button type="button" class="btn btn-default screen-tab" data-type="screen" data-show="#action-list-screen-wrapper" data-group="#action-list-wrapper">Screen</button>
+            <button type="button" class="btn btn-default menu-tab" data-type="menu" data-show="#action-list-menu-wrapper" data-group="#action-list-wrapper">Menu</button>
+            <button type="button" class="btn btn-default popup-tab" data-type="popup" data-show="#action-list-popup-wrapper" data-group="#action-list-wrapper">Popup</button>
+            <button type="button" class="btn btn-default widget-tab" data-type="widget" data-show="#action-list-widget-wrapper" data-group="#action-list-wrapper">Widgets</button>
+        </div>
+        <div id="soda-settings-test-info" style="margin-top:20px;" class="warning-box">
+            <em class="fa fa-close close" data-close="#soda-settings-test-info"></em>
+            Drag an action onto a screen element or the Test Editor <em class="fa fa-pencil"></em> toolbox to begin writing tests!
+        </div>
+        <div id="soda-settings-test-info-2" class="warning-box">
+            <em class="fa fa-close close" data-close="#soda-settings-test-info-2"></em>
+            Make sure to select the syntax specific to your device!
+        </div>
+    </div>
+
+    <div id="action-list-wrapper">
+        <div id="action-list-test-wrapper" class="action-list"></div>
+        <div id="action-list-action-wrapper" class="action-list"></div>
+        <div id="action-list-screen-wrapper" class="action-list"></div>
+        <div id="action-list-menu-wrapper" class="action-list"></div>
+        <div id="action-list-popup-wrapper" class="action-list"></div>
+        <div id="action-list-widget-wrapper" class="action-list"></div>
+    </div>
+</div>

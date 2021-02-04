@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaVisualEditor/static/lib/Soda/SodaScreen.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaVisualEditor/static/lib/Soda/SodaScreen.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+/**
+ * Manages the screen, and hoverable screen elements.
+ * @constructor
+ * @param {Soda} soda The window.Soda instance
+ * @param {object} $project The AJAX loaded contents specific to this class
+ */
+window.SodaScreen = function (soda, $screen) {
+
+    var self           = this,
+
+        /**
+         * @associates SodaSettings
+         * @type {SodaSettings}
+         */
+        SodaSettings = window.SodaSettings,
+        resizeTimeout;
+
+    /**
+     * If an element is "pinned" in place true, false otherwise
+     * @type {Boolean}
+     */
+    this.hoverBoxTacked = false;
+
+    /**
+     * The current screen image dimensions and other information, such as the ratio to the
+     * actual image size to the displayed image size, and the image denisty in relation to
+     * elements positions
+     * @type {Object}
+     */
+    this.screenDimensions = {
+        original: {
+            height : 0,
+            width  : 0,
+            scale  : 1,
+            ratio  : 1,
+            density: 2
+        },
+        actual: {
+            height : 0,
+            width  : 0,
+            scale  : 1,
+            ratio  : 1
+        }
+    };
+
+    /**
+     * The current screen mouse position with properties x and y
+     * @type {Object}
+     */
+    this.currentMousePos = { x: 0, y: 0 };
+
+    $screen.self     = $screen.self.prependTo(soda.$editor.self);
+    $screen.wrapper  = $screen.self.children("#soda-screen-wrapper");
+    $screen.elements = $screen.wrapper.children("#screen-elements");
+    $screen.hoverBox = $screen.wrapper.children("#element-hover-box");
+    $screen.loading  = $screen.wrapper.children("#screen-loading");
+
+    /**
+     * When the window is resized, adjust the screen image size to fit within
+     * the toolboxes and center it on screen
+     */
+    $(window).on("resize", function () {
+        if(soda.framework.started &amp;&amp; soda.framework.name) {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function () {
+                $screen.hoverBox.width(0).height(0);
+                self.adjustScreenWidth(function () {
+                    $(".screen-element").sodaeach(function () {
+                        var dim = self.getScreenElementDimensionsForElement($(this).attr("data-id"));
+                        if(dim) {
+                            $(this)
+                                .css("width"  , dim.w)
+                                .css("height" , dim.h)
+                                .css("left"   , dim.x)
+                                .css("top"    , dim.y);
+                        }
+                    });
+                });
+            }, 300);
+        }
+    });
+
+    /**
+     * Update the mouse coordinates when the mouse is moved.
+     * Also update the on screen coordinates status.
+     */
+    $(document).mousemove(function(e) {
+        self.currentMousePos.x = e.pageX;
+        self.currentMousePos.y = e.pageY;
+
+        if($("#soda-screen-wrapper:hover").length > 0) {
+            var pos = $screen.wrapper.offset(),
+                x = (self.currentMousePos.x - pos.left) * self.screenDimensions.original.width  / self.screenDimensions.actual.width,
+                y = (self.currentMousePos.y - pos.top)  * self.screenDimensions.original.height / self.screenDimensions.actual.height;
+            $("#xy-coords").text("[" + parseInt(x, 10) + ", " + parseInt(y, 10) + "]");
+        }
+    });
+
+    /**
+     * If "outline" mode is enable, true. False otherwise.
+     * @type {Boolean}
+     */
+    this.outlineModeEnabled = true;
+
+    /**
+     * Sets the outline for the specified screen element
+     * @param {jQuery} $e The screen element to outline
+     * @param {Boolean} outline True will set the element outline, false will remove it
+     * @return {SodaScreen} The current SodaScreen instance
+     */
+    this.setOutlineForElement = function ($e, outline) {
+        if(outline) {
+            $e.css("border-radius", "5px").css("border", "1px dashed #252525");
+        }
+        else {
+            $e.css("border-radius", "0").css("border", "none");
+        }
+        return self;
+    };
+
+    /**
+     * Toggles outline mode on and off
+     * @return {SodaScreen} The current SodaScreen instance
+     */
+    this.toggleOutlineMode = function () {
+        return self.setOutlineModeForAllElements(!self.outlineModeEnabled);
+    };
+
+    /**
+     * Sets the outline mode for all elements
+     * @param {Boolean} outline True will set all elements to outline mode, false will turn off outline mode
+     * @return {SodaScreen} The current SodaScreen instance
+     */
+    this.setOutlineModeForAllElements = function (outline) {
+        if(outline) {
+            soda.editor.setStatus({
+                which: "left",
+                message: "Outline mode &lt;span class=\"bold\">enabled&lt;/span>"
+            });
+
+            self.outlineModeEnabled = true;
+            $(".screen-element").sodaeach(function () {
+                self.setOutlineForElement($(this), true);
+            });
+            soda.delegates.stashed.forEach(function (e) {
+                self.setOutlineForElement($(e), true);
+            });
+        }
+        else {
+            soda.editor.setStatus({
+                which: "left",
+                message: "Outline mode &lt;span class=\"bold\">disabled&lt;/span>"
+            });
+
+            $(".screen-element").sodaeach(function () {
+                self.setOutlineForElement($(this), false);
+            });
+            soda.delegates.stashed.forEach(function (e) {
+                self.setOutlineForElement($(e), false);
+            });
+            self.outlineModeEnabled = false;
+        }
+        return self;
+    };
+
+    /**
+     * Show the screen loading blackout
+     * @return {SodaScreen} The current SodaScreen instance
+     */
+    this.showLoading = function (dontEmpty, done) {
+
+        if(!done &amp;&amp; dontEmpty instanceof Function) {
+            done      = dontEmpty;
+            dontEmpty = undefined;
+        }
+
+        if(!dontEmpty) $screen.elements.empty();
+        $screen.hoverBox
+            .width(0)
+            .height(0)
+            .css("left", 0)
+            .css("top", 0);
+
+        self.hoverBoxTacked = false;
+        $screen.loading.fadeIn(SodaSettings.FADEIN_SPEED, function () {
+            if(done instanceof Function) done.call(self);
+        });
+
+        return self;
+    };
+
+    /**
+     * Hide the screen loading blackout
+     * @return {SodaScreen} The current Soda Screen instance
+     */
+    this.hideLoading = function () {
+        $screen.loading.fadeOut(SodaSettings.FADEOUT_SLOW_SPEED);
+    };
+
+    /**
+     * Return a "color scheme" object given element "e" based on the element's type
+     * @param  {object} e The element to get the color for
+     * @return {object} An object containing CSS colors
+     */
+    this.getColorSchemeForElement = function (e) {
+        var bkgColor, borderColor, dark, darkBorder;
+        switch (e.type) {
+            case "button":
+                bkgColor    = "rgba(175, 0, 0, .4)";
+                borderColor = "rgba(175, 0, 0, .5)";
+                dark        = "rgba(175, 0, 0, .6)";
+                darkBorder  = "rgba(175, 0, 0, .8)";
+                break;
+
+            case "statictext":
+            case "textview":
+            case "span":
+            case "div":
+                bkgColor    = "rgba(0, 175, 0, .4)";
+                borderColor = "rgba(0, 175, 0, .5)";
+                dark        = "rgba(0, 175, 0, .6)";
+                darkBorder  = "rgba(0, 175, 0, .8)";
+                break;
+
+            case "image":
+            case "imageview":
+            case "img":
+                bkgColor    = "rgba(0, 0, 175, .4)";
+                borderColor = "rgba(0, 0, 175, .5)";
+                dark        = "rgba(0, 0, 175, .6)";
+                darkBorder  = "rgba(0, 0, 175, .8)";
+                break;
+
+            case "textfield":
+            case "securetextfield":
+            case "edittext":
+            case "input":
+                bkgColor    = "rgba(175, 0, 175, .4)";
+                borderColor = "rgba(175, 0, 175, .5)";
+                dark        = "rgba(175, 0, 175, .6)";
+                darkBorder  = "rgba(175, 0, 175, .8)";
+                break;
+
+            case "tableviewcell":
+            case "td":
+                bkgColor    = "rgba(0, 175, 175, .4)";
+                borderColor = "rgba(0, 175, 175, .5)";
+                dark        = "rgba(0, 175, 175, .6)";
+                darkBorder  = "rgba(0, 175, 175, .8)";
+                break;
+
+            case "tableview":
+            case "linearlayout":
+            case "table":
+            case "tr":
+                bkgColor    = "rgba(175, 175, 0, .4)";
+                borderColor = "rgba(175, 175, 0, .5)";
+                dark        = "rgba(175, 175, 0, .6)";
+                darkBorder  = "rgba(175, 175, 0, .8)";
+                break;
+
+            case "a":
+                bkgColor    = "rgba(255, 87, 0, .4)";
+                borderColor = "rgba(255, 87, 0, .5)";
+                dark        = "rgba(255, 87, 0, .6)";
+                darkBorder  = "rgba(255, 87, 0, .8)";
+                break;
+
+            default:
+                bkgColor    = "rgba(0, 0, 0, .4)";
+                borderColor = "rgba(0, 0, 0, .5)";
+                dark        = "rgba(0, 0, 0, .6)";
+                darkBorder  = "rgba(0, 0, 0, .8)";
+                break;
+        }
+        return { bkg: bkgColor, border: borderColor, dark: dark, darkBorder: darkBorder  };
+    };
+
+    /**
+     * Adjust the screen's width based on the window size and width of the left and right toolboxes
+     * @param  {Function} done A callback for completion
+     * @return {SodaScreen} The current Soda Screen instance
+     */
+    this.adjustScreenWidth = function (done) {
+        var adjustedLeft  = 0,
+            maxWidth      =
+                ($(window).width()                       -
+                soda.$editor.toolboxWrapperLeft.width()  -
+                soda.$editor.toolboxWrapperRight.width() -
+                140),
+
+            wrapperHeight = $screen.self.height(),
+            wrapperWidth  = maxWidth;
+
+            self.screenDimensions.actual.scale = (self.screenDimensions.original.ratio &lt; 1) ? // Ratio &lt; 1 === Height > Width
+                self.screenDimensions.actual.scale = wrapperHeight / self.screenDimensions.original.height :
+                self.screenDimensions.actual.scale = wrapperWidth  / self.screenDimensions.original.width  ;
+
+            if (soda.framework.platform.toLowerCase() === "iphoneweb" || soda.framework.platform.toLowerCase() === "ipadweb" || soda.framework.platform.toLowerCase() === "androidweb" || soda.framework.platform.toLowerCase() === "androidtabweb") {
+                console.log("Finding dimensions:", width, height, parseFloat(height / width).toFixed(2).toString());
+
+                self.screenDimensions.original.density = 1;
+            }
+            else if(soda.framework.name.toLowerCase() === "perfecto" || soda.framework.name.toLowerCase() === "instruments" || soda.framework.platform.toLowerCase() === "android" || soda.framework.platform.toLowerCase() === "androidtab") {
+                var width  = self.screenDimensions.original.width,
+                    height = self.screenDimensions.original.height;
+
+                console.log("Finding dimensions:", width, height, parseFloat(height / width).toFixed(2).toString());
+
+                // Apple takes the screen shot at actual size, but the element positions are all relative to 1024x768
+                // so we need the density of the image to calculate the actual screen element positions
+                switch(parseFloat(height / width).toFixed(2).toString()) {
+                    case "0.53":
+                        self.screenDimensions.original.density = height > width ? height / 1930 : width / 1930;
+                        break;
+                    case "1.60":
+                    case "0.62":
+                    case "1.33":
+                    case "0.75":
+                         self.screenDimensions.original.density = height > width ? height / 1024 : width / 1024;
+                        break;
+
+                    case "0.56":
+                    case "1.78":
+                    case "1.77":
+                        if(height.toString() === "1334" || width.toString() === "1334") {
+                             self.screenDimensions.original.density = height > width ? height / 667 : width / 667;
+                        }
+                        else if(height.toString() === "1920" || width.toString() === "1080") {
+                             self.screenDimensions.original.density = height > width ? height / 1920 : width / 1920;
+                        }
+                        else if(height.toString() === "1136" || width.toString() === "1136") {
+                             self.screenDimensions.original.density = height > width ? height / 568 : width / 568;
+                        }
+                        else if(height.toString() === "2208" || width.toString() === "1242") {
+                             self.screenDimensions.original.density = height > width ? height / 2208 : width / 2208;
+                        }
+                        else {
+                             self.screenDimensions.original.density = height > width ? height / 736 : width / 736;
+                        }
+                        break;
+
+                    default:
+                         self.screenDimensions.original.density = 1;
+
+                }
+            }
+            else {
+                if (soda.framework.device.toLowerCase() === "mozilla firefox" || soda.framework.device.toLowerCase() === "firefox" || soda.framework.platform.toLowerCase() === "android") {
+                    self.screenDimensions.original.density = 1;
+                }
+                else {
+                    switch(window.devicePixelRatio) {
+                        case 2:
+                        case 2.5:
+                             self.screenDimensions.original.density = 2;
+                            break;
+
+                        default:
+                             self.screenDimensions.original.density = 1;
+
+                    }
+                }
+            }
+
+        self.screenDimensions.actual.height = self.screenDimensions.original.height * self.screenDimensions.actual.scale;
+        self.screenDimensions.actual.width  = self.screenDimensions.original.width  * self.screenDimensions.actual.scale;
+
+        if(self.screenDimensions.actual.width > maxWidth) {
+            self.screenDimensions.actual.height *= maxWidth / self.screenDimensions.actual.width;
+            self.screenDimensions.actual.width   = maxWidth;
+        }
+
+        self.screenDimensions.actual.scale = (self.screenDimensions.original.ratio &lt; 1) ? // Ratio &lt; 1 === Height > Width
+            self.screenDimensions.actual.scale = self.screenDimensions.actual.height / self.screenDimensions.original.height :
+            self.screenDimensions.actual.scale = self.screenDimensions.actual.width  / self.screenDimensions.original.width  ;
+
+        adjustedLeft = soda.$editor.toolboxWrapperLeft.width()  + 70 + ((maxWidth - self.screenDimensions.actual.width) / 2);
+        self.screenDimensions.actual.ratio = self.screenDimensions.actual.height / self.screenDimensions.original.height;
+
+        $screen.wrapper.animate(
+            {
+                width  : self.screenDimensions.actual.width,
+                height : self.screenDimensions.actual.height,
+                left   : adjustedLeft
+            },
+            {
+                easing : "easeInOutExpo",
+                always : function () {
+                    if(done instanceof Function) done.call(self);
+                }
+            }
+        );
+
+        console.log("Setting actual screen dimensions to:", self.screenDimensions.actual, "and left", adjustedLeft);
+        return self;
+    };
+
+    /**
+     * Move the element highlight box to position of element "e"
+     * @param  {object} e The element to move the highlight box over
+     * @param  {object} options The element's positional information, as provided by SodaScreen.getScreenElementDimensionsForElement
+     * @return {SodaScreen} The current Soda Screen instance
+     */
+    this.animateHoverBoxUsingElement = function (e, options) {
+        var w, h, x, y, color;
+        if(!options) {
+            w = (e.rect.size.width  * self.screenDimensions.original.density * self.screenDimensions.actual.scale) + 10;
+            h = (e.rect.size.height * self.screenDimensions.original.density * self.screenDimensions.actual.scale) + 10;
+            x = (e.rect.origin.x    * self.screenDimensions.original.density * self.screenDimensions.actual.scale) - 5;
+            y = (e.rect.origin.y    * self.screenDimensions.original.density * self.screenDimensions.actual.scale) - 5;
+            color = self.getColorSchemeForElement(e);
+        }
+
+        $screen.hoverBox.stop(false, false).animate({
+            width               : options ? options.width        : w,
+            height              : options ? options.height       : h,
+            top                 : options ? options.top          : y,
+            left                : options ? options.left         : x,
+            "background-color"  : options ? options.color.bkg    : color.bkg,
+            "border-color"      : options ? options.color.border : color.border
+        }, 50);
+        return self;
+    };
+
+    /**
+     * Retrieves the screen dimenstions for the given element, as it appears on the screen (actual dimenstions)
+     * @param  {object} e The element to move the highlight box over
+     * @return {SodaScreen} The current Soda Screen instance
+     */
+    this.getScreenElementDimensionsForElement = function (e) {
+        if(typeof e === "number" || typeof e === "string") e = soda.tree.getElementWithWid(e);
+        if(e &amp;&amp; typeof e === "object") {
+            var w = (e.rect.size.width  * self.screenDimensions.original.density * self.screenDimensions.actual.scale) + 10,
+                h = (e.rect.size.height * self.screenDimensions.original.density * self.screenDimensions.actual.scale) + 10,
+                x = (e.rect.origin.x    * self.screenDimensions.original.density * self.screenDimensions.actual.scale) - 5,
+                y = (e.rect.origin.y    * self.screenDimensions.original.density * self.screenDimensions.actual.scale) - 5;
+            return { w: w, h: h, x: x, y: y };
+        }
+        return null;
+    };
+
+    /**
+     * Creates an HTML "screen element" for element "e"
+     * @param  {object} e The element to move the highlight box over
+     * @return {SodaScreen} The current Soda Screen instance
+     */
+    this.createElementBoxForElement = function (e) {
+        var eBox  = $('&lt;div class="screen-element" data-id="' + e.wid + '">&lt;/div>').appendTo($screen.elements),
+            dim   = self.getScreenElementDimensionsForElement(e),
+            color = self.getColorSchemeForElement(e);
+
+        eBox.hover(function (event) {
+            if(!soda.editor.toolboxIsBeingResized &amp;&amp; !self.hoverBoxTacked) {
+                event.stopPropagation();
+                var dim = self.getScreenElementDimensionsForElement(e);
+                self.animateHoverBoxUsingElement(e, { width: dim.w, height: dim.h, left: dim.x, top: dim.y, color: color });
+            }
+        });
+
+        eBox
+            .css("width"  , dim.w)
+            .css("height" , dim.h)
+            .css("left"   , dim.x)
+            .css("top"    , dim.y)
+            .css("z-index", e.level);
+
+        self.setOutlineForElement(eBox, self.outlineModeEnabled);
+        return eBox;
+    };
+
+    /**
+     * Set the screen image
+     * @param {object} screenObject The screen's information as provided by the server
+     * @param {Function} done A callback for completion
+     * @return {SodaScreen} The current Soda Screen instance
+     */
+    this.set = function (screenObject, done) {
+        $screen.wrapper.hide();
+        var i = document.createElement('img');
+
+        i.addEventListener('load', function() {
+            self.screenDimensions.original.width  = i.width;
+            self.screenDimensions.original.height = i.height;
+            self.screenDimensions.original.ratio  = i.width / i.height;
+            $screen.wrapper.fadeIn(SodaSettings.FADEIN_SPEED);
+            self.adjustScreenWidth();
+            console.log("DOM image loaded with dimensions:", self.screenDimensions);
+            if(done instanceof Function) done.call(self);
+        });
+
+        i.src = "data:image/png;base64," + screenObject.base64;
+        $screen.wrapper.css("background-image", "url(data:image/png;base64," + screenObject.base64 + ")");
+        return self;
+    };
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

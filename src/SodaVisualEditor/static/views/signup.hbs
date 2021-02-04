@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up</title>
+    <script src="external/jquery.min.js"></script>
+    <script src="external/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="external/bootstrap/js/bootstrap.min.js"></script>
+    <script src="external/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="external/jquery-ui/jquery-ui.css">
+    <link rel="stylesheet" href="external/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="external/bootstrap/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="external/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="external/jquery.mCustomScrollbar.css">
+    <link rel="stylesheet" href="fonts/stylesheet.css">
+    <link rel="stylesheet" href="style/soda.css">
+    <script src="external/socket.io.min.js"></script>
+    <script src="external/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="external/ace/ace.js"></script>
+    <script src="external/ace/mode-json.js"></script>
+</head>
+<body>
+    <div id="signup-board">
+         <h1>Sign up</h1>
+        <form id="signup" name="signup" method="post" action="/signup">
+            <div class="input-container">
+                 <em class="fa fa-envelope icon"></em>
+                <input class="text" name="email" type="email" placeholder="Email" />
+            </div>
+             <div class="input-container">
+                  <em class="fa fa-user icon"></em>
+                <input name="firstname" type="text" placeholder="First Name"/>
+            </div>
+             <div class="input-container">
+                  <em class="fa fa-user icon"></em>
+                <input name="lastname" type="text" placeholder="Last Name"/>
+            </div>
+            <div class="input-container">
+                 <em class="fa fa-lock icon"></em>
+                <input name="password" type="password" placeholder="Password"/>
+            </div>
+                <button class="start" type="submit" value="Sign Up" />Sign Up</button>
+        </form>
+    </div>
+</body>
+</html>

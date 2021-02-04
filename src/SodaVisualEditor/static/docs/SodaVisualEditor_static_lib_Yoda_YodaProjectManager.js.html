@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaVisualEditor/static/lib/Soda/SodaProjectManager.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaVisualEditor/static/lib/Soda/SodaProjectManager.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+/**
+ * Manages the creation of suites, module, and assets. Builds the project tree...
+ * @constructor
+ * @extends SodaEmitter
+ * @param {Soda} soda The window.Soda instance
+ * @param {object} $project The AJAX loaded contents specific to this class
+ */
+window.SodaProjectManager = function (soda, $project) {
+
+    var self    = this,
+        aids    = 0,
+        Parents = {},
+        assets  = {};
+
+    // Inherit from SodaEmitter
+    window.SodaEmitter.call(self);
+
+    /**
+     * Expand all of the elements in the "parents" array
+     * @param  {Array} parents An array of parent elements to expand
+     * @return {Function} The generated callback
+     */
+    function expandParents (parents) {
+        for(var i in parents) {
+            if(parents.hasOwnProperty(i)) {
+                if(!$(parents[i]).parent().hasClass("expanded")) {
+                    $(parents[i]).parent().trigger("click");
+                }
+            }
+        }
+    }
+
+    $project.elementTemplate   = $project.self.find(".project-element").detach();
+    $project.search            = $project.self.find("#soda-project-search");
+    $project.hierarchy         = $project.self.find("#soda-project-hierarchy");
+    $project.hierarchyWrapper  = $project.self.find("#soda-project-hierarchy-wrapper");
+    $project.addSuiteButton    = $project.self.find("#project-add-suite");
+    $project.testPathBox       = $project.self.find("#test-path-warning");
+
+    $project.addSuiteButton.click(function () {
+        self.addSuite();
+    });
+
+    soda.framework.on("config update", function () {
+        $project.testPathBox.html(soda.framework.config.testPath);
+    });
+
+    /**
+     * Close all "nodes" on the project hierarchy (the on-screen element tree)
+     * @return {SodaProjectManager} The current SodaProjectManager instance
+     */
+    this.closeAllTreeNodes = function () {
+        $(".project-element").sodaeach(function () {
+            var $icon = $(this).children(".project-element-info").children("i.expandable-icon");
+
+            if(!$icon.hasClass("fa-file-text")) {
+                $icon.removeClass("fa-folder-open").addClass("fa-folder");
+            }
+
+            $(this)
+                .removeClass("expanded")
+                .children(".expandable-child")
+                .hide();
+        });
+    };
+
+    // After a "search" has been iniatiated, but before the elements are queried as to whether or not
+    // they meet the search requirements...
+    soda.delegates.on("project search before", function () {
+        self.closeAllTreeNodes();
+        $(".project-element").removeClass("search-positive");
+    });
+
+    // Show the elements after the search has completed
+    soda.delegates.on("project search after", function () {
+        var $res = $(".project-element.search-positive");
+        $res.sodaeach(function () {
+            var $el = $(this);
+            setTimeout(function () {
+                expandParents(Parents[$el.attr("data-aid")]);
+                $el.show();
+            }, 0);
+        });
+
+        setTimeout(function () {
+            soda.$editor.toolboxWrapperRight.mCustomScrollbar("scrollTo", $res.first(), { scrollInertia: 0 });
+        }, 0);
+    });
+
+    // On a project file search, determine the elements that will pass or fail the search
+    soda.delegates.on("project search", function (searchTerms, $element) {
+        if(searchTerms &amp;&amp; searchTerms !== "") {
+            var passed = new RegExp(searchTerms, "i").test($element.attr("data-base"));
+            if(passed) $element.addClass("search-positive");
+        }
+        else {
+            $(".project-element").removeClass("search-positive");
+        }
+    });
+
+    var addItem = $(
+        '&lt;div id="save-directory-modal-wrapper">' +
+            '&lt;div id="save-directory-modal">' +
+                '&lt;div class="input-group">' +
+                    '&lt;span class="input-group-addon">&lt;i id="save-directory-icon" class="fa fa-check-circle">&lt;/i>&lt;/span>' +
+                    '&lt;input id="save-directory-filename" type="text" class="selector-input form-control" placeholder="Enter a directory name...">' +
+                '&lt;/div>' +
+                '&lt;p class="selector-message directory-message">The chosen directory name is available.&lt;/p>' +
+            '&lt;/div>' +
+        '&lt;/div>'
+    );
+
+    /**
+     * Add a new module, context dialogs will be automatically shown
+     * @param {string} named The name of the new suite
+     * @return {SodaProjectManager} The current SodaProjectManager instance
+     */
+    this.addModule = function (suite) {
+        soda.editor.setContext(
+            {
+                header      : "Add module to suite " + suite + "?",
+                body        : addItem,
+                okayText    : "Add Module",
+                cancelText  : "Cancel",
+
+                onInit: function () {
+                    $("#save-directory-filename").val("").attr("value", "")
+                        .attr("data-suite", suite)
+                        .attr("data-type", "module")
+                        .trigger("keyup");
+                },
+
+                onOkay: function () {
+                    var module = $("#save-directory-filename").val();
+
+                    soda.editor.setStatus({
+                        which   : "left",
+                        message : "Creating module " + module + "&lt;span class=\"dot-dot-dot\">...&lt;/span>"
+                    });
+
+                    soda.send("make module", { suite: suite, module: module }, function (err) {
+                        if(!err) {
+                            soda.framework.once("project hierarchy update", function () {
+                                soda.editor.setStatus({
+                                    which   : "left",
+                                    message : "Module &lt;span class=\"bold\">" + module + "&lt;/span> created!"
+                                });
+                                soda.editor.setContext(
+                                    {
+                                        header      : "Module Created",
+                                        body        : $("&lt;p>Module &lt;span class=\"bold\">" + module + "&lt;/span> created!&lt;/p>"),
+                                        okayText    : "Okay",
+                                        omitCancel  : true
+                                    }
+                                );
+                            });
+                        }
+                        else {
+                            soda.editor.setStatus({
+                                which   : "left",
+                                icon    : "fa-warning",
+                                message : "There was an error when attempting to create module &lt;span class=\"bold\">" + module + "&lt;/span>"
+                            });
+                            soda.editor.setContext(
+                                {
+                                    header      : "Error",
+                                    body        : $("&lt;p>There was an error when attempting to create module &lt;span class=\"bold\">" + module + "&lt;/span>&lt;/p>"),
+                                    okayText    : "Okay",
+                                    omitCancel  : true
+                                }
+                            );
+                        }
+                    });
+                }
+            }
+        );
+    };
+
+    /**
+     * Add a new suite, context dialogs will be automatically shown
+     * @return {SodaProjectManager} The current SodaProjectManager instance
+     */
+    this.addSuite = function () {
+        soda.editor.setContext(
+            {
+                header      : "Add new suite?",
+                body        : addItem,
+                okayText    : "Add Suite",
+                cancelText  : "Cancel",
+
+                onInit: function () {
+                    $("#save-directory-filename")
+                        .attr("data-type", "suite")
+                        .removeAttr("data-suite")
+                        .val("")
+                        .trigger("keyup");
+                },
+
+                onOkay: function () {
+                    var suite = $("#save-directory-filename").val();
+
+                    soda.editor.setStatus({
+                        which   : "left",
+                        message : "Creating suite" + suite + "&lt;span class=\"dot-dot-dot\">...&lt;/span>"
+                    });
+
+                    soda.send("make suite", suite, function (err) {
+                        if(!err) {
+                            soda.framework.once("project hierarchy update", function () {
+                                soda.editor.setStatus({
+                                    which   : "left",
+                                    message : "Suite &lt;span class=\"bold\">" + suite + "&lt;/span> created!"
+                                });
+                                soda.editor.setContext(
+                                    {
+                                        header      : "Suite Created",
+                                        body        : $("&lt;p>Suite &lt;span class=\"bold\">" + suite + "&lt;/span> created!&lt;/p>"),
+                                        okayText    : "Okay",
+                                        omitCancel  : true
+                                    }
+                                );
+                            });
+                        }
+                        else {
+                            soda.editor.setStatus({
+                                which   : "left",
+                                icon    : "fa-warning",
+                                message : "There was an error when attempting to create suite &lt;span class=\"bold\">" + suite + "&lt;/span>"
+                            });
+                            soda.editor.setContext(
+                                {
+                                    header      : "Error",
+                                    body        : $("&lt;p>There was an error when attempting to create suite &lt;span class=\"bold\">" + suite + "&lt;/span>&lt;/p>"),
+                                    okayText    : "Okay",
+                                    omitCancel  : true
+                                }
+                            );
+                        }
+                    });
+                }
+            }
+        );
+    };
+
+    function startNew (type, suite, module) {
+        soda.editor.setContext(
+            {
+                header      : "Start a new " + type + "?",
+                body        : $("&lt;p>This will clear the current " + type + " list.&lt;br>&lt;span class=\"bold\">Make sure all changes are saved before continuing!&lt;/span>&lt;/p>&lt;p>Are you sure...?&lt;/p>"),
+                okayText    : "Okay",
+                cancelText  : "No, I need to save stuff first...",
+
+                onOkay      : function () {
+                    soda.editor.switchToToolbox("test-editor", function () {
+                        soda.testEditor.switchToTab(type, function () {
+                            $("#test-editor-" + type).empty();
+                            $("#test-editor-" + type + "-wrapper .editor-name").val("");
+                            $("#test-editor-" + type + "-wrapper .editor-id").val("");
+                            $("#test-editor-" + type + "-wrapper .editor-description").val("");
+                            $("#test-editor-" + type + "-wrapper .editor-suite").val(suite).trigger("change");
+                            $("#test-editor-" + type + "-wrapper .editor-module").val(module).trigger("change");
+                            soda.testEditor.aceEditors[type].setValue(JSON.stringify(window.SodaTemplates[type], null, '    '));
+                        });
+                    });
+                }
+            }
+        );
+    }
+
+    /**
+     * Build the project file element given hierarchy element "n"
+     * @param  {object}  parents The parents to the current element being created
+     * @param  {object}  n The element in the hierarchy to create a project element for
+     * @param  {object}  level The level in the hierarchy tree this element belongs to
+     * @param  {object}  i The name of the current element "n"
+     * @param  {object}  $parent The parent element to this element
+     * @param  {object}  path The path to the asset
+     * @param  {object}  platform The asset's platform
+     * @param  {Boolean} isAsset Whether or not this element is an asset or suite, module, or platform (e.g. file or directory)
+     * @return {jQuery} The newly created project file element
+     */
+    function buildN (parents, n, level, i, $parent, path, context, isAsset) {
+        if(context) context = JSON.parse(JSON.stringify(context));
+
+        var $n           = $project.elementTemplate.sodaclone(),
+            $nInfo       = $n.children(".project-element-info"),
+            hasChildren  = typeof n === "object" &amp;&amp; n &amp;&amp; Object.keys(n).length > 0,
+            aid          = aids++,
+            basename     = i + (isAsset ? (context.platform !== "generic" ? "." + context.platform : "") + "" : ""),
+            baseName     = i + (isAsset ? (context.platform !== "generic" ? "." + context.platform : "") + ".json" : ""),
+            ext          = isAsset ? (context.platform !== "generic" ? "." + context.platform : "") + ".json" : "";
+
+        $n.attr("data-aid", aid);
+
+        if(level === 0) {
+            $n.addClass("root");
+        }
+        else if(hasChildren){
+            $n.addClass("branch");
+        }
+        else {
+            $n.addClass("leaf");
+        }
+
+        $n.addClass("level-" + level);
+        var elName = $nInfo.children(".project-element-id");
+        elName.text(baseName);
+
+        if(!isAsset) {
+            $nInfo.children(".f-edit").remove();
+            $nInfo.children(".f-delete").remove();
+            $nInfo.children(".f-run").remove();
+            $nInfo.children(".f-add").remove();
+            $nInfo.prepend('&lt;i class="fa fa-plus f-new pull-right sticky-element" data-container="body" data-toggle="tooltip" data-placement="bottom" title="">&lt;/i>');
+
+            $nInfo.children(".project-element-icon")
+                .removeClass("fa-file-text")
+                .addClass("fa-folder");
+
+            if(!context.module) {
+                if(context.suite !== "global") {
+                    $nInfo.children(".f-new")
+                        .attr("data-original-title", "Add module to suite " + context.suite)
+                        .click(function () {
+                            self.addModule(context.suite);
+                        });
+                }
+                else {
+                    $nInfo.children(".f-new").remove();
+                }
+            }
+            else if(context.type) {
+                $nInfo.children(".f-new")
+                    .attr("data-original-title", "Start new " + context.type + " in module" + context.module)
+                    .click(function () {
+                        startNew(context.type, context.suite, context.module);
+                    });
+            }
+            else {
+                $nInfo.children(".f-new").remove();
+            }
+        }
+        else {
+
+            var loadThisAsset = function () { soda.testEditor.loadAssetIntoEditor(context); };
+            $n.removeClass("expandable-parent");
+            $nInfo.children(".f-edit").click(loadThisAsset);
+            elName.click(loadThisAsset);
+
+            if (context.type === "action" || context.type === "screen") {
+              $nInfo.children(".f-add")
+                .draggable({ appendTo: "#soda-editor", helper: "clone", zIndex: 993, cursor: "move", cursorAt: {left: -10, top: -10} })
+                .attr("data-name", context.name)
+                .attr("data-suite", context.suite)
+                .attr("data-module", context.module)
+                .attr("data-platform", context.platform)
+                .attr("data-type", "draggable")
+                .attr("draggable-type", context.type);
+            }
+            else {
+              $nInfo.children(".f-add").remove();
+            }
+
+            if(context.module === "common") {
+                $nInfo.children(".f-run")
+                    .attr("data-path",  "/"  + context.suite + "/common/" + context.type + "s/" + baseName)
+                    .attr("data-asset-name", context.name)
+                    .attr("data-asset-suite", context.suite)
+                    .attr("data-asset-module", "common")
+                    .attr("data-asset-platform", context.platform)
+                    .attr("data-asset-type", context.type);
+            }
+            else if(context.module === "global") {
+                $nInfo.children(".f-run")
+                    .attr("data-path", "/global/" + context.type + "s/" + baseName)
+                    .attr("data-asset-name", context.name)
+                    .attr("data-asset-suite", "global")
+                    .attr("data-asset-module", "global")
+                    .attr("data-asset-platform", context.platform)
+                    .attr("data-asset-type", context.type);
+            }
+            else {
+                $nInfo.children(".f-run")
+                    .attr("data-path", "/" + context.suite + "/modules/" + context.module + "/" + context.type + "s/" + baseName)
+                    .attr("data-asset-name", context.name)
+                    .attr("data-asset-suite", context.suite)
+                    .attr("data-asset-module", context.module)
+                    .attr("data-asset-platform", context.platform)
+                    .attr("data-asset-type", context.type);
+            }
+
+            $nInfo.children(".f-delete").click(function () {
+                soda.editor.setContext(
+                    {
+                        header      : "Delete " + context.type + " " + basename + "?",
+                        body        : $("&lt;p>Are you sure you want to delete the asset &lt;span class=\"bold\">" + basename + "&lt;/span> from suite &lt;span class=\"bold\">" + context.suite + "&lt;/span> and module &lt;span class=\"bold\">" + context.module + "&lt;/span>?&lt;/p>"),
+                        okayText    : "Delete Asset",
+                        cancelText  : "Cancel",
+
+                        onOkay: function () {
+                            soda.editor.setStatus({
+                                which   : "left",
+                                icon    : "fa-warning",
+                                message : "Deleting asset " + basename + "&lt;span class=\"dot-dot-dot\">...&lt;/span>"
+                            });
+
+                            var onAssetDeleted = function (err) {
+                                if(err) {
+                                    soda.editor.setStatus({
+                                        which   : "left",
+                                        icon    : "fa-warning",
+                                        message : "There was an error trying to delete asset " + basename + "."
+                                    });
+                                    soda.editor.setContext(
+                                        {
+                                            header      : "Unable to delete asset" + basename + "...",
+                                            body        : $("&lt;p>Unable to delete asset" + basename + ".&lt;br>" + err.message + "&lt;/p>"),
+                                            okayText    : "Okay",
+                                            omitCancel  : true
+                                        }
+                                    );
+                                }
+                                else {
+                                    soda.editor.setStatus({
+                                        which   : "left",
+                                        message : "Asset " + basename + " deleted."
+                                    });
+                                    soda.editor.setContext(
+                                        {
+                                            header      : "Asset " + basename + " deleted.",
+                                            body        : $("&lt;p>Asset " + basename + " deleted successfully.&lt;/p>"),
+                                            okayText    : "Okay",
+                                            omitCancel  : true
+                                        }
+                                    );
+                                }
+                            };
+                            soda.send("delete asset", context, onAssetDeleted);
+                        }
+                    }
+                );
+            });
+        }
+
+        assets[aid]  = n;
+        Parents[aid] = parents;
+        $n = $n.appendTo($parent);
+        $n.attr("data-base", baseName);
+        $n.attr("data-path", (path + ext).replace(/^\//, ''));
+
+        return $n;
+    }
+
+    /**
+     * Builds the project files
+     * @param  {object} obj The project hierarchy, or a recursive sub-object of the hierarchy
+     * @param  {object} contexts The "inner" element that is being recursed
+     * @param  {jQuery} $parent For recursion only
+     * @param  {object} parents For recursion only
+     * @param  {number} level For recursion only
+     * @param  {string} path For recursion only
+     * @param  {object} testContext For recursion only
+     * @return {undefined}
+     */
+    function buildProjectHierarchy (obj, contexts, $parent, parents, level, path, testContext) {
+
+        $parent = $parent || $project.hierarchy;
+        parents = parents || [];
+        level   = ++level || 0;
+        path    = path    || "";
+
+        testContext = testContext ? JSON.parse(JSON.stringify(testContext)) : {};
+
+        var context, c = [];
+        for(var k = 0; k &lt; contexts.length; k++) c.push(contexts[k]);
+        context = c.shift();
+        parents.push($parent);
+
+        for(var i in obj) {
+            if(obj.hasOwnProperty(i)) {
+                var n = obj[i], $n,
+                    localPath = path + "/" + i;
+
+                var parentsClone = [];
+                for(var j = 0; j &lt; parents.length;  j++) parentsClone.push(parents[j]);
+
+                switch(context) {
+                    case "suite":
+                        testContext.suite = i;
+                        self.emit("suite", i, n, testContext);
+                        $n = buildN(parents, n, level, i, $parent, localPath, testContext);
+
+                        buildProjectHierarchy(n, c, $n.children(".project-element-children"), parentsClone, level, localPath, testContext);
+                        break;
+
+                    case "module":
+                        testContext.module = i;
+                        self.emit("module", i, n, testContext);
+                        $n = buildN(parents, n, level, i, $parent, localPath, testContext);
+
+                        buildProjectHierarchy(n, c, $n.children(".project-element-children"), parentsClone, level, localPath, testContext);
+                        break;
+
+                    case "platform":
+                        testContext.platform = i;
+                        self.emit("platform", i, n, testContext);
+                        if(i === "generic" || i === soda.framework.platform)
+                            buildProjectHierarchy(n, c, $parent, parents, --level, localPath, testContext);
+                        break;
+
+                    case "type":
+                        testContext.type = i.replace(/s$/, '');
+                        var existingType = $parent.find(".project-element.type.type-" + i);
+                        if(existingType.length === 1) {
+                            $n = $(existingType);
+                        }
+                        else {
+                            $n = buildN(parents, n, level, i, $parent, localPath, testContext);
+                            $n.addClass("type").addClass("type-" + i);
+                        }
+
+                        self.emit("type", i, n);
+                        buildProjectHierarchy(n, c, $n.children(".project-element-children"), parentsClone, level, localPath, testContext);
+                        break;
+
+                    case "asset":
+                        testContext.name = i;
+                        $n = buildN(parents, n, level, i, $parent, localPath, testContext, true);
+                        self.emit("asset", i, n, testContext);
+
+                        if(testContext.type === "test") self.emit("test", i, n, testContext, { id: n.id, name: n.name, description: n.description, baseName: n.baseName });
+                        if(n.widget === true || typeof n.widget === "object") self.emit("widget", i, n, testContext, { id: n.id, name: n.name, description: n.description, baseName: n.baseName, widget: n.widget, syntax: n.syntax });
+                        break;
+                }
+            }
+        }
+
+        return $parent;
+    }
+
+    // Any time the project hierarchy is updated, rebuild the project manager files,
+    // as well as the run menu (it subscribes to the following [inner] events as well)
+    soda.framework.on("project hierarchy update", function (err, hierarchy) {
+        if(err) return console.error(err);
+        Parents = {}; assets = {};
+
+        soda.editor.setStatus({ which: "left", message: 'Loading project files&lt;span class="dot-dot-dot">...&lt;/span>' });
+        self.emit("build", hierarchy);
+
+        $("#soda-project-search input").val('').attr("value", "").trigger("keyup");
+        $project.hierarchy.empty();
+        $project.hierarchy = buildProjectHierarchy(hierarchy, ["suite", "module", "platform", "type", "asset"]);
+
+        self.emit("build complete");
+        soda.editor.setStatus({ which: "left", message: 'Project files loaded successfully', duration: 3 });
+    });
+
+    /**
+     * Sorts the menu in alphabetical order
+     * @param  {jQuery} m The jQuery menu item to sort
+     * @return {undefined}
+     */
+    function sortMenu (m) {
+        var sorted = m.children();
+        sorted.sort(function (a, b) {
+            var aN = $(a).attr("data-sort"),
+                bN = $(b).attr("data-sort");
+            return aN &lt; bN ? -1 : aN > bN ? 1 : 0;
+        });
+        sorted.appendTo(m);
+    }
+
+    // When we encounter a suite, add it to the dynamic suite dropdowns
+    var dynamicModules = {}, dynamicSuites = [], dynamicAssets = {};
+
+    /**
+     * Build all suite and module dropdown menus dynamically
+     * @return {SodaProjectManager} The current SodaProjectManager instance
+     */
+    this.buildDynamicHierarchy = function () {
+        $(".dynamic-hierarchy").empty();
+
+        $(".dynamic-suite").sodaeach(function () {
+            for(var s in dynamicSuites) {
+                if(dynamicSuites.hasOwnProperty(s)) {
+                    var name = dynamicSuites[s];
+                    $(this).append('&lt;option data-sort="' + name + '" value="' + name + '">' + name + '&lt;/option>');
+                }
+            }
+
+            $(this).change(function () {
+                var val = $(this).val(),
+                    $moduleSelector = $(this).siblings(".dynamic-module");
+
+                if(dynamicModules &amp;&amp; dynamicModules[val]) {
+                    $moduleSelector.sodaeach(function () {
+                        $(this).empty();
+                        for(var i in dynamicModules[val]) {
+                            if(dynamicModules[val].hasOwnProperty(i)) {
+                                $(this).append('&lt;option data-sort="' + dynamicModules[val][i] + '" value="' + dynamicModules[val][i] + '">' + dynamicModules[val][i] + '&lt;/option>');
+                            }
+                        }
+                        sortMenu($(this));
+                    });
+                }
+            });
+            sortMenu($(this));
+
+            if(dynamicSuites.indexOf(soda.framework.config.suite) > -1) {
+                $(this).val(soda.framework.config.suite).trigger("change");
+            }
+            else {
+                $(this).prop('selectedIndex', 0).trigger("change");
+            }
+        });
+        return self;
+    };
+
+    // Clear the suite and module dynamic dropdowns
+    self.on("build", function () {
+        dynamicModules = {};
+        dynamicSuites  = [];
+        dynamicAssets  = {};
+    });
+
+    self.on("suite", function (name) {
+        dynamicSuites.push(name);
+    });
+
+    // When we come across an asset push it into the assets array
+    self.on("asset", function (name, group, context) {
+        var typeSingular = context.type.replace(/s$/, '');
+        if(!dynamicAssets[context.suite]) dynamicAssets[context.suite] = {};
+        if(!dynamicAssets[context.suite][context.module]) dynamicAssets[context.suite][context.module] = {};
+        if(!dynamicAssets[context.suite][context.module][typeSingular]) dynamicAssets[context.suite][context.module][typeSingular] = [];
+        dynamicAssets[context.suite][context.module][typeSingular].push(name);
+    });
+
+    // When we encounter a module, add it to the dynamic module dropdowns
+    self.on("module", function (name, obj, context) {
+        if(!dynamicModules[context.suite]) dynamicModules[context.suite] = [];
+        dynamicModules[context.suite].push(name);
+    });
+
+    /**
+     * Get the list of current assets
+     */
+    this.getAssetList = function () {
+        return dynamicAssets;
+    };
+
+    /**
+     * Get the list of current modules
+     */
+    this.getModuleList = function () {
+        return dynamicModules;
+    };
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

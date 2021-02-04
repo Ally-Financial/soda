@@ -1,0 +1,16 @@
+{
+    "meta": {
+        "name": "google",
+        "id": "google",
+        "description": "Navigates to Google and searches for the value of the variable ${to_search}",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "close": true
+        }
+    ]
+}

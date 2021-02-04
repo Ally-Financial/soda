@@ -1,0 +1,28 @@
+{
+    "meta": {
+        "name": "Google",
+        "description": "Go to Google, search for \"soda\" and click the first link that appears",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "store": "soda",
+            "as": "to_search"
+        },
+        {
+            "execute": "googlesomething"
+        },
+        {
+            "execute": "clickfirstgooglelink"
+        },
+        {
+            "wait": 3
+        },
+        {
+            "execute": "closebrowser"
+        }
+    ]
+}

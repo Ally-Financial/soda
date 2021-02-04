@@ -1,0 +1,331 @@
+$enable-flex: true;
+$enable-rounded: true;
+$enable-shadows: true;
+$enable-gradients: true;
+$enable-transitions: true;
+
+$brand-primary: #337ab7;
+$brand-secondary: #777;
+$brand-success: #5cb85c;
+$brand-info: #5bc0de;
+$brand-warning: #f0ad4e;
+$brand-danger: #d9534f;
+
+// set the colors to those from the bootstrap 3 theme
+$theme-colors: (
+   primary: $brand-primary,
+   secondary: $brand-secondary,
+   success: $brand-success,
+   info: $brand-info,
+   warning: $brand-warning,
+   danger: $brand-danger
+);
+
+
+$state-success-text:             #3c763d;
+$state-success-bg:               #dff0d8;
+$state-success-border:           darken(adjust-hue($state-success-bg, -10), 5%);
+
+$state-info-text:                #31708f;
+$state-info-bg:                  #d9edf7;
+$state-info-border:              darken(adjust-hue($state-info-bg, -10), 7%);
+
+$state-warning-text:             #8a6d3b;
+$state-warning-bg:               #fcf8e3;
+$state-warning-border:           darken(adjust-hue($state-warning-bg, -10), 5%);
+
+$state-danger-text:              #a94442;
+$state-danger-bg:                #f2dede;
+$state-danger-border:            darken(adjust-hue($state-danger-bg, -10), 5%);
+
+$state-colors: (
+  success: $brand-success,
+  info: $brand-info,
+  warning: $brand-warning,
+  danger: $brand-danger
+);
+
+$state-text-colors: (
+  success: $state-success-text,
+  info: $state-info-text,
+  warning: $state-warning-text,
+  danger: $state-danger-text
+);
+
+$state-bg-colors: (
+  success: $state-success-bg,
+  info: $state-info-bg,
+  warning: $state-warning-bg,
+  danger: $state-danger-bg
+);
+
+$state-border-colors: (
+  success: $state-success-border,
+  info: $state-info-border,
+  warning: $state-warning-border,
+  danger: $state-danger-border
+);
+
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/variables";
+@import "node_modules/bootstrap/scss/mixins";
+
+//
+// Buttons
+// --------------------------------------------------
+
+$button-background-colors: map-merge($theme-colors, (
+  secondary: #fff
+));
+
+$theme-text-colors: (
+  primary: #fff,
+  secondary: #333,
+  success: #fff,
+  info: #fff,
+  warning: #fff,
+  danger: #fff,
+  light: #333,
+  dark: #fff
+);
+
+@each $key, $background-color in $button-background-colors {
+  .btn-#{$key} {
+    @include gradient-y($background-color, darken($background-color, 12%));
+    background-color: $background-color;
+    border-color: darken($background-color, 14%);
+    color: map-get($theme-text-colors, $key);
+    @include box-shadow($btn-box-shadow);
+
+    &:hover,
+    &:focus {
+      color: map-get($theme-text-colors, $key);
+      background-color: darken($background-color, 12%);
+      background-position: 0 -15px;
+    }
+
+    &:active,
+    &.active {
+      color: map-get($theme-text-colors, $key);
+      background-color: darken($background-color, 12%);
+      border-color: darken($background-color, 14%);
+      background-image: none;
+    }
+
+    &.disabled,
+    &[disabled],
+    fieldset[disabled] & {
+      &,
+      &:hover,
+      &:focus,
+      &.focus,
+      &:active,
+      &.active {
+        color: map-get($theme-text-colors, $key);
+        background-color: darken($background-color, 12%);
+        background-image: none;
+      }
+    }
+
+    &:focus,
+    &.focus {
+      // Avoid using mixin so we can pass custom focus shadow properly
+      @if $enable-shadows {
+        box-shadow: $btn-box-shadow, 0 0 0 $input-btn-focus-width rgba(darken($background-color, 14%), .5);
+      } @else {
+        box-shadow: 0 0 0 $input-btn-focus-width rgba(darken($background-color, 14%), .5);
+      }
+    }
+
+    // Disabled comes first so active can properly restyle
+    &.disabled,
+    &:disabled {
+      color: map-get($theme-text-colors, $key);
+      background-color: darken($background-color, 10%);
+      border-color: darken($background-color, 10%);
+    }
+
+    &:not([disabled]):not(.disabled):active,
+    &:not([disabled]):not(.disabled).active,
+    .show > &.dropdown-toggle {
+      color: map-get($theme-text-colors, $key);
+      background-color: darken($background-color, 12%);
+      @if $enable-gradients {
+        background-image: none; // Remove the gradient for the pressed/active state
+      }
+      border-color: darken($background-color, 12%);
+
+      // Avoid using mixin so we can pass custom focus shadow properly
+      @if $enable-shadows {
+        box-shadow: $btn-active-box-shadow, 0 0 0 $input-btn-focus-width rgba(darken($background-color, 14%), .5);
+      } @else {
+        box-shadow: 0 0 0 $input-btn-focus-width rgba(darken($background-color, 14%), .5);
+      }
+    }
+  }
+}
+
+// set some global button styles to be like those in bootstrap 3 theme
+.btn {
+  //transition: none; // disable bootstrap 4 color transitions
+  transition: none;
+
+  // Remove the gradient for the pressed/active state like in the bootstrap 3 theme
+  &:active,
+  &.active {
+    background-image: none;
+  }
+}
+
+// set btn-secondary to have the text-shadow of btn-default in bootstrap 3 theme
+.btn-secondary {
+  // border-color: #ccc;
+  text-shadow: 0 1px 0 #fff;
+}
+
+
+//
+// Alerts
+// --------------------------------------------------
+
+// Common styles
+.alert {
+  text-shadow: 0 1px 0 rgba(255,255,255,.2);
+  @include box-shadow(inset 0 1px 0 rgba(255,255,255,.25), 0 1px 2px rgba(0,0,0,.05));
+}
+
+// Mixin for generating new styles
+@mixin alert-styles($color) {
+  @include gradient-y($color, darken($color, 7.5%));
+  border-color: darken($color, 15%);
+}
+
+@each $color, $value in $state-bg-colors {
+  .alert-#{$color} {
+    @include alert-styles($value);
+    color: map-get($state-text-colors, $color);
+  }
+}
+
+
+//
+// Progress bars
+// --------------------------------------------------
+
+$progress-bg: #f5f5f5;
+
+$progress-height: 1.25rem;
+$progress-size: 2.5rem;
+
+// Give the progress background some depth
+.progress {
+  @include gradient-y(darken($progress-bg, 4%), $progress-bg);
+  height: $progress-height;
+}
+
+// Mixin for generating new styles
+@mixin progress-bar-styles($color) {
+  background-color: $color;
+  @include gradient-y($color, darken($color, 10%));
+}
+
+$progress-bar-bg: $brand-primary;
+
+// Apply the mixin to the progress bars
+.progress-bar {
+  @include progress-bar-styles($progress-bar-bg);
+}
+
+@each $color, $value in $state-colors {
+  .progress-bar-#{$color} {
+    @include progress-bar-styles($value);
+  }
+}
+
+@keyframes progress-bar-stripes {
+  from { background-position: $progress-size 0; }
+  to { background-position: 0 0; }
+}
+
+// Reset the striped class because our mixins don't do multiple gradients and
+// the above custom styles override the new `.progress-bar-striped` in v3.2.0.
+.progress-bar-striped {
+  @include gradient-striped();
+  background-size: $progress-size $progress-size;
+}
+
+.progress-bar-animated {
+  animation: progress-bar-stripes 2s linear infinite;
+}
+
+
+//
+// List groups
+// --------------------------------------------------
+
+$list-group-active-bg: $brand-primary;
+$list-group-active-border: $list-group-active-bg;
+
+.list-group {
+  border-radius: 4px;
+  @include box-shadow(0 1px 2px rgba(0,0,0,.075));
+}
+.list-group-item.active,
+.list-group-item.active:hover,
+.list-group-item.active:focus {
+  text-shadow: 0 -1px 0 darken($list-group-active-bg, 10%);
+
+  @include gradient-y($list-group-active-bg, darken($list-group-active-bg, 7.5%));
+  border-color: darken($list-group-active-border, 7.5%);
+
+  .badge {
+    text-shadow: none;
+  }
+}
+
+@each $color, $value in $theme-colors {
+  @include list-group-item-variant($color, theme-color-level($color, -9), theme-color-level($color, 6));
+}
+
+//
+// Badges
+// --------------------------------------------------
+
+@mixin badge-variant($bg, $color) {
+  color: $color;
+  background-color: $bg;
+
+  &[href] {
+    @include hover-focus {
+      color: $color;
+      text-decoration: none;
+      background-color: darken($bg, 10%);
+    }
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .badge-#{$color} {
+    @include badge-variant($value, map-get($theme-text-colors, $color));
+  }
+}
+
+
+//
+// Misc form components
+// --------------------------------------------------
+
+.invalid-feedback {
+  font-size: 100%;
+}
+
+.form label,
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+
+.form-check label {
+  margin-bottom: 0;
+  font-weight: 400;
+}

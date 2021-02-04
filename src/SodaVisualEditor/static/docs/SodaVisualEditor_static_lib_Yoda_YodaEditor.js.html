@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaVisualEditor/static/lib/Soda/SodaEditor.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaVisualEditor/static/lib/Soda/SodaEditor.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+var tids = 0;
+
+/**
+ * Manages the Soda VisualEditor core functionality
+ * @constructor
+ * @extends SodaEmitter
+ * @param {Soda} soda The window.Soda instance
+ * @param {object} $editor The AJAX loaded contents specific to this class
+ */
+window.SodaEditor = function (soda, $editor) {
+
+    var self      = this,
+        toolboxes = {},
+
+        /**
+         * @associates SodaSettings
+         * @type {SodaSettings}
+         */
+        SodaSettings = window.SodaSettings;
+
+    $editor.toolboxWrapper      = $editor.self.find("#soda-toolboxes");
+    $editor.toolboxWrapperRight = $editor.toolboxWrapper.find("#soda-toolbox-wrapper-right");
+    $editor.toolboxWrapperLeft  = $editor.toolboxWrapper.find("#soda-toolbox-wrapper-left");
+    $editor.toolboxes           = $editor.toolboxWrapper.find(".soda-toolbox");
+    $editor.toolboxMenus        = $editor.toolboxWrapper.find(".soda-toolbox-menu");
+    $editor.toolboxRightMenu    = $editor.toolboxWrapperRight.find(".soda-toolbox-menu-icons");
+    $editor.toolboxLeftMenu     = $editor.toolboxWrapperLeft.find(".soda-toolbox-menu-icons");
+    $editor.toolboxesRight      = $editor.toolboxWrapper.find(".soda-toolbox.right");
+    $editor.toolboxesLeft       = $editor.toolboxWrapper.find(".soda-toolbox.left");
+
+    $editor.nav            = $editor.self.find("#soda-navbar");
+    $editor.refresh        = $editor.nav.find("#soda-refresh-button");
+    $editor.stopFramework  = $editor.nav.find("#soda-shutdown-framework-button");
+    $editor.shutdown       = $editor.nav.find("#soda-shutdown-button");
+    $editor.downloadTree   = $editor.nav.find("#soda-download-tree-button");
+    $editor.downloadScreen = $editor.nav.find("#soda-download-screen-button");
+    $editor.forceUpdate    = $editor.nav.find("#soda-force-update-project-button");
+
+    $editor.contextMenu      = $editor.self.find("#soda-editor-context");
+    $editor.contextHeader    = $editor.contextMenu.find("#soda-editor-context-header span");
+    $editor.contextBody      = $editor.contextMenu.find("#soda-editor-context-body-content");
+    $editor.contextBtnCancel = $editor.contextMenu.find("#soda-editor-context-button-cancel");
+    $editor.contextBtnOkay   = $editor.contextMenu.find("#soda-editor-context-button-okay");
+
+    // Ask the user if they really want to shutdown the server on click
+    $editor.shutdown.click(function () {
+        soda.editor.setContext({
+            header      : "Kill the server?",
+            body        : $("&lt;p>Are you sure?&lt;/p>&lt;p style=\"font-size:12px;\">If you kill the server, the Soda VisualEditor will no longer be available until the process is restarted.&lt;br>&lt;span class=\"bold\" style=\"color: #BF2828;\">If this isn't a local instance... don't even think about it.&lt;/span>&lt;/p>"),
+            okayText    : "Yes",
+            cancelText  : "Cancel",
+            onOkay      : function () {
+                soda.editor.setContext({
+                    header      : "Kill the server?",
+                    body        : $("&lt;p>Are you absolutely positive?&lt;/p>"),
+                    okayText    : "Yes, do it!",
+                    cancelText  : "Cancel",
+                    onOkay      : soda.kill
+                });
+            }
+        });
+    });
+
+    // Refresh the DOM on button click
+    $editor.refresh.click(soda.refreshDOM);
+
+    // Ask the user if they really want to stop the framework on click
+    $editor.stopFramework.click(function () {
+        soda.editor.setContext({
+            header      : "Shutdown " + soda.framework.name.ucFirst + "?",
+            body        : $("&lt;p>Are you sure?&lt;/p>"),
+            okayText    : "Yes",
+            cancelText  : "Cancel",
+            onOkay      : soda.stopFramework
+        });
+    });
+
+    $editor.forceUpdate.click(function () {
+        soda.screen.showLoading(true, function () {
+            soda.editor.setStatus({
+                which   : "left",
+                icon    : "fa-warning",
+                message : "Force updating project files&lt;span class=\"dot-dot-dot\">...&lt;/span>"
+            });
+
+            soda.framework.getHierarchy(function () {
+                soda.screen.hideLoading();
+            });
+        });
+    });
+
+    $editor.$saveFileModal = $(
+        '&lt;div id="save-file-modal-wrapper">' +
+            '&lt;div id="save-file-modal">' +
+                '&lt;div id="save-custom-text">&lt;/div>' +
+                '&lt;div class="input-group">' +
+                    '&lt;span class="input-group-addon">&lt;i id="save-exists-icon" class="fa fa-check-circle">&lt;/i>&lt;/span>' +
+                    '&lt;input id="save-file-filename" type="text" class="selector-input form-control" placeholder="Enter a filename...">' +
+                    '&lt;span class="input-group-addon soda-right-addon">.json&lt;/span>' +
+                '&lt;/div>' +
+                '&lt;p class="selector-message filename-message">The chosen filename is available&lt;/p>' +
+            '&lt;/div>' +
+        '&lt;/div>'
+    );
+
+    // Hide the context when the user clicks the cancel button
+    $editor.contextBtnCancel.click(function () {
+        self.hideContext();
+    });
+
+    /**
+     * True if the toolx is currently being resized, false otherwise
+     * @type {Boolean}
+     */
+    this.toolboxIsBeingResized = false;
+
+    // Download Tree Action
+    $editor.downloadTree.click(function () {
+        if(soda.framework.latestTree) {
+            try {
+                var file = "data:text/json;charset=utf-8," + encodeURIComponent(
+                    JSON.stringify(
+                        soda.framework.latestTree.contents,
+                        function (key, value) {
+                            if(/^__soda_/.test(key)) return undefined;
+                            return value;
+                        },
+                        '    '
+                    )
+                );
+
+                $(this).attr('href', file);
+                $(this).attr('download', "tree.json");
+                $(this).attr('target', "_blank");
+            }
+            catch(e) {
+                console.error(e);
+                soda.editor.setContext(
+                    {
+                        header      : "Something went wrong...",
+                        body        : $("&lt;p>Unable to download DOM tree.&lt;/p>&lt;p>Error: " + e.message + "&lt;/p>"),
+                        okayText    : "Okay",
+                        omitCancel  : true
+                    }
+                );
+            }
+        }
+    });
+
+    // Download Screen Action
+    $editor.downloadScreen.click(function () {
+        if(soda.framework.latestScreen) {
+            try {
+                $(this).attr('href', "data:image/png;base64," + encodeURIComponent(soda.framework.latestScreen.base64));
+                $(this).attr('download', "screenshot.png");
+                $(this).attr('target', "_blank");
+            }
+            catch(e) {
+                soda.editor.setContext(
+                    {
+                        header      : "Something went wrong...",
+                        body        : $("&lt;p>Unable to download screen image.&lt;/p>&lt;p>Error: " + e.message + "&lt;/p>"),
+                        okayText    : "Okay",
+                        omitCancel  : true
+                    }
+                );
+            }
+        }
+    });
+
+    /**
+     * Write an action
+     * @param  {Object} asset The asset to write
+     * @param  {Function} done A callback for completion
+     * @return {undefined}
+     */
+    function writeAsset (asset, userFilepath, done) {
+        soda.send("write asset", asset, function (err) {
+            if(err) {
+                soda.editor.setContext({
+                    header      : "Something went wrong...",
+                    body        : $("&lt;p>There was a problem with the server while trying to save the asset; try again later.&lt;/p>"),
+                    okayText    : "Okay",
+                    omitCancel  : true
+                });
+                soda.editor.setStatus({
+                    which   : "left",
+                    icon    : "fa-save",
+                    message : "Error: unable to save " + userFilepath
+                });
+                if(done instanceof Function) done.call(self, err, false);
+            }
+            else {
+                soda.editor.setContext({
+                    header      : "Asset Saved...",
+                    body        : $("&lt;p>Asset " + asset.name + " saved successfully!&lt;/p>"),
+                    okayText    : "Okay",
+                    omitCancel  : true
+                });
+                soda.editor.setStatus({
+                    which   : "left",
+                    icon    : "fa-save",
+                    message : "Asset " + userFilepath + " saved successfully!"
+                });
+
+                setTimeout(function() {
+                  $editor.self.find(".editor-suite").val(asset.suite);
+                  $editor.self.find(".editor-module").val(asset.module);
+                }, 3000);
+
+                if(done instanceof Function) done.call(self, err, true);
+            }
+        });
+    }
+
+    /**
+     * Converts an asset resolution object to its repsective file system path
+     * @param {Object} a The asset to get the path for
+     */
+    function assetToPath (a) {
+        var isGlobal = a.suite === "global",
+            isCommon = a.module === "common",
+            join;
+
+        switch(true) {
+            case isGlobal:
+                join = [soda.framework.testPath, "global", a.type];
+                break;
+
+            case isCommon:
+                join = [soda.framework.testPath, a.suite, "common", a.type];
+                break;
+
+            default:
+                join = [soda.framework.testPath, a.suite, "modules", a.module, a.type];
+        }
+        return join.join("/") + "/";
+    }
+
+    /**
+     * Save a file, dialogs will automatically be displayed (the test path will be pre-pended by the server to prevent weird/dangers file saves)
+     * @param  {Object} asset The asset to write
+     * @param  {string} customMsg A custom message to display on save, which will overwrite the default message
+     * @param  {Function} done A callback for completion
+     * @return {undefined}
+     */
+    this.writeAsset = function (asset, customMsg, done) {
+
+        if(!done &amp;&amp; customMsg instanceof Function) {
+            done      = customMsg;
+            customMsg = undefined;
+        }
+
+        if(typeof asset          === "object" &amp;&amp;
+           typeof asset.suite    === "string" &amp;&amp;
+           typeof asset.module   === "string" &amp;&amp;
+           typeof asset.name     === "string" &amp;&amp;
+           typeof asset.platform === "string" &amp;&amp;
+           asset.contents
+        ) {
+            var path     = assetToPath(asset),
+                basename = asset.name.replace(/^[^a-zA-Z0-9_.\-]/, '_');
+
+            if(customMsg) {
+                $editor.$saveFileModal.find("#save-custom-text").html(customMsg).show();
+            }
+            else {
+                $editor.$saveFileModal.find("#save-custom-text").html("").hide();
+            }
+
+            soda.editor.setContext(
+                {
+                    header      : "Save Asset?",
+                    body        : $editor.$saveFileModal,
+                    okayText    : "Save",
+                    cancelText  : "Cancel",
+
+                    onInit: function () {
+                        $("#save-file-filename").val(asset.name + (asset.platform === "generic" ? "" : "." + asset.platform))
+                            .attr("data-asset-name", basename)
+                            .attr("data-asset-suite", asset.suite)
+                            .attr("data-asset-module", asset.module)
+                            .attr("data-asset-platform", asset.platform)
+                            .attr("data-asset-type", asset.type).trigger("keyup");
+                    },
+                    onCancel: function () {
+                        soda.editor.setStatus({
+                            which   : "left",
+                            icon    : "fa-save",
+                            message : "Save of " + path + basename + ".json cancelled"
+                        });
+                        if(done instanceof Function) done.call(self, null, false);
+                    },
+                    onOkay: function () {
+                        var $saveFileFilename = $("#save-file-filename"),
+                            userFilepath, filepath;
+
+                        var $saveFn = $("#save-file-filename");
+                        asset = {
+                            name     : $saveFn.attr("data-asset-name"),
+                            suite    : $saveFn.attr("data-asset-suite"),
+                            module   : $saveFn.attr("data-asset-module"),
+                            platform : $saveFn.attr("data-asset-platform"),
+                            type     : $saveFn.attr("data-asset-type"),
+                            contents : asset.contents
+                        };
+
+
+                        basename     = $saveFileFilename.val().replace(/^[^a-zA-Z0-9_.\-]/, '_');
+                        filepath     = path + basename + ".json";
+                        userFilepath = filepath.replace(/^\//, '');
+
+                        soda.editor.setStatus({
+                            which   : "left",
+                            icon    : "fa-save",
+                            message : "Saving asset " + userFilepath + '&lt;span class="dot-dot-dot">...&lt;/span>'
+                        });
+
+                        soda.send("asset exists", asset, function (err, exists) {
+                            if(exists) {
+                                soda.editor.setContext(
+                                    {
+                                        header      : "Asset Already Exists",
+                                        body        : $("&lt;p>Asset " + userFilepath + " already exists. Overwrite?&lt;/p>"),
+                                        okayText    : "Yes, Overwrite",
+                                        cancelText  : "Cancel",
+                                        onOkay      : function () {
+                                            writeAsset(asset, userFilepath, done);
+                                        },
+                                        onCancel    : function () {
+                                            soda.editor.setStatus({
+                                                which   : "left",
+                                                icon    : "fa-save",
+                                                message : "Save of " + userFilepath + " cancelled"
+                                            });
+                                            if(done instanceof Function) done.call(self, null, false);
+                                        }
+                                    }
+                                );
+                            }
+                            else {
+                                writeAsset(asset, userFilepath, done);
+                            }
+                        });
+                    }
+                }
+            );
+        }
+        else {
+            soda.editor.setContext({
+                header      : "Something went wrong...",
+                body        : $("&lt;p>There was an error tring to save the asset; try again later.&lt;/p>"),
+                okayText    : "Okay",
+                omitCancel  : true
+            });
+        }
+    };
+
+    /**
+     * Hide the context menu
+     * @param  {Function} done A callback for completion
+     * @return {SodaEditor} The current SodaEditor instance
+     */
+    this.hideContext = function (done) {
+        $editor.contextMenu.slideUp({
+            duration : SodaSettings.SLIDEUP_FAST_SPEED,
+            easing   : "easeOutBounce",
+            always   : function () {
+                if(done instanceof Function) done.call(self);
+            }
+        });
+        return self;
+    };
+
+    /**
+     * Show the context menu
+     * @param  {Function} done A callback for completion
+     * @return {SodaEditor} The current SodaEditor instance
+     */
+    this.showContext = function (done) {
+        $editor.contextMenu.slideDown({
+            duration : SodaSettings.SLIDEOPEN_SPEED,
+            easing   : "easeOutBounce",
+            always   : function () {
+                if(done instanceof Function) done.call(self);
+            }
+        });
+        return self;
+    };
+
+    /**
+     * Hide the context menu (when the user clicks the "accept/okay" button)
+     * @param  {Function} done A callback for completion
+     * @return {SodaEditor} The current SodaEditor instance
+     */
+    this.acceptContext = function (done) {
+        $editor.contextMenu.slideUp({
+            duration : SodaSettings.FADEOUT_SPEED,
+            easing   : "easeInOutExpo",
+            always   : function () {
+                if(done instanceof Function) done.call(self);
+            }
+        });
+        return self;
+    };
+
+    /**
+     * Set the context menu's content and display it
+     * @param {object} options An object with the keys necessary to build the context menu: header, body, onOkay, onCancel, onInit, okayText, cancelText, omitCancel...
+     * @param  {Function} done A callback for completion
+     * @return {SodaEditor} The current SodaEditor instance
+     */
+    this.setContext = function (options, done) {
+        if($editor.contextMenu.is(":visible")) {
+            $("#soda-editor-context-wrapper").effect("shake", { direction: "left", distance: 40 }, 600);
+            if(typeof options === "object" &amp;&amp; options.onCancel instanceof Function) options.onCancel.call(self, $(this), $editor.contextMenu);
+            return;
+        }
+
+        if(typeof options !== "object") return self;
+        $editor.contextHeader.html(options.header || "Message");
+        $editor.contextBody.html(options.body || "Are you sure you want to do this?");
+
+        $("#soda-editor-context-form #soda-editor-context-button-okay").removeAttr("disabled");
+        if(options.onInit instanceof Function) options.onInit.call(self, $editor.contextMenu);
+
+        $editor.contextBtnOkay.text(options.okayText || "Okay");
+        $editor.contextBtnCancel.text(options.cancelText || "Cancel");
+
+        $editor.contextBtnOkay.unbind("click").click(function () {
+            self.acceptContext(function () {
+                if(options.onOkay instanceof Function)
+                    options.onOkay.call(self, $(this), $editor.contextMenu);
+            });
+        });
+
+        $editor.contextBtnCancel.unbind("click").click(function () {
+            self.hideContext(function () {
+                if(options.onCancel instanceof Function)
+                    options.onCancel.call(self, $(this), $editor.contextMenu);
+            });
+        });
+
+        if(options.omitCancel) {
+            $editor.contextBtnCancel.hide();
+        }
+        else {
+            $editor.contextBtnCancel.show();
+        }
+        if(options.dontShow !== true) self.showContext(done);
+        return self;
+    };
+
+    /**
+     * Initalize the SodaEditor
+     * @return {SodaEditor} The current SodaEditor instance
+     */
+    this.init = function () {
+        self.emit("init");
+        return self;
+    };
+
+    /**
+     * On resize set SodaEditor.toolboxIsBeingResized
+     */
+    $editor.toolboxWrapperLeft.resizable({
+        handles  : "e",
+        maxWidth : 1000,
+        minWidth : 300,
+
+        start: function () {
+            self.toolboxIsBeingResized = true;
+        },
+        stop: function () {
+            self.toolboxIsBeingResized = false;
+
+            // Resize ace editors on panel resize
+            for(var i in soda.testEditor.aceEditors) {
+                if(soda.testEditor.aceEditors.hasOwnProperty(i)) {
+                    if(soda.testEditor.aceEditors[i].resize) soda.testEditor.aceEditors[i].resize();
+                }
+            }
+        }
+    });
+
+    /**
+     * On resize set SodaEditor.toolboxIsBeingResized
+     */
+    $editor.toolboxWrapperRight.resizable({
+        handles  : "e",
+        maxWidth : 1000,
+        minWidth : 300,
+
+        start: function () {
+            self.toolboxIsBeingResized = true;
+        },
+        stop: function () {
+            self.toolboxIsBeingResized = false;
+        }
+    });
+
+    /**
+     * On window resize, fix the toolbox's height
+     */
+    $(window).on("resize", function () {
+        var h = $(window).height() - $("#soda-status-bar").height() - $("#soda-navbar").height() - 75;
+        $editor.toolboxWrapperRight.height(h);
+        $editor.toolboxWrapperLeft.height(h);
+    });
+
+    /**
+     * Set the $editor.status object to each status element and stauts element icon
+     * @memberof window.SodaEditor
+     * @type {Object}
+     */
+    $editor.status = {
+        right: {
+            icon   : $editor.self.find("#soda-status-right i"),
+            status : $editor.self.find("#soda-status-right .status")
+        },
+        left: {
+            icon   : $editor.self.find("#soda-status-left i"),
+            status : $editor.self.find("#soda-status-left .status")
+        },
+        center: {
+            icon   : $editor.self.find("#soda-status-center i"),
+            status : $editor.self.find("#soda-status-center .status")
+        }
+    };
+
+    // When the editor is show
+    var scrollbarsAdded = false;
+    soda.on("editor shown", function () {
+        if(!scrollbarsAdded) {
+            scrollbarsAdded = true;
+            $editor.toolboxWrapperRight.mCustomScrollbar(SodaSettings.SCROLL_OPTIONS);
+            $editor.toolboxWrapperLeft.mCustomScrollbar(SodaSettings.SCROLL_OPTIONS);
+        }
+        else {
+            $editor.toolboxWrapperRight.mCustomScrollbar("update");
+            $editor.toolboxWrapperLeft.mCustomScrollbar("update");
+        }
+
+        soda.editor
+            .disableToolbox("test-monitor")
+            .enableToolbox("test-runner");
+    });
+
+    // When the framework is stopped
+    soda.on("framework stopped", function () { self.resetStatuses(); });
+
+    /**
+     * Reset the status bar messages and icons
+     */
+    this.resetStatuses = function () {
+        self
+            .setStatus({
+                which   : "left",
+                icon    : "none",
+                message : ""
+            })
+            .setStatus({
+                which   : "center",
+                icon    : "none",
+                message : ""
+            })
+            .setStatus({
+                which   : "right",
+                icon    : "none",
+                message : ""
+            });
+        return self;
+    };
+
+    var statusTimeout = null;
+    /**
+     * Set a status message
+     * @param {object} options An object with the keys "which", "icon", and "message"
+     * @return {object&lt;SodaEditor>} The current SodaEditor instance
+     */
+    this.setStatus = function (options) {
+        if(typeof options === "object" &amp;&amp; typeof options.message === "string") {
+            if(statusTimeout) clearTimeout(statusTimeout);
+            var which = "left";
+
+            switch(options.which) {
+                case "right":
+                    which = "right";
+                    break;
+
+                case "middle":
+                case "center":
+                    which = "center";
+                    break;
+            }
+
+            $editor.status[which].icon
+                .removeClass()
+                .addClass("fa")
+                .addClass(typeof options.icon === "string" ? (options.icon === "none" ? "" : options.icon) : "fa-info-circle");
+
+            if(typeof options.iconColor === "string") {
+                $editor.status[which].icon.css("color", options.iconColor);
+            }
+            else {
+                $editor.status[which].icon.css("color", "rgb(51, 51, 51)");
+            }
+
+            $editor.status[which].status.html(options.message).show();
+
+            if(typeof options.duration === "number") {
+                statusTimeout = setTimeout(function () {
+                    $editor.status[which].status.fadeOut(SodaSettings.FADEOUT_SLOW_SPEED, function () {
+                        self.setStatus({
+                            which   : which,
+                            message : "",
+                            icon    : "none"
+                        });
+                        $editor.status[which].status.show();
+                    });
+                }, options.duration * 1000);
+            }
+        }
+        return self;
+    };
+
+    /**
+     * Clear a status message
+     * @param {string} which Which status to clear
+     * @return {object&lt;SodaEditor>} The current SodaEditor instance
+     */
+    this.clearStatus = function (Which) {
+        var which = "left";
+
+        switch(Which) {
+            case "right":
+                which = "right";
+                break;
+
+            case "middle":
+            case "center":
+                which = "center";
+                break;
+        }
+
+        $editor.status[which].icon.removeClass();
+        $editor.status[which].status.html("");
+        return self;
+    };
+
+    /**
+     * Switch to a toolbox (make it visible and hide all others on the same side)
+     * @param  {string} named The name of the toolbox
+     * @return {object&lt;SodaEditor>} The current SodaEditor instance
+     */
+    this.switchToToolbox = function (named, done) {
+        if(toolboxes[named] &amp;&amp; toolboxes[named].disabled === false)
+            self.showToolbox(toolboxes[named].toolbox, toolboxes[named].icon, done);
+        return self;
+    };
+
+    /**
+     * Disable a toolbox
+     * @param  {string} named The name of the toolbox
+     * @return {object&lt;SodaEditor>} The current SodaEditor instance
+     */
+    this.disableToolbox = function (named) {
+        if(toolboxes[named] &amp;&amp; toolboxes[named].disabled === false) {
+            self.hideToolbox(toolboxes[named].toolbox, toolboxes[named].icon);
+            toolboxes[named].icon.addClass("disabled");
+            toolboxes[named].disabled = true;
+        }
+        return self;
+    };
+
+    /**
+     * Enable a toolbox
+     * @param  {string} named The name of the toolbox
+     * @return {object&lt;SodaEditor>} The current SodaEditor instance
+     */
+    this.enableToolbox = function (named) {
+        if(toolboxes[named]) {
+            toolboxes[named].icon.removeClass("disabled");
+            toolboxes[named].disabled = false;
+        }
+        return self;
+    };
+
+    /**
+     * Show a toolbox, given the toolbox object and its icon
+     * @param {jQuery} toolbox The toolbox object
+     * @param {jQuery} icon The toolbox icon
+     * @param {function=} done A callback for completion
+     * @return {object&lt;SodaEditor>} The current SodaEditor instance
+     */
+    this.showToolbox = function (toolbox, icon, done) {
+        if($(toolbox).is(":visible")) {
+            if(done instanceof Function) done.call(self, null);
+        }
+        else {
+            var direction = "left";
+            if($(toolbox).hasClass("right")) direction = "right";
+
+            switch(direction) {
+                case "right":
+                    $(".soda-toolbox.right").hide();
+                    $("#soda-toolbox-menu-right .soda-toolbox-menu-icons i").removeClass("active");
+                    break;
+
+                default:
+                    $(".soda-toolbox.left").hide();
+                    $("#soda-toolbox-menu-left .soda-toolbox-menu-icons i").removeClass("active");
+            }
+
+            $(icon).addClass("active");
+            $(toolbox).fadeIn(SodaSettings.FADEIN_SPEED, function () {
+                if(done instanceof Function) done.call(self, null);
+            });
+        }
+        return self;
+    };
+
+    /**
+     * Hide a toolbox, given the toolbox object and its icon
+     * @param {jQuery} toolbox The toolbox object
+     * @param {jQuery} icon The toolbox icon
+     * @return {object&lt;SodaEditor>} The current SodaEditor instance
+     */
+    this.hideToolbox = function (toolbox, icon) {
+        $(icon).removeClass("active");
+        $(toolbox).fadeOut(SodaSettings.FADEOUT_SLOW_SPEED);
+        return self;
+    };
+
+    /**
+     * Add a toolbox to the visual editor
+     * @return {object&lt;SodaEditor>} The current SodaEditor instance
+     */
+    this.addToolbox = function (options) {
+        if(typeof options === "object" &amp;&amp; options.name &amp;&amp; options.content) {
+
+            var tid      = tids++,
+                $icon    = $('&lt;i class="toolbox-icon fa ' + (options.icon || + 'fa-bolt') + '" data-toolbox-id="' + tid + '" data-toolbox-name="' + options.title + '" data-container="body" data-toggle="tooltip" data-placement="' + (options.side === "left" ? 'left' : 'right') + ' auto" title="' + options.title + '">&lt;/i>'),
+                $content = $('&lt;div id="toolbox-' + tid + '" data-id="' + tid + '" data-name="' + options.name + '" class="soda-toolbox">&lt;/div>'),
+                toAppend = $(options.content).wrap('&lt;div>').parent(),
+                $appendedContent;
+
+            $content.append('&lt;div class="toolbox-container">&lt;h1 class="toolbox-title inline">&lt;i class="inline fa ' + (options.icon || + 'fa-bolt') + '">&lt;/i>' + (options.title || options.name) + '&lt;/h1>&lt;/div>');
+            $appendedContent = $('&lt;div class="toolbox-content">' + toAppend.html() + "&lt;/div>").appendTo($content.children(".toolbox-container"));
+
+            switch(options.side) {
+                case "right":
+                    $content.addClass("right");
+                    $content = $content.appendTo($editor.toolboxWrapperRight);
+                    $icon    = $icon.appendTo($editor.toolboxRightMenu);
+
+                    $editor.toolboxRightMenu = $editor.toolboxWrapperRight.find(".soda-toolbox-menu-icons");
+                    $editor.toolboxesRight   = $editor.toolboxWrapper.find(".soda-toolbox.right");
+                    break;
+
+                default:
+                    $content.addClass("left");
+                    $content = $content.appendTo($editor.toolboxWrapperLeft);
+                    $icon    = $icon.appendTo($editor.toolboxLeftMenu);
+
+                    $editor.toolboxLeftMenu = $editor.toolboxWrapperLeft.find(".soda-toolbox-menu-icons");
+                    $editor.toolboxesLeft   = $editor.toolboxWrapper.find(".soda-toolbox.left");
+                    break;
+            }
+
+            $editor.toolboxMenus = $editor.toolboxWrapper.find(".soda-toolbox-menu");
+            $editor.toolboxes    = $editor.toolboxWrapper.find(".soda-toolbox");
+
+            $icon.click(function () {
+                if(toolboxes[options.name].disabled === false) {
+                    if($content.is(":hidden")) self.showToolbox($content, $icon);
+                }
+            });
+
+            toolboxes[options.name] = { toolbox: $content, icon: $icon, disabled: false };
+            if(options.show === true) self.showToolbox($content, $icon);
+            return $appendedContent.children();
+        }
+    };
+
+    soda.on("framework initialized", function () {
+        $('.toolbox-icon').remove();
+        $(".soda-toolbox").remove();
+    });
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

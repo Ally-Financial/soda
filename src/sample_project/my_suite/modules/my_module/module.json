@@ -1,0 +1,14 @@
+{
+    "name": "my_module",
+    "description": "@todo:description",
+    "id": "a07ebbcf858402fbacf85b854b23c302",
+    "created": 1453173524035,
+    "map": {
+        "GOOGLE_SEARCH_INPUT_FIELD": {
+            "web": "*[type='input'][attributes.type='text']"
+        },
+        "GOOGLE_SEARCH_SEARCH_BUTTON": {
+            "web": "^btnK[type='input'][attributes.type='submit'][nth='last']"
+        }
+    }
+}

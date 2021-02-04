@@ -1,0 +1,33 @@
+{
+    "meta": {
+        "name": "setessentials",
+        "description": "Setup some important variables for 'Soda testing Soda'",
+        "syntax": {
+            "name": "web",
+            "version": "1.0"
+        }
+    },
+    "actions": [
+        {
+            "getConfig": "userHome",
+            "as": "userHome"
+        },
+        {
+            "getConfig": "root",
+            "as": "root"
+        },
+        {
+            "getConfig": "pid",
+            "as": "sodapid"
+        },
+        {
+            "store": "1475",
+            "as": "port"
+        },
+        {
+            "store": [
+            ],
+            "as": "fakefavorites"
+        }
+    ]
+}

@@ -1,0 +1,8 @@
+  paths-ignore:
+    - './src/node_modules'
+    - './src/SodaVisualEditor/static/fonts/**'
+    - './src/SodaVisualEditor/static/docs/**'
+    - './src/SodaVisualEditor/static/external/**'
+    - './src/SodaVisualEditor/static/img/**'
+    - './src/spec/**'
+    - './src/coverage/**'

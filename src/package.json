@@ -1,0 +1,91 @@
+{
+  "name": "soda",
+  "version": "2.11.1",
+  "authors": [
+    "James Pavlic",
+    "Jason Pollman"
+  ],
+  "description": "Simple Object Driven Automation framework",
+  "license": "MIT",
+  "keywords": [
+    "soda",
+    "automation",
+    "atdd",
+    "test driven development",
+    "selenium",
+    "instruments",
+    "automator",
+    "ios",
+    "android",
+    "testing"
+  ],
+  "main": "index.js",
+  "bin": {
+    "soda": "./bin/soda",
+    "sodabuild": "./bin/sodabuild",
+    "sodarun": "./bin/sodarun",
+    "sodareset": "./bin/sodareset",
+    "sodatrace": "./bin/sodatrace",
+    "sodamake": "./bin/sodamake",
+    "sodaeditor": "./bin/sodaeditor"
+  },
+  "man": [
+    "./man/soda.1",
+    "./man/sodabuild.1",
+    "./man/sodarun.1",
+    "./man/sodareset.1",
+    "./man/sodatrace.1",
+    "./man/sodamake.1",
+    "./man/sodaeditor.1"
+  ],
+  "scripts": {
+    "test": "jasmine --random=false ./spec/*Spec.js"
+  },
+  "dependencies": {
+    "@babel/code-frame": "^7.10.4",
+    "archiver": "^5.2.0",
+    "aws-sdk": "^2.831.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "child_process": "^1.0.2",
+    "compression": "^1.7.4",
+    "express": "^4.17.1",
+    "express-handlebars": "^5.2.0",
+    "express-minify": "^1.0.0",
+    "express-session": "^1.17.1",
+    "handlebars": "^4.7.6",
+    "helmet": "^3.23.3",
+    "https": "^1.0.0",
+    "https-proxy-agent": "^5.0.0",
+    "locate-chrome": "^0.1.1",
+    "log4js": "^6.3.0",
+    "minimist": "^1.2.5",
+    "node-watch": "^0.7.1",
+    "nodemailer": "^6.4.17",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "png-crop": "0.0.2",
+    "puppeteer-core": "^5.5.0",
+    "query-string": "^6.13.8",
+    "selenium-webdriver": "^4.0.0-alpha.8",
+    "setheader": "^1.0.2",
+    "socket.io": "^3.1.0"
+  },
+  "devDependencies": {
+    "istanbul": "^0.4.5",
+    "jasmine": "^3.6.4",
+    "jasmine-core": "^3.6.0",
+    "karma": "^6.0.2",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-coverage": "^2.0.3",
+    "karma-jasmine": "^4.0.1",
+    "nock": "^13.0.6",
+    "rewire": "^5.0.0",
+    "sinon": "^9.2.4"
+  },
+  "publishConfig": {
+    "registry": "https://nexus.int.ally.com/nexus/repository/npm-hosted/"
+  },
+  "preferGlobal": true,
+  "private": false
+}

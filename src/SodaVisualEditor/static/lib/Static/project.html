@@ -1,0 +1,37 @@
+<div id="soda-project">
+    <div id="soda-project-hierarchy-wrapper">
+        <div id="soda-project-search">
+            <div class="input-group">
+                <em class="fa fa-close search-close"></em>
+                <span class="input-group-addon" id="project-search-addon"><em class="fa fa-search"></em></span>
+                <input class="form-control search-filter" type="text" placeholder="Search..." data-filter=".project-element" data-title="project search" aria-describedby="project-search-addon">
+            </div>
+            <div id="soda-ph-warning" class="warning-box" style="margin-top: 10px;">
+                <em class="fa fa-close close" data-close="#soda-ph-warning"></em>
+                Your project directory is <span id="test-path-warning" class="bold">Test Path</span>
+            </div>
+            <div id="soda-ph-warning" class="warning-box" style="margin-top: 10px;">
+                <em class="fa fa-close close" data-close="#soda-ph-warning"></em>
+                Your test result directory is <span id="test-results-path-warning" class="bold">Test Results Path</span>
+            </div>
+            <div>
+                <div class="btn-group" style="margin-top: 10px;">
+                    <button id="project-add-suite" type="button" class="btn btn-default"><em class="fa fa-plus"></em> Add New Suite</button>
+                </div>
+            </div>
+        </div>
+        <div id="soda-project-hierarchy">
+            <div class="project-element expandable-parent">
+                <div class="project-element-info element-info">
+                    <em class="f-delete fa fa-close pull-right sticky-element" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Delete"></em>
+                    <em class="f-edit fa fa-pencil pull-right sticky-element" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Open in Test Editor"></em>
+                    <em class="f-run project-menu-run-action fa fa-play pull-right sticky-element" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Run Action"></em>
+                    <em class="f-add project-menu-add-action fa fa-bookmark pull-right sticky-element" data-container="body" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Add Action"></em>
+                    <em class="project-element-icon fa  fa-file-text inline expandable-icon"></em>
+                    <div class="project-element-id inline"></div>
+                </div>
+                <div class="project-element-children expandable-child"></div>
+            </div>
+        </div>
+    </div>
+</div>

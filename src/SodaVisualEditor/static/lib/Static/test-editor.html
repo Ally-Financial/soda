@@ -1,0 +1,359 @@
+<div id="soda-test-editor">
+    <div id="generate-screen-form">
+        <h4>Options</h4>
+        <form id="generate-screen-form-form">
+            <h5>Ignore Elements Matching...</h5>
+            <p class="generate-info">Enter a list of selectors (one per line). The generator will <span class="bold">ignore</span> all elements that match the following selectors.</p>
+            <textarea id="generate-ignore" name="generate-ignore">// Generic
+*[label!~'.+'][name!~'.+'][value!~'.+']
+*[visible=false]
+*[valid=false]
+
+// Instruments
+#window:1
+#window:2 *
+*[type~'window|tableview']
+
+// Automator
+*[type~'framelayout|viewgroup|linearlayout']
+*[name~'fragment']</textarea>
+
+            <h5>Preferred Assertion Property</h5>
+            <p class="generate-info">The generator will choose to assert against this property if it exist. If it does not, another property will be chosen instead.</p>
+            <div id="generate-prefer" class="btn-toolbar" role="toolbar" data-value="value">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-default btn-yellow" data-value="value">Value</button>
+                    <button class="btn btn-default" data-value="name">Name</button>
+                    <button class="btn btn-default" data-value="label">Label</button>
+                </div>
+            </div>
+
+            <h5>Ignore Selector Types</h5>
+            <p class="generate-info">Selectors of the chosen types will be ignored, and will not show up in the "assert" selector field.</sppan>
+            <div id="generate-omit" class="btn-toolbar" role="toolbar" data-value='{ "id": true }'>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-default btn-yellow" data-value="id">Id</button>
+                    <button class="btn btn-default" data-value="value">Value</button>
+                    <button class="btn btn-default" data-value="name">Name</button>
+                    <button class="btn btn-default" data-value="label">Label</button>
+                </div>
+            </div>
+
+            <h5>Selector Attributes</h5>
+            <p class="generate-info">Attributes of the chosen types will be appended to selectors.</p>
+            <div id="generate-attributes" class="btn-toolbar" role="toolbar" data-value='{ "type": true }'>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-default btn-yellow" data-value="type">Type</button>
+                    <button class="btn btn-default" data-value="enabled">Enabled</button>
+                    <button class="btn btn-default" data-value="visible">Visible</button>
+                    <button class="btn btn-default" data-value="valid">Valid</button>
+                </div>
+            </div>
+
+            <h5>Preferred Hierarchy Cardnality</h5>
+            <p class="generate-info">The generator will attempt to find a selector with the hierarchy cardnality greater than or equal to the chosen value. The hierarchy cardnality is the number of elements in the selector.<br>If a cardnality of the selected value doesn't exist, the most appropriate will be chosen instead.</p>
+            <div id="generate-cardnality" class="btn-toolbar" role="toolbar" data-value="2">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-default" data-value="1">(Not Very Specific) 1</button>
+                    <button class="btn btn-default btn-yellow" data-value="2">2</button>
+                    <button class="btn btn-default" data-value="3">3</button>
+                    <button class="btn btn-default" data-value="4">4</button>
+                    <button class="btn btn-default" data-value="5">5 (Really Specific)</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <div id="test-editor-options">
+        <div class="btn-group btn-group-toggle" role="group" aria-label="...">
+            <button type="button" class="btn btn-default test-tab" data-show="#test-editor-test-wrapper" data-group="#test-editor-editor-wrapper">Test</button>
+            <button type="button" class="btn btn-default action-tab" data-show="#test-editor-action-wrapper" data-group="#test-editor-editor-wrapper">Action</button>
+            <button type="button" class="btn btn-default screen-tab" data-show="#test-editor-screen-wrapper" data-group="#test-editor-editor-wrapper">Screen</button>
+            <button type="button" class="btn btn-default menu-tab" data-show="#test-editor-menu-wrapper" data-group="#test-editor-editor-wrapper">Menu</button>
+            <button type="button" class="btn btn-default popup-tab" data-show="#test-editor-popup-wrapper" data-group="#test-editor-editor-wrapper">Popup</button>
+        </div>
+        <div id="soda-test-editor-warning" class="warning-box">
+            <em class="fa fa-close close" data-close="#soda-test-editor-warning"></em>
+            The suite and dropdown fields below will determine the suite and module the list is saved under.
+        </div>
+        <div id="soda-test-editor-warning-2" class="warning-box">
+            <em class="fa fa-close close" data-close="#soda-test-editor-warning-2"></em>
+            Warning: The "name" field is tied to the action (test, screen, etc.) filename. Changing it will save loaded actions as a new file.
+        </div>
+    </div>
+    <div id="test-editor-editor-wrapper">
+        <div id="test-editor-test-wrapper" class="editor-wrapper">
+            <div class="editor-toggle test" data-type="test" data-active="false">
+                <h5>Raw</h5>
+                <em class="fa fa-2x fa-toggle-off"></em>
+            </div>
+            <h4>Test Context</h4>
+            <label class="editor-label">Test Suite</label>
+            <select id="test-editor-test-suite" class="editor-list-info editor-suite dynamic-suite dynamic-hierarchy"></select>
+            <label class="editor-label">Test Module</label>
+            <select id="test-editor-test-module" class="editor-list-info editor-module dynamic-module dynamic-hierarchy"></select>
+            <div class="interactive-editor" data-type="test">
+                <h4>Test Metadata</h4>
+                <input id="test-editor-name" class="editor-list-info editor-name" type="text" placeholder="Test Name...">
+                <input id="test-editor-id" class="editor-list-info editor-id" type="text" placeholder="Test Id...">
+                <input id="test-editor-description" class="editor-list-info editor-description" type="text" placeholder="Test Description...">
+                <input id="test-editor-syntax-name" class="editor-list-info editor-syntax-name" type="text" placeholder="Syntax Name...">
+                <input id="test-editor-syntax-version" class="editor-list-info editor-syntax-version" type="text" placeholder="Syntax Version...">
+                <div class="editor-actions-wrapper">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Test Menu <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="action-menu-save-list" href="#" data-list="test">Save List</a></li>
+                            <li><a class="action-menu-download-list" href="#" target="_blank">Download List</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-clear-list empty-el" href="#" data-empty="#test-editor-test" data-confirm="true" data-confirm-message="Are you sure you want to clear this list?">Clear List</a></li>
+                            <li><a class="action-menu-run-list" href="#">Execute List</a></li>
+                        </ul>
+                    </div>
+                    <h4 class="editor-actions-header">Test Actions</h4>
+                </div>
+                <div id="test-editor-test" class="editor-list-sortable" data-type="test"></div>
+            </div>
+            <div id="raw-editor-test" class="raw-editor" data-type="test">
+                <div class="editor-actions-wrapper">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Test Menu <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="action-menu-save-list" href="#" data-list="test">Save Test</a></li>
+                            <li><a class="action-menu-download-list" href="#" target="_blank">Download JSON</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-run-list" href="#">Execute JSON</a></li>
+                        </ul>
+                    </div>
+                    <h4 class="editor-actions-header">Test JSON</h4>
+                </div>
+                <div id="ace-editor-for-test" class="raw-editor-wrapper"></div>
+            </div>
+        </div>
+        <div id="test-editor-action-wrapper" class="editor-wrapper">
+            <div class="editor-toggle action" data-type="action" data-active="false">
+                <h5>Raw</h5>
+                <em class="fa fa-2x fa-toggle-off"></em>
+            </div>
+            <h4>Action Context</h4>
+            <label class="editor-label">Action Suite</label>
+            <select id="test-editor-action-suite" class="editor-list-info editor-suite dynamic-suite dynamic-hierarchy"></select>
+            <label class="editor-label">Action Module</label>
+            <select id="test-editor-action-module" class="editor-list-info editor-module dynamic-module dynamic-hierarchy"></select>
+            <div class="interactive-editor" data-type="action">
+                <h4>Action Metadata</h4>
+                <input id="action-editor-name" class="editor-list-info editor-name" type="text" placeholder="Action Name...">
+                <input id="action-editor-id" class="editor-list-info editor-id" type="text" placeholder="Action Id...">
+                <input id="action-editor-description" class="editor-list-info editor-description" type="text" placeholder="Action Description...">
+                <input id="action-editor-syntax-name" class="editor-list-info editor-syntax-name" type="text" placeholder="Syntax Name...">
+                <input id="action-editor-syntax-version" class="editor-list-info editor-syntax-version" type="text" placeholder="Syntax Version...">
+                <div class="editor-actions-wrapper">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Action Menu <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="action-menu-save-list" href="#" data-list="action">Save List</a></li>
+                            <li><a class="action-menu-download-list" href="#" target="_blank">Download List</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-clear-list empty-el" href="#" data-empty="#test-editor-action" data-confirm="true" data-confirm-message="Are you sure you want to clear this list?">Clear List</a></li>
+                            <li><a class="action-menu-run-list" href="#">Execute List</a></li>
+                        </ul>
+                    </div>
+                    <h4 class="editor-actions-header">Action Actions</h4>
+                </div>
+                <div id="test-editor-action" class="editor-list-sortable" data-type="action"></div>
+            </div>
+            <div id="raw-editor-action" class="raw-editor" data-type="action">
+                <div class="editor-actions-wrapper">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Action Menu <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="action-menu-save-list" href="#" data-list="action">Save Action</a></li>
+                            <li><a class="action-menu-download-list" href="#" target="_blank">Download JSON</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-run-list" href="#">Execute JSON</a></li>
+                        </ul>
+                    </div>
+                    <h4 class="editor-actions-header">Action JSON</h4>
+                </div>
+                <div id="ace-editor-for-action" class="raw-editor-wrapper"></div>
+            </div>
+        </div>
+        <div id="test-editor-screen-wrapper" class="editor-wrapper">
+            <div class="editor-toggle screen" data-type="screen" data-active="false">
+                <h5>Raw</h5>
+                <em class="fa fa-2x fa-toggle-off"></em>
+            </div>
+            <h4>Screen Context</h4>
+            <label class="editor-label">Screen Suite</label>
+            <select id="test-editor-screen-suite" class="editor-list-info editor-suite dynamic-suite dynamic-hierarchy"></select>
+            <label class="editor-label">Screen Module</label>
+            <select id="test-editor-screen-module" class="editor-list-info editor-module dynamic-module dynamic-hierarchy"></select>
+            <div class="interactive-editor" data-type="screen">
+                <h4>Screen Metadata</h4>
+                <input id="screen-editor-test-name" class="editor-list-info editor-name" type="text" placeholder="Screen Name...">
+                <input id="screen-editor-test-id" class="editor-list-info editor-id" type="text" placeholder="Screen Id...">
+                <input id="screen-editor-test-description" class="editor-list-info editor-description" type="text" placeholder="Screen Description...">
+                <input id="screen-editor-syntax-name" class="editor-list-info editor-syntax-name" type="text" placeholder="Syntax Name...">
+                <input id="screen-editor-syntax-version" class="editor-list-info editor-syntax-version" type="text" placeholder="Syntax Version...">
+                <div class="editor-actions-wrapper">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Screen Menu <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="action-menu-save-list" href="#" data-list="screen">Save List</a></li>
+                            <li><a class="action-menu-download-list" href="#" target="_blank">Download List</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-clear-list empty-el" href="#" data-empty="#test-editor-screen" data-confirm="true" data-confirm-message="Are you sure you want to clear this list?">Clear List</a></li>
+                            <li><a class="action-menu-run-list" href="#">Validate List</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-generate-list" data-type="screen" href="#">Generate Screen</a></li>
+                        </ul>
+                    </div>
+                    <h4 class="editor-actions-header">Screen Actions</h4>
+                </div>
+                <div id="test-editor-screen" class="editor-list-sortable" data-type="screen"></div>
+            </div>
+            <div id="raw-editor-screen" class="raw-editor" data-type="screen">
+                <div class="editor-actions-wrapper">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Screen Menu <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="action-menu-save-list" href="#" data-list="screen">Save Screen</a></li>
+                            <li><a class="action-menu-download-list" href="#" target="_blank">Download JSON</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-run-list" href="#">Execute JSON</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-generate-list" data-type="screen" href="#">Generate Screen</a></li>
+                        </ul>
+                    </div>
+                    <h4 class="editor-actions-header">Screen JSON</h4>
+                </div>
+                <div id="ace-editor-for-screen" class="raw-editor-wrapper"></div>
+            </div>
+        </div>
+        <div id="test-editor-menu-wrapper" class="editor-wrapper">
+            <div class="editor-toggle menu" data-type="menu" data-active="false">
+                <h5>Raw</h5>
+                <em class="fa fa-2x fa-toggle-off"></em>
+            </div>
+            <h4>Menu Context</h4>
+            <label class="editor-label">Menu Suite</label>
+            <select id="test-editor-menu-suite" class="editor-list-info editor-suite dynamic-suite dynamic-hierarchy"></select>
+            <label class="editor-label">Menu Module</label>
+            <select id="test-editor-menu-module" class="editor-list-info editor-module dynamic-module dynamic-hierarchy"></select>
+            <div class="interactive-editor" data-type="menu">
+                <h4>Menu Metadata</h4>
+                <input id="menu-editor-test-name" class="editor-list-info editor-name" type="text" placeholder="Menu Name...">
+                <input id="menu-editor-test-id" class="editor-list-info editor-id" type="text" placeholder="Menu Id...">
+                <input id="menu-editor-test-description" class="editor-list-info editor-description" type="text" placeholder="Menu Description...">
+                <input id="menu-editor-syntax-name" class="editor-list-info editor-syntax-name" type="text" placeholder="Syntax Name...">
+                <input id="menu-editor-syntax-version" class="editor-list-info editor-syntax-version" type="text" placeholder="Syntax Version...">
+                <div class="editor-actions-wrapper">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Menu Menu <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="action-menu-save-list" href="#" data-list="menu">Save List</a></li>
+                            <li><a class="action-menu-download-list" href="#" target="_blank">Download List</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-clear-list empty-el" href="#" data-empty="#test-editor-menu" data-confirm="true" data-confirm-message="Are you sure you want to clear this list?">Clear List</a></li>
+                            <li><a class="action-menu-run-list" href="#">Validate List</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-generate-list" data-type="menu" href="#">Generate Menu</a></li>
+                        </ul>
+                    </div>
+                    <h4 class="editor-actions-header">Menu Actions</h4>
+                </div>
+                <div id="test-editor-menu" class="editor-list-sortable" data-type="menu"></div>
+            </div>
+            <div id="raw-editor-menu" class="raw-editor" data-type="menu">
+                <div class="editor-actions-wrapper">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Menu Menu <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="action-menu-save-list" href="#" data-list="menu">Save Menu</a></li>
+                            <li><a class="action-menu-download-list" href="#" target="_blank">Download JSON</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-run-list" href="#">Execute JSON</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-generate-list" data-type="menu" href="#">Generate Menu</a></li>
+                        </ul>
+                    </div>
+                    <h4 class="editor-actions-header">Menu JSON</h4>
+                </div>
+                <div id="ace-editor-for-menu" class="raw-editor-wrapper"></div>
+            </div>
+        </div>
+        <div id="test-editor-popup-wrapper" class="editor-wrapper">
+            <div class="editor-toggle popup" data-type="popup" data-active="false">
+                <h5>Raw</h5>
+                <em class="fa fa-2x fa-toggle-off"></em>
+            </div>
+            <h4>Popup Context</h4>
+            <label class="editor-label">Popup Suite</label>
+            <select id="test-editor-popup-suite" class="editor-list-info editor-suite dynamic-suite dynamic-hierarchy"></select>
+            <label class="editor-label">Popup Module</label>
+            <select id="test-editor-popup-module" class="editor-list-info editor-module dynamic-module dynamic-hierarchy"></select>
+            <div class="interactive-editor" data-type="popup">
+                <h4>Popup Metadata</h4>
+                <input id="popup-editor-name" class="editor-list-info editor-name" type="text" placeholder="Popup Name...">
+                <input id="popup-editor-id" class="editor-list-info editor-id" type="text" placeholder="Popup Id...">
+                <input id="popup-editor-description" class="editor-list-info editor-description" type="text" placeholder="Popup Description...">
+                <input id="popup-editor-syntax-name" class="editor-list-info editor-syntax-name" type="text" placeholder="Syntax Name...">
+                <input id="popup-editor-syntax-version" class="editor-list-info editor-syntax-version" type="text" placeholder="Syntax Version...">
+                <div class="editor-actions-wrapper">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Popup Menu <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="action-menu-save-list" href="#" data-list="popup">Save List</a></li>
+                            <li><a class="action-menu-download-list" href="#" target="_blank">Download List</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-clear-list empty-el" href="#" data-empty="#test-editor-popup" data-confirm="true" data-confirm-message="Are you sure you want to clear this list?">Clear List</a></li>
+                            <li><a class="action-menu-run-list" href="#">Validate List</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-generate-list" data-type="popup" href="#">Generate Popup</a></li>
+                        </ul>
+                    </div>
+                    <h4 class="editor-actions-header">Popup Actions</h4>
+                </div>
+                <div id="test-editor-popup" class="editor-list-sortable" data-type="popup"></div>
+            </div>
+            <div id="raw-editor-popup" class="raw-editor" data-type="popup">
+                <div class="editor-actions-wrapper">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Popup Menu <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="action-menu-save-list" href="#" data-list="popup">Save Popup</a></li>
+                            <li><a class="action-menu-download-list" href="#" target="_blank">Download JSON</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-run-list" href="#">Execute JSON</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a class="action-menu-generate-list" data-type="popup" href="#">Generate Popup</a></li>
+                        </ul>
+                    </div>
+                    <h4 class="editor-actions-header">Popup JSON</h4>
+                </div>
+                <div id="ace-editor-for-popup" class="raw-editor-wrapper"></div>
+            </div>
+        </div>
+    </div>
+</div>

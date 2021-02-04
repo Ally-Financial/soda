@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaREPL/lib/REPL.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaREPL/lib/REPL.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module SodaREPL/REPL
+ * @description The Soda interactive CLI-REPL (read, evaluate, print, loop)
+ */
+"use strict";
+
+var readline     = require("readline"),
+    nodePath     = require("path"),
+    EventEmitter = require('events').EventEmitter,
+    util         = require("util"),
+    sodaLib      = require(nodePath.join(__dirname, "Commands")),
+    stdLib       = require(nodePath.join(__dirname, "StdLib")),
+    evalSafe     = require(nodePath.join("..", "..", "SodaCommon", "EvalSafe")),
+    Console      = require(nodePath.join("..", "..", "SodaCommon", "Console")),
+    fs           = require("fs"),
+    userHome     = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'],
+
+/**
+ * The Soda interactive CLI-REPL (read, evaluate, print, loop)
+ * @constructor
+ * @augments EventEmitter
+ * @param {object} consoleOptions Console options for this REPL instance
+ */
+REPL = function () {
+
+    var self           = this,
+        autoPrompt     = true,
+        $rl            = null,
+        commands       = {},
+        paused         = false,
+        gotSigInt      = 0,
+        sodas          = {},
+        tmpHistory     = null,
+        currentSoda    = null,
+        wstream        = null,
+
+        /**
+         * A Console object for this REPL isntance
+         * @type Console
+         * @composes Console
+         */
+        console = new Console({ log: { debug: false }});
+
+    Object.defineProperty(self, "rsole", {
+        configurable : false,
+        enumerable   : true,
+        get          : function () { return console; }
+    });
+
+    /**
+     * The character used to signify that user input is a command
+     * @type {String}
+     */
+    this.COMMAND_DELIMITER = ":";
+
+    /**
+     * The character (or string) used to split arguments
+     * @type {String}
+     */
+    this.ARG_SPLITTER = " ";
+
+    /**
+     * The maximum REPL history limit
+     * @type {Number}
+     */
+    this.HISTORY_LIMIT = 50;
+
+    /**
+     * The file location to store REPL history
+     * @type {String}
+     */
+    this.HISTORY_LOCATION = nodePath.join(userHome, ".sodareplhistory");
+
+    /**
+     * Whether or not this REPL instance has been started
+     * @type {Boolean}
+     */
+    this.isStarted = false;
+
+    // Write stream for saving repl history
+    wstream = fs.createWriteStream(self.HISTORY_LOCATION, { flags: 'a' });
+
+    // Load old history from file
+    fs.readFile(self.HISTORY_LOCATION, function (err, contents) {
+        if(!err) {
+            try {
+                var lines = contents.toString('utf-8').trim().split("\n").reverse();
+                if(lines.length > self.HISTORY_LIMIT) {
+                    lines = lines.slice(0, self.HISTORY_LIMIT);
+
+                    fs.writeFile(self.HISTORY_LOCATION, lines.reverse().join("\n") + "\n", function () {
+                        /* No Op */
+                    });
+
+                    lines.reverse();
+                }
+                tmpHistory = lines;
+            }
+            catch (e) {
+                tmpHistory = null;
+            }
+        }
+    });
+
+    /**
+     * The EvalSafe module instance
+     * @type {object}
+     * @composes EvalSafe
+     */
+    this.evalSafe = evalSafe;
+
+    Object.defineProperties(self, {
+
+        /**
+         * The node Readline isntance associated with the REPL
+         * @type {Readline}
+         */
+        rl: {
+            configurable : false,
+            enumerable   : true,
+            get () { return $rl; }
+        },
+
+        /**
+         * A dictionary of this REPL's active commands
+         * @type {Object}
+         */
+        commands: {
+            configurable : false,
+            enumerable   : true,
+            get () { return commands; }
+        },
+
+        /**
+         * Whether or not the REPL has been paused
+         * @type {Boolean}
+         */
+        paused: {
+            configurable : false,
+            enumerable   : true,
+            get () { return paused; }
+        },
+
+        /**
+         * A Console object for this REPL isntance
+         * @type Console
+         * @composes Console
+         */
+        console: {
+            configurable : false,
+            enumerable   : true,
+            get () { return console; }
+        },
+
+        /**
+         * The current Soda instance active in the REPL
+         * @associates Soda
+         * @type {Soda}
+         */
+        currentSoda: {
+            configurable : false,
+            enumerable   : true,
+            get () { return currentSoda; }
+        }
+    });
+
+    // Handle uncaught exception for the REPL
+    process.on("uncaughtException", function (e) {
+        console.error(e.stack);
+        if(self.currentSoda) self.currentSoda.config.set("testingInProgress", false);
+        if(self.isStarted === true) self.resume().prompt();
+    });
+
+    /**
+     * Prompt the REPL after each console log
+     * @return {undefined}
+     */
+    function promptOnLog () { if(self.isStarted) self.prompt(); }
+    function resetLine(messages) { messages.sodaeach(function (message, key, i) { if(i === 0) messages[key] = "\u001b[2K\r" + message; }); }
+    function replOnLine (line) {
+        try {
+            var res = evalSafe.evaluate(line, currentSoda);
+            if(res instanceof Error) throw res;
+
+            try { res = JSON.stringify(res, console.jsonFunctionReplacer, '    '); } catch(e) { /* No op */ }
+            console.log(":=", res);
+        }
+        catch(e) {
+            console.error(e.message);
+        }
+    }
+
+    console.on("post log", promptOnLog);
+    console.on("log", resetLine);
+
+    /**
+     * When no command is present, just evaluate the line as JavaScript
+     */
+    self.on("line", replOnLine);
+
+    /**
+     * Callback provided to line subscribers to provide a "code" and "message" upon completion
+     * @param {number} c The code (should be a standard UNIX code)
+     * @param {string} msg The message to print (color printed is based on code)
+     * @param {boolean} prompt Prompt the user after a successful code callback?
+     */
+    function code (c, msg, prompt) {
+        if(typeof msg === "string" &amp;&amp; msg !== "") {
+            switch(parseInt(c, 10)) {
+                case 1:
+                case 99:
+                    if(currentSoda) {
+                        currentSoda.console.error(msg);
+                    }
+                    else {
+                        console.error(msg);
+                    }
+                    break;
+
+                case 2:
+                    if(currentSoda) {
+                        currentSoda.console.warn(msg);
+                    }
+                    else {
+                        console.warn(msg);
+                    }
+                    break;
+
+                default:
+                    if(currentSoda) {
+                        currentconsole.log(msg);
+                    }
+                    else {
+                        console.log(msg);
+                    }
+                    break;
+            }
+        }
+
+        if(parseInt(c, 10) === 99) { self.kill(); } // Code to stop the readline...
+        if(prompt === true) { $rl.prompt(); }
+    }
+
+    /**
+    * Callback for when the user presses ^C
+    */
+    function replSigInt () {
+        var listenerCount = self.listenerCount("got sigint"),
+            done = 0;
+
+        if(paused === false) {
+            if (gotSigInt === 0) {
+                console.warn("Press ^C again to exit...");
+                setTimeout(function () { gotSigInt = 0; }, 700);
+                self.prompt();
+            }
+            else {
+                if(listenerCount > 0) {
+                    /**
+                    * Emitted when the REPL has received 2 SIGINT signals, and will be closing
+                    * @event module.SodaREPL/REPL.REPL#got sigint
+                    */
+                    self.emit("got sigint", function next () {
+                        if(++done === listenerCount)
+                            self.kill(function () { process.exit(0); });
+                    });
+                }
+                else {
+                    self.kill(function () { process.exit(0); });
+                }
+            }
+            gotSigInt++;
+        }
+    }
+
+    this.listSodas = function () {
+        var output = [];
+        sodas.sodaeach(function (y) {
+            output.push(y.toString());
+        });
+        console.log(output);
+    };
+
+    /**
+     * Remove a Soda instance from the REPL
+     * @param  {Soda} soda A Soda instance
+     * @return {REPL} The current REPL instance
+     */
+    this.removeSoda = function (soda) {
+        if(typeof soda === "object" &amp;&amp; (soda.yid || soda.yid === 0)) {
+            soda.console.removeListener("log", resetLine);
+            soda.console.removeListener("post log", promptOnLog);
+            sodas[soda.yid] = null;
+            delete sodas[soda.yid];
+            if(currentSoda === soda) {
+                if(sodas.last) {
+                    self.switchToSodaUsingYid(sodas.last.yid);
+                }
+                else {
+                    currentSoda = null;
+                    self.removeAllSodaCommands();
+                }
+            }
+
+        }
+        return self;
+    };
+
+    /**
+     * Add a Soda instance to the REPL
+     * @param  {Soda} soda A Soda instance
+     * @return {REPL} The current REPL instance
+     */
+    this.addSoda = function (soda) {
+        if(typeof soda === "object" &amp;&amp; (soda.yid || soda.yid === 0) &amp;&amp; !sodas[soda.yid]) {
+            sodas[soda.yid] = soda;
+
+            soda.config.on("config set", function (name) {
+                if(/console(\.\w+)*/.test(name)) {
+                    if(currentSoda === sodas[soda.yid]) console.setOptions(soda.config.get("console"));
+                }
+            });
+
+            soda.once("soda killed", function () {
+                self.removeSoda(soda);
+            });
+        }
+        return self;
+    };
+
+    /**
+     * Switch to a Soda isntance by Soda ID
+     * @param  {string|number} yid The Soda instance ID
+     * @return {REPL} The current REPL instance
+     */
+    this.switchToSodaUsingYid = function (yid) {
+        if(typeof yid === "string" || typeof yid === "number") {
+            if(sodas[yid] &amp;&amp; currentSoda !== sodas[yid]) {
+                self.switchToSoda(sodas[yid]);
+                console.log("REPL switched to", sodas[yid].toString());
+            }
+            else if(!sodas[yid]) {
+                console.error("REPL has no Soda instance with id", yid, "attached");
+            }
+        }
+        else {
+            console.error("Cannot switch to Soda, as no YID was provided.");
+        }
+        return self;
+    };
+
+    /**
+     * Switch REPL command from one Soda instance to another
+     * @param  {Soda} soda The soda instance to switch to
+     * @return {REPL} The current REPL instance
+     */
+    this.switchToSoda = function (soda) {
+        if(self.isStarted &amp;&amp; typeof soda === "object" &amp;&amp; (soda.yid || soda.yid === 0) &amp;&amp; sodas[soda.yid]) {
+            currentSoda = sodas[soda.yid];
+            $rl.setPrompt(soda.toString() + " > ");
+
+            // Set soda in the eval scope
+            evalSafe.set("soda", soda);
+            evalSafe.set("repl", self);
+            self.removeAllSodaCommands();
+
+            // Reset the commands with the current Soda instance
+            sodaLib(soda, self);
+
+            currentSoda.console.removeListener("log", resetLine);
+            currentSoda.console.removeListener("post log", promptOnLog);
+
+            soda.console.on("log", resetLine);
+            soda.console.on("post log", promptOnLog);
+
+            console.setOptions(soda.config.get("console"));
+            self.prompt();
+        }
+        return self;
+    };
+
+    /**
+     * Initializes the REPL, kills the REPL and re-initializes if it's already been initialized.
+     * @returns {REPL} The current REPL isntance
+     */
+    this.reset = function (soda) {
+        gotSigInt = 0;
+        if($rl) $rl.close();
+
+        $rl = readline.createInterface({ input: process.stdin, output : process.stdout, historySize: self.HISTORY_LIMIT });
+        $rl.setPrompt("REPL:" + process.pid + ":" + " > ");
+        $rl.on("SIGINT", replSigInt);
+
+        if(tmpHistory) $rl.history = tmpHistory;
+
+        // Handle line event
+        // Loop through the commands list and look for matches
+        $rl.on("line", function (line) {
+            if(line.trim() !== "") wstream.write(line + "\n");
+
+            var handled  = false,
+                noprompt = false;
+
+            if(new RegExp("^" + self.COMMAND_DELIMITER + ".*$").test(line) === true) { // Got a command
+                if(!paused) {
+                    var args = line.split(/(\{.*}?|\[.*]|'.*?'|".*?"|\S+)/g).toTruthy.slice(1);
+
+                    args.sodaeach(function (a, k) {
+                        args[k] = a.replace(/^"(.*)"$/, '$1').replace(/~/g, userHome.withoutTrailingSlash);
+                        try {
+                            args[k] = JSON.parse(args[k]);
+                        }
+                        catch (e) { /* No op.. */ }
+                    });
+
+                    if(args.length > 0)
+                        console.debug("REPL Got arguments: " + args.join(", "));
+
+                    for(var i in self.commands) {
+                        if(self.commands.hasOwnProperty(i)) {
+                            if(new RegExp("^" + self.COMMAND_DELIMITER + "(\\s+)?(?:(" + self.commands[i].regexp + "))(?:\\s+(.+))?(\\s+)?$").exec(line) !== null) {
+                                if(typeof self.commands[i] === "object" &amp;&amp; self.commands[i].callback instanceof Function) {
+                                    try {
+                                        self.commands[i].callback.call(self, code, args);
+                                    }
+                                    catch(e) {
+                                        console.error(e.stack);
+                                        self.prompt();
+                                    }
+                                    handled  = true;
+                                    noprompt = self.commands[i] &amp;&amp; self.commands[i].noprompt ? !!self.commands[i].noprompt : true;
+                                }
+                            }
+                        }
+                    }
+
+                    if(handled === false) {
+                        console.error("Command `" + line.replace(/^:(\w+).*/, '$1') + "` not found! Either it doesn't exist or it's module hasn't been initialized.");
+                        /**
+                         * Emitted when a REPL command was entered, but there are no subscribers to the command
+                         * @event module.SodaREPL/REPL.REPL#command not found
+                         */
+                        self.emit("command not found", line);
+                        if(autoPrompt === true) self.prompt();
+                    }
+                    else {
+                        if(autoPrompt === true &amp;&amp; noprompt === false) self.prompt();
+                    }
+                }
+            }
+            else { // We didn't get a command, just emit a regular line
+                /**
+                 * Emitted when the REPL receives a "regular" line (which is not a command)
+                 * @event module.SodaREPL/REPL.REPL#line
+                 */
+                self.emit("line", line);
+                if(autoPrompt === true) self.prompt();
+            }
+        });
+
+        if(soda &amp;&amp; sodas[soda.yid]) self.switchToSoda(soda);
+        if(autoPrompt === true) self.prompt();
+        self.isStarted = true;
+        return self;
+    };
+
+    /**
+     * Initializes the REPL, starts the read-line interface, calls self.reset(), and returns the REPL module.
+     * @returns {REPL} The current REPL isntance
+     */
+    this.init = function (soda, consoleOptions) {
+        if(!consoleOptions &amp;&amp; soda &amp;&amp; typeof soda.yid !== "number") {
+            consoleOptions = soda;
+            soda           = undefined;
+        }
+
+        self.isStarted = true;
+        if(typeof consoleOptions === "object") console.setOptions(consoleOptions);
+
+        if(soda) self.addSoda(soda);
+        if($rl !== null) return self;
+
+        self.reset(soda);
+        return self;
+    };
+
+    /**
+    * Destroys the read-line interface and sets $rl to null.
+    * @returns {REPL} The current REPL isntance
+    */
+    this.kill = function (done) {
+        /**
+        * Emitted just before the REPL is closed
+        * @event module.SodaREPL/REPL.REPL#close
+        */
+        self.emit("close", self);
+
+        if($rl) $rl.close();
+        $rl = null;
+
+        /**
+        * Emitted just after the REPL is closed
+        * @event module.SodaREPL/REPL.REPL#closed
+        */
+        self.emit("closed", self);
+        if(done instanceof Function) done.call(self);
+        return self;
+    };
+
+    /**
+     * Adds a command to watch for when a new line is entered into the REPL
+     * @param {string} name The "alias" for the command. This is used merely to store is as a key
+     * @param {string} regexpMatch The *string* regular expression to match to call the command
+     * @param {function} callback The callback to execute when a match is found
+     * @param {boolean=} noprompt Force a post prompt decision after the command is executed
+     * @param {boolean=} isSodaCommand True if this command is bound to the current Soda instance. False would indicate that
+     * it is global (doesn't operate on the current Soda intance)
+     * @returns {REPL} The current REPL isntance
+     */
+    this.addCommand = function (name, regexpMatch, callback, noprompt, isSodaCommand) {
+        commands[name] = {
+            regexp   : regexpMatch,
+            callback : callback,
+            noprompt : noprompt,
+            isSoda   : !!isSodaCommand
+        };
+        return self;
+    };
+
+    /**
+     * Removes a command from the REPL
+     * @param {string} name The name (alias) of the command to remove
+     * @returns {REPL} The current REPL isntance
+     */
+    this.removeCommand = function (name) {
+        commands[name] = null;
+        delete commands[name];
+        return self;
+    };
+
+    /**
+     * Removes all REPL commands
+     * @returns {REPL} The current REPL isntance
+     */
+    this.removeAllCommands = function () {
+        commands.sodaeach(function (c, k) {
+            self.removeCommand(k);
+        });
+        return self;
+    };
+
+    /**
+     * Removes all REPL Soda commands
+     * @returns {REPL} The current REPL isntance
+     */
+    this.removeAllSodaCommands = function () {
+        commands.sodaeach(function (c, k) {
+            if(c.isSoda) self.removeCommand(k);
+        });
+        return self;
+    };
+
+    /**
+     * Safely pause the read-line interface...
+     * @returns {REPL} The current REPL isntance
+     */
+    this.pause = function () {
+        if($rl &amp;&amp; !paused) {
+            sodas.sodaeach(function (y) {
+                y.console.removeListener("log", resetLine);
+                y.console.removeListener("post log", promptOnLog);
+            });
+
+            console.removeListener("log", resetLine);
+            console.removeListener("post log", promptOnLog);
+            self.removeListener("line", replOnLine);
+
+            tmpHistory = $rl.history; // Save the old repl history :)
+            $rl.close();
+            paused = true;
+        }
+        return self;
+    };
+
+    /**
+     * Safely resume the read-line interface...
+     * @returns {REPL} The current REPL isntance
+     */
+    this.resume = function (soda) {
+        if(paused) {
+            paused = false;
+            self.reset(soda || currentSoda);
+
+            sodas.sodaeach(function (y) {
+                y.console.on("log", resetLine);
+                y.console.on("post log", promptOnLog);
+            });
+
+            console.on("log", resetLine);
+            console.on("post log", promptOnLog);
+            self.on("line", replOnLine);
+        }
+        return self;
+    };
+
+    /**
+     * Safely prompt the read-line interface..
+     * @returns {REPL} The current REPL isntance.
+     */
+    this.prompt = function () {
+        if($rl &amp;&amp; paused === false) $rl.prompt(true);
+        return self;
+    };
+
+    /**
+     * Disable internal REPL prompts, for things like the ODA Repl
+     * @param {boolean} setting True or false
+     * @returns {REPL} The current REPL isntance
+     */
+    this.setAutoPrompt = function (setting) {
+        autoPrompt = !!setting;
+        return self;
+    };
+
+    // Add stdLib commands to REPL
+    stdLib(self);
+};
+
+util.inherits(REPL, EventEmitter);
+module.exports = new REPL(); // Singleton
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

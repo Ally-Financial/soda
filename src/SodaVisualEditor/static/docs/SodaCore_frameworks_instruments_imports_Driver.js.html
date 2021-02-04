@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: SodaCore/frameworks/instruments/imports/Driver.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: SodaCore/frameworks/instruments/imports/Driver.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module Perfecto/Driver
+ */
+
+"use strict";
+
+var request = require('request'),
+    fs     = require('fs'),
+    nodePath    = require("path"),
+    xml2js = require('xml2js'),
+    SodaConfig = require(nodePath.join(__dirname, '..', '..', '..', '..', 'SodaCommon', 'Config'));
+
+/**
+ *
+ * Driver connector for Soda to Perfecto
+ * @param {Soda} soda A Soda instance
+ * @constructor
+ */
+var WebDriver = function (soda) {
+    var self = this,
+        /**
+         * @associates InstrumentsConfiguration
+         * @type {Object}
+         */
+        settings = require(nodePath.join(__dirname, 'Config')),
+        sessionId = null;
+
+        process.setMaxListeners(0);
+
+        /**
+         * Gets the current netword IP from the settings (called below)
+         * @param {string} error The error when tryint to get the ip (if any)
+         * @param {string} ip The ip of the network
+         */
+        var getNetworkIP = (function () {
+            var ignoreRE = /^(127\.0\.0\.1|::1|fe80(:1)?::1(%.*)?)$/i;
+
+            var exec = require('child_process').exec;
+            var cached;
+            var command;
+            var filterRE;
+
+            switch (process.platform) {
+            // TODO: implement for OSs without ifconfig command
+            case 'darwin':
+                 command = 'ifconfig';
+                 filterRE = /\binet\s+([^\s]+)/g;
+                 // filterRE = /\binet6\s+([^\s]+)/g; // IPv6
+                 break;
+            default:
+                 command = 'ifconfig';
+                 filterRE = /\binet\b[^:]+:\s*([^\s]+)/g;
+                 // filterRE = /\binet6[^:]+:\s*([^\s]+)/g; // IPv6
+                 break;
+            }
+
+            return function (callback, bypassCache) {
+                 // get cached value
+                if (cached &amp;&amp; !bypassCache) {
+                    callback(null, cached);
+                    return;
+                }
+                // system call
+                exec(command, function (error, stdout, sterr) {
+                    var ips = [];
+                    // extract IPs
+                    var matches = stdout.match(filterRE);
+                    // JS has no lookbehind REs, so we need a trick
+                    for (var i = 0; i &lt; matches.length; i++) {
+                        ips.push(matches[i].replace(filterRE, '$1'));
+                    }
+
+                    // filter BS
+                    for (var i = 0, l = ips.length; i &lt; l; i++) {
+                        if (!ignoreRE.test(ips[i])) {
+                            //if (!error) {
+                                cached = ips[i];
+                            //}
+                            callback(error, ips[i]);
+                            return;
+                        }
+                    }
+                    // nothing found
+                    callback(error, null);
+                });
+            };
+        })();
+
+        getNetworkIP(function (error, ip) {
+            if (error) {
+              settings.WEBDRIVER_HOST = "http://127.0.0.1:8100/";
+            }
+            settings.WEBDRIVER_HOST = "http://" + ip + ":8100/";
+        }, false);
+
+        var Queue = (function(){
+
+          function Queue() {}
+
+          Queue.prototype.running = false;
+
+          Queue.prototype.queue = [];
+
+          Queue.prototype.add_function = function(callback) {
+              var _this = this;
+              //add callback to the queue
+              this.queue.push(function(){
+                  var finished = callback();
+                  if(typeof finished === "undefined" || finished) {
+                     //  if callback returns `false`, then you have to
+                     //  call `next` somewhere in the callback
+                     _this.next();
+                  }
+              });
+
+              if(!this.running) {
+                  // if nothing is running, then start the engines!
+                  this.next();
+              }
+
+              return this; // for chaining fun!
+          };
+
+          Queue.prototype.next = function(){
+              //get the first element off the queue
+              var shift = this.queue.shift();
+              if(shift) {
+                  this.running = true;
+                  shift();
+              }
+          };
+
+          return Queue;
+
+      })();
+
+      var queue = new Queue();
+
+    /**
+     * A request to send command to Perfecto using get
+     * @param {string} path The URL path for the request to be sent to
+     * @param {function=} done A callback for completion
+     */
+    function sendWebDriverRequest(path, done) {
+      soda.console.debug("URL Request--------"+settings.WEBDRIVER_HOST+path);
+
+      queue.add_function(function(){
+        request(settings.WEBDRIVER_HOST+path, { 'proxy':settings.PROXY, timeout: 250000, headers: { 'Content-Type': 'application/json' } }, function (err, response, body) {
+            queue.running = false;
+            queue.next();
+            done(err, body);
+        });
+      });
+    }
+
+    /**
+     * A request to send command to Perfecto using post
+     * @param {string} path The URL path for the request to be sent to
+     * @param {function=} done A callback for completion
+     */
+    function sendWebDriverPostRequest(path, body, done) {
+      soda.console.debug("URL Request--------"+settings.WEBDRIVER_HOST+path, body);
+
+      queue.add_function(function(){
+        request.post(settings.WEBDRIVER_HOST+path, { 'proxy':settings.PROXY, timeout: 250000, headers: { 'Content-Type': 'application/json' }, body: body }, function (err, response, body) {
+            queue.running = false;
+            queue.next();
+            done(err, body);
+        });
+      });
+    }
+
+    /**
+     * A request to send command to Perfecto using delete
+     * @param {string} path The URL path for the request to be sent to
+     * @param {function=} done A callback for completion
+     */
+    function sendWebDriverDeleteRequest(path, done) {
+      soda.console.debug("URL Request--------"+settings.WEBDRIVER_HOST+path);
+
+      queue.add_function(function(){
+        request.del(settings.WEBDRIVER_HOST+path, { 'proxy':settings.PROXY, timeout: 15000, headers: { 'Content-Type': 'application/json' } }, function (err, response, body) {
+            queue.running = false;
+            queue.next();
+            done(err, body);
+        });
+      });
+    }
+
+    /**
+     * A request to send command to Perfecto using get with a timeout
+     * @param {string} path The URL path for the request to be sent to
+     * @param {function=} done A callback for completion
+     */
+    function sendWebDriverRequestWithTimeout(path, timeout, done) {
+      soda.console.debug("URL Request--------"+settings.WEBDRIVER_HOST+path);
+
+      queue.add_function(function(){
+        request(settings.WEBDRIVER_HOST+path, { 'proxy':settings.PROXY, timeout: timeout+15000, headers: { 'Content-Type': 'application/json' } }, function (err, response, body) {
+            queue.running = false;
+            queue.next();
+            done(err, body);
+        });
+      });
+    }
+
+    /**
+     * A request to send command to Perfecto using post with a timeout
+     * @param {string} path The URL path for the request to be sent to
+     * @param {function=} done A callback for completion
+     */
+    function sendWebDriverPostRequestWithTimeout(path, body, timeout, done) {
+      soda.console.debug("URL Request--------"+settings.WEBDRIVER_HOST+path);
+
+      queue.add_function(function(){
+        request.post(settings.WEBDRIVER_HOST+path, { 'proxy':settings.PROXY, timeout: timeout+15000, headers: { 'Content-Type': 'application/json' }, body: body }, function (err, response, body) {
+            queue.running = false;
+            queue.next();
+            done(err, body);
+        });
+      });
+    }
+
+    /**
+     * Returns a body for the install command as JSON
+     * @param {string} bundleId The bundle Id of the application
+     * @param {string} appPath The path to the application
+     * @returns {string} A JSON representation
+     */
+    function installBody(bundleId, appPath) {
+      return '{"desiredCapabilities":{"bundleId":"' + bundleId + '", "app":"' + appPath + '"}}';
+    }
+
+    /**
+     * Returns a body for the open command as JSON
+     * @param {string} bundleId The bundle Id of the application
+     * @returns {string} A JSON representation
+     */
+    function openBody(bundleId) {
+      return '{"desiredCapabilities":{"bundleId":"' + bundleId + '"}}';
+    }
+
+    /**
+     * Returns a body for the find command by Id as JSON
+     * @param {string} name The name of the element to find
+     * @returns {string} A JSON representation
+     */
+    function findElementBodyById(name) {
+      return '{"using":"id", "value": "'+ name +'"}';
+    }
+
+    /**
+     * Returns a body for the find command by element as JSON
+     * @param {string} element The element to attempt to find
+     * @returns {string} A JSON representation
+     */
+    function findElementBodyByElement(element) {
+      return '{"using":"predicate string", "value": "'+ "wdRect CONTAINS "+ element.rect.origin.y + " AND wdRect CONTAINS " + element.rect.origin.x + " AND wdRect CONTAINS " + element.rect.size.width + " AND wdRect CONTAINS " + element.rect.size.height +'"}';
+    }
+
+    /**
+     * Returns a body for a string as an array as JSON
+     * @param {string} text The text that needs to be sent as an array
+     * @returns {string} A JSON representation
+     */
+    function setElementBodyAsArray(text) {
+      return '{\"value\":' + JSON.stringify(text.split('')) + '}';
+    }
+
+    /**
+     * Returns a body for a string as JSON
+     * @param {string} text The text that needs to be sent as JSON
+     * @returns {string} A JSON representation
+     */
+    function setElementBody(text) {
+      return '{\"value\":"' + text + '"}';
+    }
+
+    /**
+     * Returns a body for a string as JSON
+     * @param {string} text The text that needs to be sent as JSON
+     * @returns {string} A JSON representation
+     */
+    function setScrollToVisibleBody() {
+      return '{\"toVisible\":true}';
+    }
+
+    /**
+     * Returns a body for the scrolling command as JSON
+     * @returns {string} A JSON representation
+     */
+    function setScrollBody() {
+      return '{\"direction\":\"down\"}';
+    }
+
+    /**
+     * Returns a body for the scrolling command with direction as JSON
+     * @param {string} direction The direction to scroll in
+     * @returns {string} A JSON representation
+     */
+    function setScrollBodyWithDirection(direction) {
+      return '{\"direction\":\"' + direction + '\"}';
+    }
+
+    /**
+     * Returns a body for the click x y as JSON
+     * @param {string} x The x coordinate
+     * @param {string} y The y coordinate
+     * @returns {string} A JSON representation
+     */
+    function setclickXYBody(x, y) {
+      return '{\"x\":\"' + x + '\",' + '\"y\":\"' + y + '\"}';
+    }
+
+    /**
+     * Returns a body for the click x y as JSON
+     * @param {string} name The name of the element to find
+     * @param {string} element The sODA element to attempt to find
+     * @param {function} findElement The function to use to prepare the findElement command
+     * @param {function=} done A callback for completion
+     */
+    function getElement(name, element, findElement, done) {
+      if (element &amp;&amp; element.uuid) {
+        return done(null, element.uuid);
+      }
+
+      var elementBody = element ? findElement(element) : findElement(name);
+      sendWebDriverPostRequest('session/' + sessionId + '/elements', elementBody, function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+          else {
+            soda.console.debug('FOUND RESULT', result);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          if (jsonResult &amp;&amp; jsonResult.value &amp;&amp; jsonResult.value[0]) {
+              if (element) {
+                if (jsonResult.value.length === 1) {
+                  return done(null, jsonResult.value[0].ELEMENT);
+                }
+                else if (jsonResult.value.length > 1) {
+                  return done(null, jsonResult.value[0].ELEMENT);
+                }
+                else {
+                  for (var i = 0; i &lt; jsonResult.value.length; i++) {
+                      if (jsonResult.value[i].label &amp;&amp; (element.label === jsonResult.value[i].label)) {
+                          return done(null, jsonResult.value[i].ELEMENT);
+                      }
+                  }
+                }
+              }
+              else {
+                  return done(null, jsonResult.value[0].ELEMENT);
+              }
+          }
+          else {
+            done(new Error("Could not find Element."), false);
+          }
+      });
+    }
+
+    /**
+     * Sends the type command to the device
+     * @param {string} text The text to type
+     * @param {function=} done A callback for completion
+     */
+    function type(text, done) {
+      getElement(text, null, findElementBodyById, function(err, getElementResult) {
+        if (getElementResult) {
+          setTimeout(function () {
+            tapElement(getElementResult, done);
+          }, 500);
+        }
+        else {
+          done(null, false);
+        }
+      });
+    }
+
+    /**
+     * Sends the type command to the device
+     * @param {string} elementName The name of the element to scroll to
+     * @param {function=} done A callback for completion
+     */
+    function scrollToVisible(elementName, done) {
+      sendWebDriverPostRequest('session/' + sessionId + "/wda/element/" + elementName + "/scroll", setScrollBody(), function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+          else {
+            soda.console.debug(result);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          return err ? done(err, false) : done(null, jsonResult.status === 0);
+      });
+    }
+
+    /**
+     * Sends the scroll to visible command to the device
+     * @param {string} elementName The name of the element to scroll to
+     * @param {string} direction The direction to scroll into
+     * @param {function=} done A callback for completion
+     */
+    function scrollToVisibleWithDirection(elementName, direction, done) {
+      sendWebDriverPostRequest('session/' + sessionId + "/wda/element/" + elementName + "/scroll", setScrollBodyWithDirection(direction), function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+          else {
+            soda.console.debug(result);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          return err ? done(err, false) : done(null, jsonResult.status === 0);
+      });
+    }
+
+    /**
+     * Sends the scroll command to the device
+     * @param {string} elementName The name of the element to scroll to
+     * @param {function=} done A callback for completion
+     */
+    function scroll(elementName, done) {
+      sendWebDriverPostRequest('session/' + sessionId + "/wda/element/" + elementName + "/scroll", setScrollBody(), function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+          else {
+            soda.console.debug(result);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          return done(null, jsonResult.status === 0);
+      });
+    }
+
+    /**
+     * Sets the value on the device in a particular element
+     * @param {string} elementName The name of the element to set the text on
+     * @param {string} text The text to set
+     * @param {function=} done A callback for completion
+     */
+    function setValue(elementName, text, done) {
+      if (text.length > 0) {
+        sendWebDriverPostRequest('session/' + sessionId + "/element/" + elementName + "/value", setElementBodyAsArray(text), function (err, result) {
+            if (err)  {
+              soda.console.error(err.message);
+
+              done(err, false);
+            }
+            else {
+              soda.console.debug(result);
+            }
+
+            var jsonResult;
+
+            try{
+                jsonResult = JSON.parse(result);
+            } catch(e){
+                done(new Error("Could not parse JSON."), false);
+            }
+
+            return err ? done(err, false) : done(null, jsonResult.status === 0);
+        });
+      }
+      else {
+        sendWebDriverPostRequest('session/' + sessionId + "/element/" + elementName + "/clear", setElementBodyAsArray(text), function (err, result) {
+            if (err)  {
+              soda.console.error(err.message);
+
+              done(err, false);
+            }
+            else {
+              soda.console.debug(result);
+            }
+
+            var jsonResult;
+
+            try{
+                jsonResult = JSON.parse(result);
+            } catch(e){
+                done(new Error("Could not parse JSON."), false);
+            }
+
+            return err ? done(err, false) : done(null, jsonResult.status === 0);
+        });
+      }
+    }
+
+    /**
+     * Sends the tap command to the device at a particular coordinate
+     * @param {string} x The x coordinate
+     * @param {string} y The y coordinate
+     * @param {function=} done A callback for completion
+     */
+    function clickXY(x, y, done) {
+        // sytle can be: set or append
+        sendWebDriverPostRequest('session/' + sessionId + "/tap/0", setclickXYBody(x, y), function (err, result) {
+            if (err) done(err, false);
+
+            soda.console.debug(result);
+            var jsonResult = JSON.parse(result);
+            return err ? done(err, false) : done(null, jsonResult.status === 0);
+        });
+    }
+
+    /**
+     * Taps on a particular element with a name
+     * @param {string} elementName The name of the element to set the text on
+     * @param {function=} done A callback for completion
+     */
+    function tapElement(elementName, done) {
+      sendWebDriverPostRequest('session/' + sessionId + "/element/" + elementName + "/click", "", function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+          else {
+            soda.console.debug(result);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          return err ? done(err, false) : done(null, jsonResult.status === 0);
+      });
+    }
+
+    /**
+     * Sends a command to determine the status of the device
+     * @param {function=} done A callback for completion
+     */
+    this.status = function(done) {
+      sendWebDriverRequest('status', function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+          else {
+            soda.console.debug(result);
+          }
+
+          soda.console.debug(result);
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          var sessionId = false;
+
+          if (jsonResult &amp;&amp; jsonResult.sessionId) {
+            sessionId = jsonResult.sessionId;
+          }
+
+          return done(null, sessionId);
+      });
+    };
+
+    /**
+     * Sends the command to install an application
+     * @param {string} bundleId The bundle Id of the application
+     * @param {string} appPath The path to the application
+     * @param {function=} done A callback for completion
+     */
+    this.installApp = function(bundleId, appPath, done) {
+      console.log('Installing app:', appPath);
+        this.status(function(err, sessionId) {
+          console.log('Installing app:', appPath, sessionId);
+          sendWebDriverPostRequest('session', installBody(bundleId, appPath), function (err, result) {
+              if (err)  {
+                soda.console.error(err.message);
+
+                done(err, false);
+              }
+              else {
+                soda.console.debug(result);
+              }
+
+              var jsonResult;
+
+              try{
+                  jsonResult = JSON.parse(result);
+              } catch(e){
+                  done(new Error("Could not parse JSON."), false);
+              }
+
+              if (jsonResult &amp;&amp; jsonResult.sessionId) {
+                sessionId = jsonResult.sessionId;
+              }
+
+              return err ? done(err, false) : done(null, jsonResult.sessionId);
+          });
+        });
+    };
+
+    /**
+     * Sends the command to get the soruce of the current screen dispalyed on the device
+     * @param {function=} done A callback for completion
+     */
+    this.getSourceTree = function(done) {
+      var sourceRequest = 'source';
+      if (sessionId) {
+        sourceRequest = 'session/' + sessionId + '/source';
+      }
+
+      sendWebDriverRequest(sourceRequest, function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          if (jsonResult &amp;&amp; jsonResult.value) {
+              sessionId = jsonResult.sessionId;
+
+              xml2js.parseString(jsonResult.value, { explicitArray: false }, (err, res) => {
+                  return err ? done(err, false) : done(null, res);
+              });
+          }
+          else {
+              return done(new Error("Could not get source tree."), false);
+          }
+      });
+    };
+
+    /**
+     * Sends the command to determine whether or not an element is visible
+     * @param {string} elementName The name of the element to check on visibility
+     * @param {function=} done A callback for completion
+     */
+    this.elementIsVisible = function(elementName, done) {
+      sendWebDriverRequest('session/' + sessionId + "/element/" + elementName + "/displayed", function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+          else {
+            soda.console.debug(result);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          done(null, jsonResult.value);
+      });
+    };
+
+
+    /**
+     * Sends the command to find the current orientation of the device
+     * @param {function=} done A callback for completion
+     */
+    this.getOrientation = function(done) {
+      sendWebDriverRequest('session/' + sessionId + '/orientation', function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+          else {
+            soda.console.debug(result);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          return err ? done(err, false) : done(null, jsonResult.value);
+      });
+    };
+
+    /**
+     * Sends the command to get the current screen bounds
+     * @param {function=} done A callback for completion
+     */
+    this.getScreenBounds = function(done) {
+      sendWebDriverRequest('source', function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+          else {
+            soda.console.debug(result);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+
+              if (jsonResult &amp;&amp; jsonResult.value) {
+                  xml2js.parseString(jsonResult.value, { explicitArray: false }, (err, res) => {
+                      return done(null, [res.XCUIElementTypeApplication.$.width, res.XCUIElementTypeApplication.$.height]);
+                  });
+              }
+              else {
+                  return done(new Error("Could not get source tree."), false);
+              }
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+      });
+    };
+
+    /**
+     * Sends the command to get the current screen shot, then saves it to a file
+     * @param {{}=} options Options to capture the screenshot with. Should include destination
+     * @param {function=} done A callback for completion
+     */
+    this.takeScreenshot = function(options, done) {
+      if(typeof options !== "object") options = {};
+      if(!options.filename) options.filename = "Screenshot " + (new Date()).toLocaleDateString().replace(/\//g, ".") + ".png";
+      if(!options.destination) options.destination = nodePath.join(settings.DEFAULT_FILE_LOCATION, options.filename);
+
+      sendWebDriverRequest('screenshot', function (err, result) {
+          soda.console.debug('Saved file to: ' + options.destination);
+
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          fs.writeFile(options.destination, jsonResult.value, 'base64', function (err) { if (err) soda.console.err(err.message); });
+
+          return err ? done(err, false) : done(null, jsonResult.value);
+      });
+    };
+
+    /**
+     * Navigates to the home screen
+     * @param {object} device The device in which to hide the foreground app
+     * @param {{}=} options Options to support the framework
+     * @param {function} done A callback for completion
+     */
+    this.home = function (options, done) {
+      sendWebDriverPostRequest('homescreen', "", function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+          else {
+            soda.console.debug(result);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          if (jsonResult) {
+              return done(null, jsonResult.status === 0);
+          }
+          else {
+              return done(new Error("Could not go home."), false);
+          }
+      });
+    };
+
+    /**
+     * Starts an application
+     * @param {string} bundleId The bundle Id of the application
+     * @param {function} done A callback for completion
+     */
+    this.startApplication = function(bundleId, done) {
+      sendWebDriverPostRequest('session', openBody(bundleId), function (err, result) {
+          if (err)  {
+            soda.console.error(err.message);
+
+            done(err, false);
+          }
+
+          var jsonResult;
+
+          try{
+              jsonResult = JSON.parse(result);
+          } catch(e){
+              done(new Error("Could not parse JSON."), false);
+          }
+
+          if (jsonResult) {
+              if (jsonResult &amp;&amp; jsonResult.sessionId) {
+                sessionId = jsonResult.sessionId;
+              }
+
+              return done(null, jsonResult.status === 0);
+          }
+          else {
+              return done(new Error("Could not start application."), false);
+          }
+      });
+    };
+
+    /**
+     * Closes an application
+     * @param {function} done A callback for completion
+     */
+     this.stopApplication = function(done) {
+       sendWebDriverDeleteRequest('session/' + sessionId, function (err, result) {
+           if (err)  {
+             soda.console.error(err.message);
+
+             done(err, false);
+           }
+
+           var jsonResult;
+
+           try{
+               jsonResult = JSON.parse(result);
+           } catch(e){
+               done(new Error("Could not parse JSON."), false);
+           }
+
+           if (jsonResult) {
+                sessionId = null;
+
+                return done(null, jsonResult.status === 0);
+           }
+           else {
+               return done(new Error("Could not stop application."), false);
+           }
+       });
+     };
+
+     /**
+      * Type on the keyboard in the device
+      * @param {string|number} text The text to type on keyboard
+      * @param {function} done A callback for completion
+      */
+     this.typeOnKeyboard = function (text, done) {
+       var splitText = text.split('');
+
+       var attemptType = function(keys, alternates, callback) {
+         var key = keys[0];
+
+         setTimeout(function () {
+           type(key, function (err, result) {
+             if (!result) {
+               if (alternates.length > 0) {
+                 var alternate = alternates.shift();
+
+                 setTimeout(function () {
+                   type(alternate, function(err, result) {
+                     if (result) {
+                       setTimeout(function () {
+                         type(key, function (err, result) {
+                           if (result) {
+                             keys.shift();
+
+                             if (keys.length > 0) {
+                               attemptType(keys, ["shift", "more", "shift", "more"], callback);
+                             }
+                             else {
+                               callback(null, true);
+                             }
+                           }
+                           else {
+                             attemptType(keys, alternates, callback);
+                           }
+                         });
+                       }, 500);
+                     }
+                     else {
+                       done(new Error("Could not type element"), false);
+                     }
+                   });
+                 }, 500);
+               }
+               else {
+                 done(new Error("Could not type element"), false);
+               }
+             }
+             else {
+               keys.shift();
+
+               if (keys.length > 0) {
+                 setTimeout(function() {
+                   attemptType(keys, ["shift", "more", "shift", "more"], callback);
+                 }, 500);
+               }
+               else {
+                 callback(null, true);
+               }
+             }
+           });
+         }, 500);
+       };
+
+       attemptType(splitText, ["shift", "more", "shift", "more"], done);
+     };
+
+     /**
+      * Sets the text value on an element
+      * @param {string} element The element to type
+      * @param {string|number} text The text to type
+      * @param {function=} done A callback for completion
+      */
+     this.setValue = function (element, text, done) {
+       getElement(element.name, element, findElementBodyByElement, function(err, elementName) {
+         if (err) done(err, false);
+
+         setTimeout(function () {
+           setValue(elementName, text, done);
+         }, 500);
+       });
+     };
+
+     /**
+      * Tap on an element on the specified device
+      * @param {string} element The element to tap
+      * @param {{}=} options Options to support the framework
+      * @param {function=} done A callback for completion
+      */
+     this.tap = function (element, options, done) {
+       getElement(element.name, element, findElementBodyByElement, function(err, elementName) {
+         if (err) done(err, false);
+
+         if (!element.visible) {
+           done(err, false);
+         }
+         else {
+           setTimeout(function () {
+             tapElement(elementName, done);
+           }, 1000);
+         }
+       });
+     };
+
+     /**
+      * Tap screen coordinates
+      * @param {object} device The device in which to hide the foreground app
+      * @param {{}=} options Options to support the framework
+      * @param {function} done A callback for completion
+      */
+     this.tapXY = function (options, done) {
+         var err = arguments.sodaexpect("object", "function|undefined|null").error;
+
+         if(err) {
+             if(done instanceof Function) done.call(self, err, false);
+             return;
+         }
+
+         clickXY(options.x, options.y, done);
+     };
+
+     /**
+      * Scroll to an element in a direction until it is visible
+      * @param {string} element The name of the element to scroll to
+      * @param {string} direction The direction to scroll into
+      * @param {function=} done A callback for completion
+      */
+     this.scrollToVisibleWithDirection = function (element, direction, done) {
+       if (element.visible) {
+         done(null, true);
+       }
+       else if (element.parent) {
+         getElement(element.parent.name, null, findElementBodyById, function(err, elementName) {
+           if (err) done(err, false);
+
+           setTimeout(function () {
+             scroll(elementName, done);
+           }, 500);
+         });
+       }
+       else {
+         getElement(element.name, element, findElementBodyByElement, function(err, elementName) {
+           if (err) done(err, false);
+
+           setTimeout(function () {
+             scrollToVisibleWithDirection(elementName, direction, done);
+           }, 500);
+         });
+       }
+     };
+
+     /**
+      * Scroll to an element until it is visible
+      * @param {string} element The name of the element to scroll to
+      * @param {function=} done A callback for completion
+      */
+     this.scrollToVisible = function (element, done) {
+       if (element.visible) {
+         done(null, true);
+       }
+       else if (element.parent) {
+         getElement(element.parent.name, null, findElementBodyById, function(err, elementName) {
+           if (err) done(err, false);
+
+           setTimeout(function () {
+             scroll(elementName, done);
+           }, 500);
+         });
+       }
+       else {
+         getElement(element.name, element, findElementBodyByElement, function(err, elementName) {
+           if (err) done(err, false);
+
+           setTimeout(function () {
+             scrollToVisible(elementName, done);
+           }, 500);
+         });
+       }
+     };
+
+     /**
+      * Scroll to an element in a direction
+      * @param {string} direction The direction to scroll into
+      * @param {string} element The name of the element to scroll to
+      * @param {function=} done A callback for completion
+      */
+     this.scroll = function (direction, element, done) {
+       if (element.parent) {
+         getElement(element.parent.name, null, findElementBodyById, function(err, elementName) {
+           if (err) done(err, false);
+
+           setTimeout(function () {
+             scrollToVisibleWithDirection(elementName, direction, done);
+           }, 500);
+         });
+       }
+       else {
+         getElement(element.name, element, findElementBodyByElement, function(err, elementName) {
+           if (err) done(err, false);
+
+           setTimeout(function () {
+             scrollToVisibleWithDirection(elementName, direction, done);
+           }, 500);
+         });
+       }
+     };
+};
+
+module.exports = WebDriver;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li></ul><h3>Classes</h3><ul><li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium</a></li><li><a href="module-Shell-Shell.html">Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">Framework</a></li><li><a href="module-SodaCore_Module-Module.html">Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">Platform</a></li><li><a href="module-SodaCore_Run-Run.html">Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">SodaActionManager</a></li><li><a href="window.SodaConsole.html">SodaConsole</a></li><li><a href="window.SodaDelegates.html">SodaDelegates</a></li><li><a href="window.SodaEditor.html">SodaEditor</a></li><li><a href="window.SodaEmitter.html">SodaEmitter</a></li><li><a href="window.SodaFramework.html">SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">SodaProjectManager</a></li><li><a href="window.SodaRunner.html">SodaRunner</a></li><li><a href="window.SodaScreen.html">SodaScreen</a></li><li><a href="window.SodaTestEditor.html">SodaTestEditor</a></li><li><a href="window.SodaTree.html">SodaTree</a></li></ul><h3>Events</h3><ul><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">line</a></li><li><a href="Run.html#event:allow">allow</a></li><li><a href="Run.html#event:current">current</a></li><li><a href="Run.html#event:failed">failed</a></li><li><a href="Run.html#event:paused">paused</a></li><li><a href="Run.html#event:running">running</a></li><li><a href="Run.html#event:stopped">stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">framework stopped</a></li></ul><h3>Namespaces</h3><ul><li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 07 2018 21:52:56 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

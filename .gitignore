@@ -1,0 +1,94 @@
+# Ally Default Git Ignore:
+
+# Java and Maven:
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.nar
+*.log
+*.exe
+*.bin
+hs_err_pid*
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionBackup
+pom.xml.next
+!/.mvn/wrapper/maven-wrapper.jar
+dependency-reduced-pom.xml
+.mvn/timing.properties
+
+# IntelliJ:
+*.iml
+.idea/
+*.ipr
+*.iws
+out/
+.idea_modules/
+
+# Eclipse:
+.metadata
+.classpath
+.project
+.settings/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+.loadpath
+
+# Node:
+node_modules
+build
+npm-debug.log
+.env
+.grunt
+bower_components
+build/Release
+jspm_packages
+.npm
+.eslintcache
+.yarn-integrity
+.cache
+.next
+.DS_Store
+.nyc_output
+
+# Helm, Docker:
+.coverage/
+_dist/
+_proto/*.pb.go
+rootfs/helm
+rootfs/tiller
+rootfs/rudder
+vendor/
+
+# VS code:
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Local terraform directories
+**/.terraform/*
+**/terraform.d/*
+
+# State files
+*.tfstate
+*.tfstate.*
+
+# Plan files
+*.plan
+
+# Backend config files
+*.backend.tf
+*.cert
+*.key
+*.pem

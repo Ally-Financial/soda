@@ -1,0 +1,7990 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>DocStrap Namespaces</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">DocStrap</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Assert.html">Assert</a></li><li><a href="Instruments_Simulator.html">Instruments/Simulator</a></li><li><a href="Instruments_Tree.html">Instruments/Tree</a></li><li><a href="module-Automator_Configuration-AutomatorConfiguration.html">Automator/Configuration~AutomatorConfiguration</a></li><li><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">Instruments/Configuration~InstrumentsConfiguration</a></li><li><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">Perfecto/Configuration~PerfectoConfiguration</a></li><li><a href="module-Rest_Configuration-SeleniumConfiguration.html">Rest/Configuration~SeleniumConfiguration</a></li><li><a href="module-Selenium_Configuration-SeleniumConfiguration.html">Selenium/Configuration~SeleniumConfiguration</a></li><li><a href="module-Windows_Configuration-WindowsConfiguration.html">Windows/Configuration~WindowsConfiguration</a></li><li><a href="module-SodaCommon_Exception-Exception.html">SodaCommon/Exception~Exception</a></li><li><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-Automator.html">Automator</a></li><li><a href="module-Automator_BuildTree.html">Automator/BuildTree</a></li><li><a href="module-Automator_Configuration.html">Automator/Configuration</a></li><li><a href="module-Automator_DeviceInteractions.html">Automator/DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions.html">Automator/ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl.html">Automator/EmulatorControl</a></li><li><a href="module-Engine_Syntaxes_Mobile.html">Engine/Syntaxes/Mobile</a></li><li><a href="module-Engine_Syntaxes_Mobile_Functions.html">Engine/Syntaxes/Mobile/Functions</a></li><li><a href="module-Engine_Syntaxes_Mobile_Syntax.html">Engine/Syntaxes/Mobile/Syntax</a></li><li><a href="module-Engine_Syntaxes_Web.html">Engine/Syntaxes/Web</a></li><li><a href="module-Engine_Syntaxes_Web_Functions.html">Engine/Syntaxes/Web/Functions</a></li><li><a href="module-Engine_Syntaxes_Web_Syntax.html">Engine/Syntaxes/Web/Syntax</a></li><li><a href="module-Instruments.html">Instruments</a></li><li><a href="module-Instruments_Configuration.html">Instruments/Configuration</a></li><li><a href="module-Instruments_DeviceInteractions.html">Instruments/DeviceInteractions</a></li><li><a href="module-Instruments_ElementInteractions.html">Instruments/ElementInteractions</a></li><li><a href="module-Instruments_IO.html">Instruments/IO</a></li><li><a href="module-Perfecto.html">Perfecto</a></li><li><a href="module-Perfecto_Configuration.html">Perfecto/Configuration</a></li><li><a href="module-Perfecto_Driver.html">Perfecto/Driver</a></li><li><a href="module-Perfecto_ElementInteractions.html">Perfecto/ElementInteractions</a></li><li><a href="module-Rest.html">Rest</a></li><li><a href="module-Rest_Configuration.html">Rest/Configuration</a></li><li><a href="module-Rest_Driver.html">Rest/Driver</a></li><li><a href="module-Selenium.html">Selenium</a></li><li><a href="module-Selenium_Configuration.html">Selenium/Configuration</a></li><li><a href="module-Selenium_Driver.html">Selenium/Driver</a></li><li><a href="module-Shell.html">Shell</a></li><li><a href="module-VisualEditorLauncher.html">VisualEditorLauncher</a></li><li><a href="module-Windows.html">Windows</a></li><li><a href="module-Windows_Configuration.html">Windows/Configuration</a></li><li><a href="module-Windows_Driver.html">Windows/Driver</a></li><li><a href="module-Soda_AssetCollection.html">Soda/AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem.html">Soda/AssetDrivers/FileSystem</a></li><li><a href="module-Soda_EvalSafe.html">Soda/EvalSafe</a></li><li><a href="module-Soda_StaticServer.html">Soda/StaticServer</a></li><li><a href="module-Sodac.html">Sodac</a></li><li><a href="module-SodaCommon_Config.html">SodaCommon/Config</a></li><li><a href="module-SodaCommon_Console.html">SodaCommon/Console</a></li><li><a href="module-SodaCommon_Cypher.html">SodaCommon/Cypher</a></li><li><a href="module-SodaCommon_Exception.html">SodaCommon/Exception</a></li><li><a href="module-SodaCommon_Exec.html">SodaCommon/Exec</a></li><li><a href="module-SodaCommon_ProtoLib.html">SodaCommon/ProtoLib</a></li><li><a href="module-SodaCore_ActionManager.html">SodaCore/ActionManager</a></li><li><a href="module-SodaCore_Asset.html">SodaCore/Asset</a></li><li><a href="module-SodaCore_AssetDrivers_Database.html">SodaCore/AssetDrivers/Database</a></li><li><a href="module-SodaCore_Assets.html">SodaCore/Assets</a></li><li><a href="module-SodaCore_AssetTypes.html">SodaCore/AssetTypes</a></li><li><a href="module-SodaCore_CoreSyntax.html">SodaCore/CoreSyntax</a></li><li><a href="module-SodaCore_DeviceInteractions.html">SodaCore/DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions.html">SodaCore/ElementInteractions</a></li><li><a href="module-SodaCore_Framework.html">SodaCore/Framework</a></li><li><a href="module-SodaCore_Module.html">SodaCore/Module</a></li><li><a href="module-SodaCore_Platform.html">SodaCore/Platform</a></li><li><a href="module-SodaCore_Run.html">SodaCore/Run</a></li><li><a href="module-SodaCore_Suite.html">SodaCore/Suite</a></li><li><a href="module-SodaCore_Syntax.html">SodaCore/Syntax</a></li><li><a href="module-SodaCore_TestRunner.html">SodaCore/TestRunner</a></li><li><a href="module-SodaCore_Trace.html">SodaCore/Trace</a></li><li><a href="module-SodaCore_Tree.html">SodaCore/Tree</a></li><li><a href="module-SodaCore_Vars.html">SodaCore/Vars</a></li><li><a href="module-SodaCore_Soda.html">SodaCore/Soda</a></li><li><a href="module-SodaREPL_Commands.html">SodaREPL/Commands</a></li><li><a href="module-SodaREPL_REPL.html">SodaREPL/REPL</a></li><li><a href="module-SodaREPL_StdLib.html">SodaREPL/StdLib</a></li><li><a href="module-SodaVisualEditor_Server.html">SodaVisualEditor/Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents.html">SodaVisualEditor/VisualEditorEvents</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="BaseDriver.html">BaseDriver</a></li><li><a href="ExtClass.html">ExtClass</a></li><li><a href="module.SodaCommon_Exception.Exception.SodaError.html">module.SodaCommon/Exception.Exception.SodaError</a></li><li><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">module.SodaCore/Tree.TreeWrapper.Tree</a></li><li><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">Automator/DeviceInteractions~DeviceInteractions</a></li><li><a href="module-Automator_ElementInteractions-ElementInteractions.html">Automator/ElementInteractions~ElementInteractions</a></li><li><a href="module-Automator_EmulatorControl-EmulatorControl.html">Automator/EmulatorControl~EmulatorControl</a></li><li><a href="module-Automator-Automator.html">Automator~Automator</a></li><li><a href="module-Instruments-Instruments.html">Instruments~Instruments</a></li><li><a href="module-Perfecto_Driver-PerfectoDriver.html">Perfecto/Driver~PerfectoDriver</a></li><li><a href="module-Perfecto_Driver-WebDriver.html">Perfecto/Driver~WebDriver</a></li><li><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">Perfecto/ElementInteractions~ElementInteractions</a></li><li><a href="module-Perfecto-Perfecto.html">Perfecto~Perfecto</a></li><li><a href="module-Rest_Driver-RestDriver.html">Rest/Driver~RestDriver</a></li><li><a href="module-Rest-Rest.html">Rest~Rest</a></li><li><a href="module-Selenium_Driver-SeleniumDriver.html">Selenium/Driver~SeleniumDriver</a></li><li><a href="module-Selenium-Selenium.html">Selenium~Selenium</a></li><li><a href="module-Shell-Shell.html">Shell~Shell</a></li><li><a href="module-Windows_Driver-WindowsDriver.html">Windows/Driver~WindowsDriver</a></li><li><a href="module-Windows-Windows.html">Windows~Windows</a></li><li><a href="module-Soda_AssetCollection-AssetCollection.html">Soda/AssetCollection~AssetCollection</a></li><li><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">Soda/AssetDrivers/FileSystem~FileSystem</a></li><li><a href="module-SodaCommon_Config-SodaConfig.html">SodaCommon/Config~SodaConfig</a></li><li><a href="module-SodaCommon_Console-Console.html">SodaCommon/Console~Console</a></li><li><a href="module-SodaCore_ActionManager-Action.html">SodaCore/ActionManager~Action</a></li><li><a href="module-SodaCore_AssetDrivers_Database-Database.html">SodaCore/AssetDrivers/Database~Database</a></li><li><a href="module-SodaCore_Assets-Assets.html">SodaCore/Assets~Assets</a></li><li><a href="module-SodaCore_AssetTypes.Action.html">SodaCore/AssetTypes.Action</a></li><li><a href="module-SodaCore_AssetTypes.Menu.html">SodaCore/AssetTypes.Menu</a></li><li><a href="module-SodaCore_AssetTypes.Popup.html">SodaCore/AssetTypes.Popup</a></li><li><a href="module-SodaCore_AssetTypes.Screen.html">SodaCore/AssetTypes.Screen</a></li><li><a href="module-SodaCore_AssetTypes.Test.html">SodaCore/AssetTypes.Test</a></li><li><a href="module-SodaCore_Asset-Asset.html">SodaCore/Asset~Asset</a></li><li><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">SodaCore/DeviceInteractions~DeviceInteractions</a></li><li><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">SodaCore/ElementInteractions~ElementInteractions</a></li><li><a href="module-SodaCore_Framework-Framework.html">SodaCore/Framework~Framework</a></li><li><a href="module-SodaCore_Module-Module.html">SodaCore/Module~Module</a></li><li><a href="module-SodaCore_Platform-Platform.html">SodaCore/Platform~Platform</a></li><li><a href="module-SodaCore_Run-Run.html">SodaCore/Run~Run</a></li><li><a href="module-SodaCore_Suite-Suite.html">SodaCore/Suite~Suite</a></li><li><a href="module-SodaCore_Syntax-Syntax.html">SodaCore/Syntax~Syntax</a></li><li><a href="module-SodaCore_TestRunner-TestRunner.html">SodaCore/TestRunner~TestRunner</a></li><li><a href="module-SodaCore_Trace-Trace.html">SodaCore/Trace~Trace</a></li><li><a href="module-SodaCore_Vars-Vars.html">SodaCore/Vars~Vars</a></li><li><a href="module-SodaCore_Soda-Soda.html">SodaCore/Soda~Soda</a></li><li><a href="module-SodaREPL_REPL-REPL.html">SodaREPL/REPL~REPL</a></li><li><a href="module-SodaVisualEditor_Server-Server.html">SodaVisualEditor/Server~Server</a></li><li><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">SodaVisualEditor/VisualEditorEvents~PseduoAction</a></li><li><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">PoductsAndRates/Emailer
+An emailer class. Performs operations against the SMTP server.~Emailer</a></li><li><a href="SuperRoot.html">SuperRoot</a></li><li><a href="window.SodaActionManager.html">window.SodaActionManager</a></li><li><a href="window.SodaConsole.html">window.SodaConsole</a></li><li><a href="window.SodaDelegates.html">window.SodaDelegates</a></li><li><a href="window.SodaEditor.html">window.SodaEditor</a></li><li><a href="window.SodaEmitter.html">window.SodaEmitter</a></li><li><a href="window.SodaFramework.html">window.SodaFramework</a></li><li><a href="window.SodaNamespace.SodaDependency.html">window.SodaNamespace.SodaDependency</a></li><li><a href="window.SodaNamespace.SodaStartupSetting.html">window.SodaNamespace.SodaStartupSetting</a></li><li><a href="window.SodaNamespace.SodaVisualEditor.html">window.SodaNamespace.SodaVisualEditor</a></li><li><a href="window.SodaProjectManager.html">window.SodaProjectManager</a></li><li><a href="window.SodaRunner.html">window.SodaRunner</a></li><li><a href="window.SodaScreen.html">window.SodaScreen</a></li><li><a href="window.SodaTestEditor.html">window.SodaTestEditor</a></li><li><a href="window.SodaTree.html">window.SodaTree</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module.SodaCommon_Config.SodaConfig.html#event:configget">module.SodaCommon/Config.SodaConfig#event:config get</a></li><li><a href="module.SodaCommon_Config.SodaConfig.html#event:configset">module.SodaCommon/Config.SodaConfig#event:config set</a></li><li><a href="module.SodaCommon_Console.Console.html#event:log">module.SodaCommon/Console.Console#event:log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:postlog">module.SodaCommon/Console.Console#event:post log</a></li><li><a href="module.SodaCommon_Console.Console.html#event:prelog">module.SodaCommon/Console.Console#event:pre log</a></li><li><a href="module.SodaCore.Tree.TreeWrapper.Tree.html#event:buildingelement">module.SodaCore.Tree.TreeWrapper.Tree#event:building element</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:build">module.SodaCore/Framework.Framework#event:build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:exited">module.SodaCore/Framework.Framework#event:exited</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getorientation">module.SodaCore/Framework.Framework#event:get orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:getscreenbounds">module.SodaCore/Framework.Framework#event:get screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotorientation">module.SodaCore/Framework.Framework#event:got orientation</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:gotscreenbounds">module.SodaCore/Framework.Framework#event:got screen bounds</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:load">module.SodaCore/Framework.Framework#event:load</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performeddeviceinteraction">module.SodaCore/Framework.Framework#event:performed device interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:performedelementinteraction">module.SodaCore/Framework.Framework#event:performed element interaction</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:postbuild">module.SodaCore/Framework.Framework#event:post build</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restart">module.SodaCore/Framework.Framework#event:restart</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:restarted">module.SodaCore/Framework.Framework#event:restarted</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:start">module.SodaCore/Framework.Framework#event:start</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:started">module.SodaCore/Framework.Framework#event:started</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stop">module.SodaCore/Framework.Framework#event:stop</a></li><li><a href="module.SodaCore_Framework.Framework.html#event:stopped">module.SodaCore/Framework.Framework#event:stopped</a></li><li><a href="module.SodaCore_Syntax.Syntax.html#event:define">module.SodaCore/Syntax.Syntax#event:define</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:init">module.SodaCore/TestRunner.TestRunner#event:init</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:moduleresults">module.SodaCore/TestRunner.TestRunner#event:module results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:results">module.SodaCore/TestRunner.TestRunner#event:results</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:starttest">module.SodaCore/TestRunner.TestRunner#event:start test</a></li><li><a href="module.SodaCore_TestRunner.TestRunner.html#event:suiteresults">module.SodaCore/TestRunner.TestRunner#event:suite results</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:delete">module.SodaCore/Vars.Vars#event:delete</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:empty">module.SodaCore/Vars.Vars#event:empty</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:get">module.SodaCore/Vars.Vars#event:get</a></li><li><a href="module.SodaCore_Vars.Vars.html#event:save">module.SodaCore/Vars.Vars#event:save</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodainitialized">module.SodaCore/Soda.Soda#event:soda initialized</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodakilled">module.SodaCore/Soda.Soda#event:soda killed</a></li><li><a href="module.SodaCore_Soda.Soda.html#event:sodatempcleaned">module.SodaCore/Soda.Soda#event:soda temp cleaned</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:close">module.SodaREPL/REPL.REPL#event:close</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:closed">module.SodaREPL/REPL.REPL#event:closed</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:commandnotfound">module.SodaREPL/REPL.REPL#event:command not found</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:gotsigint">module.SodaREPL/REPL.REPL#event:got sigint</a></li><li><a href="module.SodaREPL_REPL.REPL.html#event:line">module.SodaREPL/REPL.REPL#event:line</a></li><li><a href="Run.html#event:allow">Run#event:allow</a></li><li><a href="Run.html#event:current">Run#event:current</a></li><li><a href="Run.html#event:failed">Run#event:failed</a></li><li><a href="Run.html#event:paused">Run#event:paused</a></li><li><a href="Run.html#event:running">Run#event:running</a></li><li><a href="Run.html#event:stopped">Run#event:stopped</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255D">window.SodaDelegates#event:[filter title]</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dafter">window.SodaDelegates#event:[filter title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bfiltertitle%255Dbefore">window.SodaDelegates#event:[filter title] before</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dafter">window.SodaDelegates#event:[search title] after</a></li><li><a href="window.SodaDelegates.html#event:%255Bsearchtitle%255Dbefore">window.SodaDelegates#event:[search title] before</a></li><li><a href="window.SodaDelegates.html#event:change%255Btabgroup%255D">window.SodaDelegates#event:change [tab group]</a></li><li><a href="window.SodaDelegates.html#event:postshow%255Btabgroup%255D">window.SodaDelegates#event:post show [tab group]</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:dependenciesloaded">window.SodaNamespace#SodaVisualEditor#event:dependencies loaded</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorinit">window.SodaNamespace#SodaVisualEditor#event:editor init</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshowing">window.SodaNamespace#SodaVisualEditor#event:editor showing</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:editorshown">window.SodaNamespace#SodaVisualEditor#event:editor shown</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkinitialized">window.SodaNamespace#SodaVisualEditor#event:framework initialized</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstarted">window.SodaNamespace#SodaVisualEditor#event:framework started</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstartuperror">window.SodaNamespace#SodaVisualEditor#event:framework startup error</a></li><li><a href="window.SodaNamespace_SodaVisualEditor.html#event:frameworkstopped">window.SodaNamespace#SodaVisualEditor#event:framework stopped</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html#buildTree">buildTree</a></li><li><a href="global.html#splice">splice</a></li><li><a href="global.html#Vars">Vars</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+        
+            <div class="col-sm-3 col-md-3">
+                <form class="navbar-form" role="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" id="search-submit"><em class="glyphicon glyphicon-search"></em></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-8">
+	
+		<div id="main">
+			
+
+	<h1 class="page-title">Namespaces</h1>
+<section>
+
+<header>
+    
+        <h2>
+        
+        </h2>
+        
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
+
+        
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="BaseDriver.html">BaseDriver</a></dt>
+            <dd></dd>
+        
+            <dt><a href="ExtClass.html">ExtClass</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module.SodaCommon_Exception.Exception.SodaError.html">SodaError</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module.SodaCore_Tree.TreeWrapper.Tree.html">Tree</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Automator_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Automator_ElementInteractions-ElementInteractions.html">ElementInteractions</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Automator_EmulatorControl-EmulatorControl.html">EmulatorControl</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Automator-Automator.html">Automator</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Instruments-Instruments.html">Instruments</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Perfecto_Driver-PerfectoDriver.html">PerfectoDriver</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Perfecto_Driver-WebDriver.html">WebDriver</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Perfecto_ElementInteractions-ElementInteractions.html">ElementInteractions</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Perfecto-Perfecto.html">Perfecto</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Rest_Driver-RestDriver.html">RestDriver</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Rest-Rest.html">Rest</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Selenium_Driver-SeleniumDriver.html">SeleniumDriver</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Selenium-Selenium.html">Selenium</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Shell-Shell.html">Shell</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Windows_Driver-WindowsDriver.html">WindowsDriver</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Windows-Windows.html">Windows</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Soda_AssetCollection-AssetCollection.html">AssetCollection</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-Soda_AssetDrivers_FileSystem-FileSystem.html">FileSystem</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCommon_Config-SodaConfig.html">SodaConfig</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCommon_Console-Console.html">Console</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_ActionManager-Action.html">Action</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_AssetDrivers_Database-Database.html">Database</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_Assets-Assets.html">Assets</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_AssetTypes.Action.html">Action</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_AssetTypes.Menu.html">Menu</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_AssetTypes.Popup.html">Popup</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_AssetTypes.Screen.html">Screen</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_AssetTypes.Test.html">Test</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_Asset-Asset.html">Asset</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_DeviceInteractions-DeviceInteractions.html">DeviceInteractions</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_ElementInteractions-ElementInteractions.html">ElementInteractions</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_Framework-Framework.html">Framework</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_Module-Module.html">Module</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_Platform-Platform.html">Platform</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_Run-Run.html">Run</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_Suite-Suite.html">Suite</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_Syntax-Syntax.html">Syntax</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_TestRunner-TestRunner.html">TestRunner</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_Trace-Trace.html">Trace</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_Vars-Vars.html">Vars</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaCore_Soda-Soda.html">Soda</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaREPL_REPL-REPL.html">REPL</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaVisualEditor_Server-Server.html">Server</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-SodaVisualEditor_VisualEditorEvents-PseduoAction.html">PseduoAction</a></dt>
+            <dd></dd>
+        
+            <dt><a href="PoductsAndRates_Emailer%250AAn%2520emailer%2520class.%2520Performs%2520operations%2520against%2520the%2520SMTP%2520server.module_-Emailer.html">Emailer</a></dt>
+            <dd></dd>
+        
+            <dt><a href="SuperRoot.html">SuperRoot</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaActionManager.html">SodaActionManager</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaConsole.html">SodaConsole</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaDelegates.html">SodaDelegates</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaEditor.html">SodaEditor</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaEmitter.html">SodaEmitter</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaFramework.html">SodaFramework</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaNamespace.SodaDependency.html">SodaDependency</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaNamespace.SodaStartupSetting.html">SodaStartupSetting</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaNamespace.SodaVisualEditor.html">SodaVisualEditor</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaProjectManager.html">SodaProjectManager</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaRunner.html">SodaRunner</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaScreen.html">SodaScreen</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaTestEditor.html">SodaTestEditor</a></dt>
+            <dd></dd>
+        
+            <dt><a href="window.SodaTree.html">SodaTree</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+        <h3 class="subsection-title">Namespaces</h3>
+
+        <dl>
+            <dt><a href="namespaces.html#Assert"><a href="Assert.html">Assert</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#Instruments/Simulator"><a href="Instruments_Simulator.html">Instruments/Simulator</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#Instruments/Tree"><a href="Instruments_Tree.html">Instruments/Tree</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#module:Automator/Configuration~AutomatorConfiguration"><a href="module-Automator_Configuration-AutomatorConfiguration.html">AutomatorConfiguration</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#module:Instruments/Configuration~InstrumentsConfiguration"><a href="module-Instruments_Configuration-InstrumentsConfiguration.html">InstrumentsConfiguration</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#module:Perfecto/Configuration~PerfectoConfiguration"><a href="module-Perfecto_Configuration-PerfectoConfiguration.html">PerfectoConfiguration</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#module:Rest/Configuration~SeleniumConfiguration"><a href="module-Rest_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#module:Selenium/Configuration~SeleniumConfiguration"><a href="module-Selenium_Configuration-SeleniumConfiguration.html">SeleniumConfiguration</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#module:Windows/Configuration~WindowsConfiguration"><a href="module-Windows_Configuration-WindowsConfiguration.html">WindowsConfiguration</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#module:SodaCommon/Exception~Exception"><a href="module-SodaCommon_Exception-Exception.html">Exception</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#Perfecto/iOSTree"><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#Perfecto/iOSTree"><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></a></dt>
+            <dd></dd>
+        
+            <dt><a href="namespaces.html#Perfecto/iOSTree"><a href="Perfecto_iOSTree.html">Perfecto/iOSTree</a></a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Events</h3>
+
+        <dl>
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:configget">config get</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a configuration value is retrieved
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:configset">config set</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a configuration value is deleted
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:configset">config set</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a configuration value is set
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:log">log</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just prior to logging a console message
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:postlog">post log</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just after logging a console message
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:prelog">pre log</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just prior to logging a console message
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>messages</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The messages to be logged</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="String.html">String</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The type of log (e.g. "log", "message", "error", "warning", etc.)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:buildingelement">building element</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted as the current Tree is building it's elements object
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>e</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The current element being built into the DOM Tree</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:build">build</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just before a framework is built
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:build">build</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just before a framework is built
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:exited">exited</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the framework instance process has exited completely
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>The</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Instruments</span>
+|
+
+<span class="param-type">Automator</span>
+|
+
+<span class="param-type">Selenium</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">framework class</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:getorientation">get orientation</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the device orientation is requested
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>err</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+|
+
+<span class="param-type">null</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An error</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The framework object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:getscreenbounds">get screen bounds</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the device screen bounds are requested
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>err</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An error, if one occured while trying to get the screen bounds</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Automator</span>
+|
+
+<span class="param-type">Instruments</span>
+|
+
+<span class="param-type">Selenium</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The framework object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:gotorientation">got orientation</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the device orientation request is finished
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>err</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+|
+
+<span class="param-type">null</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An error</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The framework object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:gotscreenbounds">got screen bounds</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the device screen bound request is finished
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>err</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An error, if one occured while trying to get the screen bounds</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Automator</span>
+|
+
+<span class="param-type">Instruments</span>
+|
+
+<span class="param-type">Selenium</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The framework object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:load">load</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a new Framework is loaded
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>err</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+|
+
+<span class="param-type">null</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An error</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The framework object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:performeddeviceinteraction">performed device interaction</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a device interaction has been performed
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>err</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An error, if one occured while trying to get the screen bounds</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>interaction</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="String.html">String</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The name of the interaction performed</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The options used in the interaction</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:performedelementinteraction">performed element interaction</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when an element interaction has been performed
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>err</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An error, if one occured while trying to get the screen bounds</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>interaction</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="String.html">String</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The name of the interaction performed</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>elems</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;Object></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The elements the interaction was performed upon</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The options used in the interaction</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:postbuild">post build</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just after a framework is built
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:postbuild">post build</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just after a framework is built
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:restart">restart</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just before a framework is restarted
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Automator</span>
+|
+
+<span class="param-type">Instruments</span>
+|
+
+<span class="param-type">Selenium</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The framework object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:restarted">restarted</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just after a framework is restarted
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Automator</span>
+|
+
+<span class="param-type">Instruments</span>
+|
+
+<span class="param-type">Selenium</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The framework object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:start">start</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just before a framework is started
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The framework object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:started">started</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just after a framework is started
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>started</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">True if the framework was successfully started, false otherwise</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Automator</span>
+|
+
+<span class="param-type">Instruments</span>
+|
+
+<span class="param-type">Selenium</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The framework object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:stop">stop</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just before a framework is stopped
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Automator</span>
+|
+
+<span class="param-type">Instruments</span>
+|
+
+<span class="param-type">Selenium</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The framework object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:stopped">stopped</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just after a framework is stopped
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>stopped</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">True if the framework was successfully stopped, false otherwise</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Automator</span>
+|
+
+<span class="param-type">Instruments</span>
+|
+
+<span class="param-type">Selenium</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The framework object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:define">define</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the current syntax is being "defined" in the action. That is, when an action is parsing its
+events, using the current syntax. Listen on this event to add custom syntax definitions to a syntax.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>self</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The current Action instance</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:init">init</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the TestRunner object is being created
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>self</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The current TestRunner instance</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:moduleresults">module results</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a module is complete
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Whether or not the module passed or failed</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>messages</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="String.html">String</a>></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The failure messages (in any) associated with this module run</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:results">results</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a test is complete
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An object containing action/test result information</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>test</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Test</span>
+|
+
+<span class="param-type">Action</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The Test or Action object associated with this test Run</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>message</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="String.html">String</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The results message return from the action/test run</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:starttest">start test</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a test is started
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>testInfo</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An object with information about the test run</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:suiteresults">suite results</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a suite is complete
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The suite results information</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>failureMessages</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="String.html">String</a>></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An array of failure messages, if any</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:delete">delete</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just before a variable is deleted
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="String.html">String</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The key used to get the variable</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>The</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">returned variable</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:empty">empty</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the non-persistent variables are being emptied
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>variables</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The variables object just before it's been emptied</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:get">get</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just before a variable is received
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="String.html">String</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The key used to get the variable</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>The</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">returned variable</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:save">save</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted after a variable is saved
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="String.html">String</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The key used to get the variable</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>The</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">returned variable</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:sodainitialized">soda initialized</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted after the Soda library is initialized
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:sodakilled">soda killed</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted this instance of Soda has been "killed", or marked for non-use (garbage collection)
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:sodatempcleaned">soda temp cleaned</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the soda temp folder is cleaned
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:close">close</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just before the REPL is closed
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:closed">closed</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just after the REPL is closed
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:commandnotfound">command not found</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a REPL command was entered, but there are no subscribers to the command
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:gotsigint">got sigint</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the REPL has received 2 SIGINT signals, and will be closing
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:line">line</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the REPL receives a "regular" line (which is not a command)
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:allow">allow</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted for the Soda VisualEditor to know which states are allowable, based on the Run's current state
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>states</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The allowable states</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:current">current</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted with the current test item
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>currentTestItem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The current test item object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:failed">failed</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a action/test is failed
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:paused">paused</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a action/test is paused
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:running">running</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the run starts or enters a "running" state
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:stopped">stopped</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a action/test is stopped
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:%5Bfiltertitle%5D">[filter title]</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a tree filter is filtering of tree elements (each time an element is being filtered)
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:%5Bfiltertitle%5Dafter">[filter title] after</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when a tree filter has completed it's filtering of tree elements
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:%5Bfiltertitle%5Dbefore">[filter title] before</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just before a tree filter is started
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:%5Bsearchtitle%5Dafter">[search title] after</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted after a search search is finished
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:%5Bsearchtitle%5Dbefore">[search title] before</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted for every element being examined in a search
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:%5Bsearchtitle%5Dbefore">[search title] before</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted just before a search search is started
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:change%5Btabgroup%5D">change [tab group]</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitter when a tab is changed
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:postshow%5Btabgroup%5D">post show [tab group]</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitter after a tab has been changed and has been show (animation complete)
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:postshow%5Btabgroup%5D">post show [tab group]</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitter after a tab has been changed and has been show (animation complete)
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:dependenciesloaded">dependencies loaded</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted once all dependencies have loaded
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>The</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;Object></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">list of dependencies loaded</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:editorinit">editor init</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted once all dependencies have loaded, and the editor is instantiating
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:editorshowing">editor showing</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the visual editor has been triggered to be shown (but before the animation is complete)
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>The</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">SodaVisualEditor</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">current SodaVisualEditor instance</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:editorshown">editor shown</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when the visual editor is shown (the landing and loading pages have been hidden)
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>err</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An error, if one is present</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>The</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">SodaVisualEditor</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">current SodaVisualEditor instance</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:frameworkinitialized">framework initialized</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted one the framework has been initialized, and the back-end has signaled that the framework is up and running
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>The</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">SodaFramework</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">framework (SodaFramework) instance</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:frameworkstarted">framework started</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted one the framework has been initialized, the back-end has signaled that the framework is up and running, and the
+front-end SodaFramework instance has initialized all it's objects.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>An</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">error, if one is present</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>The</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">SodaFramework</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">framework (SodaFramework) instance</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:frameworkstartuperror">framework startup error</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted when there was an error starting up the framework
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>err</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">An Error object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="event:frameworkstopped">framework stopped</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Emitted once the framework has stopped, and the server has completed it's stop request
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+</article>
+
+</section>
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
+	
+
+</div>
+</div>
+
+
+    <div class="modal fade" id="searchResults">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Search results</h4>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div>
+
+
+<footer>
+
+
+	<span class="copyright">
+	DocStrap Copyright © 2012-2013 The contributors to the JSDoc3 and DocStrap projects.
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
+	
+		on 2018-03-07T22:02:02-05:00
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+
+    <script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+
+<script>
+$( function () {
+	$( "[id*='$']" ).sodaeach( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre, pre.prettyprint.source" ).sodaeach( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			return $( heading ).attr( "id" ) || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).sodaeach( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            SearcherDisplay.init();
+        });
+    </script>
+
+
+</body>
+</html>
