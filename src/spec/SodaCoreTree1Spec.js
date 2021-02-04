@@ -18,16 +18,18 @@
 
 var sinon = require('sinon'),
     path   = require("path"),
-    Exception = require(path.join(__dirname, "..", "SodaCommon", "Exception")),
     fs     = require("fs");
 
 require(path.join(__dirname, "..", "SodaCommon", "ProtoLib"));
 
 describe('Core Tree should pass all validation tests on the Login Screen', function () {
-    var tree, elements, Soda   = require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")), localSoda = new Soda({ console: { supress: true } }).init(), Tree   = (require(path.join(__dirname, "..", "SodaCore", "lib", "Tree")))(localSoda);
+    var tree, elements, 
+    Soda   = require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")), 
+    localSoda = new Soda({ console: { supress: true }, reset: true }).init(), 
+    Tree   = (require(path.join(__dirname, "..", "SodaCore", "lib", "Tree")))(localSoda);
 
     beforeAll(function () {
-        tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+        tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
         elements = tree.elements();
     });
 
@@ -50,7 +52,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
 
     it('Should print the proper tree', function () {
       var savedMethod = console.log;
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/SmallScreen.json")).toString('utf-8')));
+
       let spy = sinon.spy(console, 'log');
       expect(tree.print()).toBeInstanceOf(Object);
       sinon.assert.called(spy);
@@ -59,12 +61,12 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should get the elements', function () {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/SmallScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "SmallScreen.json")).toString('utf-8')));
       expect(localTree.elements).toBeInstanceOf(Function);
     });
 
     it('Should find elements at multiple levels', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/SmallScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "SmallScreen.json")).toString('utf-8')));
 
       localTree.findElementsAtLevel(0, function(err, result) {
         expect(result.length).toEqual(1);
@@ -82,7 +84,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should find elements at level and include everything above', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsAtDelta(0, function(err, result) {
         expect(result.length).toEqual(44);
@@ -108,7 +110,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should find an element by id', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')))
 
       localTree.findElementById('window:0', function(err, result) {
         expect(result.length).toEqual(1);
@@ -119,7 +121,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should not find an element by id that is not there', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementById('thiselementisnotthere', function(err, result) {
         expect(result.length).toEqual(0);
@@ -129,7 +131,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should find an element by id with alias', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsById('window:0', function(err, result) {
         expect(result.length).toEqual(1);
@@ -140,7 +142,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should find an element by name', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsByName('help icon', function(err, result) {
         expect(result.length).toEqual(1);
@@ -151,7 +153,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should not find an element by name that is not there', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsByName('thiselementisnotthere', function(err, result) {
         expect(result.length).toEqual(0);
@@ -161,7 +163,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should find an element by label', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsByLabel('1-877-247-ALLY (2559)', function(err, result) {
         expect(result.length).toEqual(1);
@@ -172,7 +174,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should not find an element by label that is not there', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsByLabel('thiselementisnotthere', function(err, result) {
         expect(result.length).toEqual(0);
@@ -182,7 +184,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should find an element by value', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsByValue('Find ATMs', function(err, result) {
         expect(result.length).toEqual(1);
@@ -193,7 +195,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should not find an element by value that is not there', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsByValue('thiselementisnotthere', function(err, result) {
         expect(result.length).toEqual(0);
@@ -203,7 +205,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should find an element by type', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsByType('button', function(err, result) {
         expect(result.length).toEqual(6);
@@ -214,7 +216,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should not find an element by type that is not there', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsByType('thistypeisnotthere', function(err, result) {
         expect(result.length).toEqual(0);
@@ -224,7 +226,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should find an element by a selector set', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsBySelectorSet('#{window:0} @{Find ATMs}', function(err, result) {
         expect(result.length).toEqual(1);
@@ -234,7 +236,7 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
     });
 
     it('Should find an element by a selector', function (done) {
-      var localTree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+      var localTree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
       localTree.findElementsBySelector('@{Find ATMs}', function(err, result) {
         expect(result.length).toEqual(1);
@@ -585,324 +587,4 @@ describe('Core Tree should pass all validation tests on the Login Screen', funct
         expect(elements.withSelector("* * * * * * * *").length).toEqual(0);
     });
 
-});
-
-
-describe('Tree should pass all validation tests on the Transfers Landing screen', function () {
-  var tree, elements, Soda   = require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")), localSoda = new Soda({ console: { supress: true } }).init(), Tree   = (require(path.join(__dirname, "..", "SodaCore", "lib", "Tree")))(localSoda);
-
-  beforeAll(function () {
-      tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/TransfersLanding.json")).toString('utf-8')));
-      elements = tree.elements();
-    });
-
-    afterAll(function (done) {
-      localSoda.kill();
-
-      localSoda = null;
-      
-      done();
-    });
-
-    it('Should select elements in table views', function () {
-
-        expect(elements.withSelector(".transferTableView").length).toBeGreaterThan(0);
-        expect(elements.withSelector(".transferTableView").length).toEqual(1);
-        expect(elements.withSelector("#{tableview:1}").length).toBeGreaterThan(0);
-
-        expect(elements.withSelector("#{tableview:1}[nth=0]").length).toBeGreaterThan(0);
-        expect(elements.withSelector("#{tableview:1}[nth=1]").length).toEqual(0);
-        expect(elements.withSelector("#{tableview:1}[nth=2]").length).toEqual(0);
-        expect(elements.withSelector("#{tableview:1}[nth=3]").length).toEqual(0);
-
-        expect(elements.withSelector("#{tableview:1}[nth=0]").length).toEqual(1);
-        expect(elements.withSelector("#{tableview:1} *").length).toEqual(11);
-        expect(elements.withSelector("#{tableview:1} *[type~'table(group|cell)']").length).toEqual(6);
-        expect(elements.withSelector("#{tableview:1} *[type='tablecell']").length).toEqual(5);
-        expect(elements.withSelector("#{tableview:1} *[type='tablegroup']").length).toEqual(1);
-
-        expect(elements.withSelector(".transferTableView[nth=0]").length).toBeGreaterThan(0);
-        expect(elements.withSelector(".transferTableView[nth=0]").length).toEqual(1);
-        expect(elements.withSelector(".transferTableView *").length).toEqual(11);
-        expect(elements.withSelector(".transferTableView *[type~'table(group|cell)']").length).toEqual(6);
-        expect(elements.withSelector(".transferTableView *[type='tablecell']").length).toEqual(5);
-        expect(elements.withSelector(".transferTableView *[type='tablegroup']").length).toEqual(1);
-
-        expect(elements.withSelector(".transferTableView * *").length).toEqual(5);
-        expect(elements.withSelector(".transferTableView * *[type='statictext']").length).toEqual(5);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'] *[type='statictext']").length).toEqual(5);
-
-        expect(elements.withSelector(".transferTableView *[type='tablecell']")[0].id).toEqual("tablecell:13");
-        expect(elements.withSelector(".transferTableView *[type='tablecell']")[1].id).toEqual("tablecell:14");
-        expect(elements.withSelector(".transferTableView *[type='tablecell']")[2].id).toEqual("tablecell:15");
-        expect(elements.withSelector(".transferTableView *[type='tablecell']")[3].id).toEqual("tablecell:16");
-        expect(elements.withSelector(".transferTableView *[type='tablecell']")[4].id).toEqual("tablecell:17");
-
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=0]").length).toEqual(1);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=1]").length).toEqual(1);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=2]").length).toEqual(1);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=3]").length).toEqual(1);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=4]").length).toEqual(1);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=5]").length).toEqual(0);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=6]").length).toEqual(0);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=7]").length).toEqual(0);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=00]").length).toEqual(0);
-
-        expect(elements.withSelector("   .transferTableView *[type='tablecell'][nth=0]  ").length).toEqual(1);
-        expect(elements.withSelector("   .transferTableView *[type='tablecell'][nth=1]  ").length).toEqual(1);
-        expect(elements.withSelector("   .transferTableView *[type='tablecell'][nth=2]  ").length).toEqual(1);
-        expect(elements.withSelector("   .transferTableView *[type='tablecell'][nth=3]  ").length).toEqual(1);
-        expect(elements.withSelector("   .transferTableView *[type='tablecell'][nth=4]  ").length).toEqual(1);
-        expect(elements.withSelector("   .transferTableView *[type='tablecell'][nth=5]  ").length).toEqual(0);
-        expect(elements.withSelector("   .transferTableView *[type='tablecell'][nth=6]  ").length).toEqual(0);
-        expect(elements.withSelector("   .transferTableView *[type='tablecell'][nth=7]  ").length).toEqual(0);
-
-        expect(elements.withSelector("   .transferTableView    *[type='tablecell'][nth=0]  ").length).toEqual(1);
-        expect(elements.withSelector("   .transferTableView    *  ").length).toEqual(11);
-        expect(elements.withSelector("   .transferTableView    *              *").length).toEqual(5);
-        expect(elements.withSelector("   .transferTableView    *              * ").length).toEqual(5);
-
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=0]")[0].name).toEqual("fromAccountCell");
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=1]")[0].name).toEqual("toAccountCell");
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=2]")[0].name).toEqual("amountCell");
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=3]")[0].name).toEqual("dateCell");
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=4]")[0].name).toEqual("frequencyCell");
-
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=0] *")[0].value).toEqual("From Account");
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=1] *")[0].value).toEqual("To Account");
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=2] *")[0].value).toEqual("Amount");
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=3] *")[0].value).toEqual("September 17, 2015 (Today)");
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=4] *")[0].value).toEqual("One Time Transfer");
-
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=0] *").length).toEqual(1);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=1] *").length).toEqual(1);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=2] *").length).toEqual(1);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=3] *").length).toEqual(1);
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=4] *").length).toEqual(1);
-
-        expect(elements.withSelector(".transferTableView *[type='tablecell'][nth=4] *").length).toEqual(1);
-    });
-
-    it('Should select elements by hierarchy #1', function () {
-
-        var img3;
-
-        img3 = elements.withSelector("#{window:0} #{navigationbar:0} #{image:2} #{image:3}")[0];
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-
-        img3 = elements.withSelector("#{window:0} * * #{image:3}")[0];
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-
-        img3 = elements.withSelector("#{window:0} * * *")[0];
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-
-        img3 = elements.withSelector("#{window:0} * * *[type='image']")[0];
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-
-        img3 = elements.withSelector("#{window:0} * *[type='image'] *[type='image']")[0];
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-
-        img3 = elements.withSelector("#{window:0} * *[type='image'] *")[0];
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-
-    });
-
-    it('Should select elements by hierarchy #2', function () {
-
-        var res, img3;
-
-        res = elements.withSelector("#{navigationbar:0} #{image:2} #{image:3}");
-        expect(res.length).toEqual(1);
-
-        img3 = res[0];
-
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-
-        img3 = elements.withSelector("* * * #{image:3}")[0];
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-
-        img3 = elements.withSelector("* * * *[type='image']")[0];
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-
-        img3 = elements.withSelector("* * * #{image:3}")[0];
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-
-        img3 = elements.withSelector("* * *[type='image'] *[type='image']")[0];
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-
-        img3 = elements.withSelector("* * *[type='image'] *")[0];
-        expect(img3).toBeInstanceOf(Object);
-        expect(img3.rect.origin.x).toEqual(0);
-        expect(img3.rect.origin.y).toEqual(64);
-        expect(img3.parent.id).toEqual("image:2");
-    });
-
-});
-
-
-describe('Tree should pass all validation tests on the OTP Selection screen', function () {
-
-  var tree, elements, Soda   = require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")), localSoda = new Soda({ console: { supress: true } }).init(), Tree   = (require(path.join(__dirname, "..", "SodaCore", "lib", "Tree")))(localSoda);
-
-  beforeAll(function () {
-      tree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/iPhoneSelectOTPScreen.json")).toString('utf-8')));
-      elements = tree.elements();
-    });
-
-    afterAll(function (done) {
-      localSoda.kill();
-
-      localSoda = null;
-      
-      done();
-    });
-
-    it('Should select elements by using `nth`', function () {
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell .sendMethodValueLabel").length).toEqual(6);
-
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=0] .sendMethodValueLabel").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=1] .sendMethodValueLabel").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=2] .sendMethodValueLabel").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=3] .sendMethodValueLabel").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=4] .sendMethodValueLabel").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=5] .sendMethodValueLabel").length).toEqual(1);
-
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=0] .sendMethodValueLabel")[0].value).toEqual("(xxx) xxx-2754");
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=1] .sendMethodValueLabel")[0].value).toEqual("(xxx) xxx-9363");
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=2] .sendMethodValueLabel")[0].value).toEqual("(xxx) xxx-2493");
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=3] .sendMethodValueLabel")[0].value).toEqual("(xxx) xxx-8237");
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=4] .sendMethodValueLabel")[0].value).toEqual("(xxx) xxx-3957");
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=5] .sendMethodValueLabel")[0].value).toEqual("t...1@yahoo.com");
-
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell *").length).toEqual(12);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell *[nth=0]").length).toEqual(6); // Semantically, I think this is correct... ???
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell *[nth=1]").length).toEqual(6); // Semantically, I think this is correct... ???
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell *[nth=2]").length).toEqual(0); // Semantically, I think this is correct... ???
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell *[nth=3]").length).toEqual(0); // Semantically, I think this is correct... ???
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell *[nth=4]").length).toEqual(0); // Semantically, I think this is correct... ???
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell *[nth=5]").length).toEqual(0); // Semantically, I think this is correct... ???
-
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=0]").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=1]").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=2]").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=3]").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=4]").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=5]").length).toEqual(1);
-
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=0]")[0].value).toEqual("(xxx) xxx-2754");
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=1]")[0].value).toEqual("(xxx) xxx-9363");
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=2]")[0].value).toEqual("(xxx) xxx-2493");
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=3]")[0].value).toEqual("(xxx) xxx-8237");
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=4]")[0].value).toEqual("(xxx) xxx-3957");
-        expect(elements.withSelector(".rsaOptionsTableView .sendMethodValueLabel[nth=5]")[0].value).toEqual("t...1@yahoo.com");
-
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=0] .sendMethodValueLabel[nth=0]").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=0] .sendMethodValueLabel[nth=1]").length).toEqual(0);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=0] .sendMethodValueLabel[nth=2]").length).toEqual(0);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=0] .sendMethodValueLabel[nth=3]").length).toEqual(0);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=0] .sendMethodValueLabel[nth=4]").length).toEqual(0);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=0] .sendMethodValueLabel[nth=5]").length).toEqual(0);
-
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=0] .sendMethodValueLabel[nth=0]").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=1] .sendMethodValueLabel[nth=0]").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=2] .sendMethodValueLabel[nth=0]").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=3] .sendMethodValueLabel[nth=0]").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=4] .sendMethodValueLabel[nth=0]").length).toEqual(1);
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=5] .sendMethodValueLabel[nth=0]").length).toEqual(1);
-
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=0] .sendMethodValueLabel[nth=0]")[0].value).toEqual("(xxx) xxx-2754");
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=1] .sendMethodValueLabel[nth=0]")[0].value).toEqual("(xxx) xxx-9363");
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=2] .sendMethodValueLabel[nth=0]")[0].value).toEqual("(xxx) xxx-2493");
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=3] .sendMethodValueLabel[nth=0]")[0].value).toEqual("(xxx) xxx-8237");
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=4] .sendMethodValueLabel[nth=0]")[0].value).toEqual("(xxx) xxx-3957");
-        expect(elements.withSelector(".rsaOptionsTableView .rsaTableViewCell[nth=5] .sendMethodValueLabel[nth=0]")[0].value).toEqual("t...1@yahoo.com");
-    });
-});
-
-describe('Tree should pass all validation tests on the Popmoney Contacts screen', function () {
-
-  var tree, elements, Soda   = require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")), localSoda = new Soda({ console: { supress: true } }).init(), Tree   = (require(path.join(__dirname, "..", "SodaCore", "lib", "Tree")))(localSoda);
-
-  beforeAll(function () {
-      tree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/iPhonePopContactsScreen.json")).toString('utf-8')));
-      elements = tree.elements();
-    });
-
-    afterAll(function (done) {
-      localSoda.kill();
-
-      localSoda = null;
-      
-      done();
-    });
-
-    it('Should select elements by using various selectors', function () {
-        expect(elements.withSelector(".contactTableView").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView *[type='tablecell']").length).toEqual(3);
-        expect(elements.withSelector(".contactTableView *[type='tablecell'][nth=2]").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView *[type='tablecell'][nth=2] .detailTextLabel").length).toEqual(1);
-    });
-
-    it('Should select elements using the property operators (=, ~, <, >, <=, >=, !=)', function () {
-        expect(elements.withSelector(".contactTableView").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[type!='tablecell']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[type='tableview']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x!=1]").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x!='1']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x=0]").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x='0']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x<2]").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x>'-1']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x>=0]").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x<=0]").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x>='-1234']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x<=1234]").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x~0]").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[rect.origin.x~'\\d+']").length).toEqual(1);
-
-        expect(elements.withSelector(".contactTableView[value~'rows 1 to 3 of 3']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[value='rows 1 to 3 of 3']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[value!='rows 2 to 3 of 3']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[value!='rows1 to 3 of 3']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[value!='rows 1 to 3 of 3 ']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[value>='rows 1 to 3 of 3']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[value<='rows 1 to 3 of 3']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[value>'rows 1 to 3 of 3']").length).toEqual(0);
-        expect(elements.withSelector(".contactTableView[value<'rows 1 to 3 of 3']").length).toEqual(0);
-        expect(elements.withSelector(".contactTableView[value>'a']").length).toEqual(1);
-        expect(elements.withSelector(".contactTableView[value<'zzzzzzzzzzzzzzzzzzzzzz']").length).toEqual(1);
-    });
 });

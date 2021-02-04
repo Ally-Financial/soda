@@ -35,7 +35,7 @@ describe('Engine Function should pass all validation tests', function () {
         soda.config.set("headless", true, true, true);
         
           Tree = require(path.join(__dirname, "..", "SodaCore", "lib", "Tree"))(soda);
-          tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+          tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
           done();
       });
     });

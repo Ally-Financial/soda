@@ -17,22 +17,35 @@
 "use strict";
 
 var path   = require("path"),
-    Soda   = require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")),
-    Tree   = (require(path.join(__dirname, "..", "SodaCore", "lib", "Tree")))(new Soda({ console: { supress: true } }).init()),
-    fs     = require("fs");
+    fs     = require("fs"),
+    Soda   = require(path.join(__dirname, "..", "SodaCore", "lib", "Soda"));
 
 require(path.join(__dirname, "..", "SodaCommon", "ProtoLib"));
 
 describe('webTree2 Tree should pass all validation tests on the Login Screen', function () {
+    var soda, Tree, tree, elements;
 
-    var tree, elements;
+    beforeAll(function (done) {       
+      soda = new Soda({ testPath: path.join(__dirname, '..', 'sample_project'), logSupressed: true });
 
-    beforeAll(function () {
-        tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/webTree2.json")).toString('utf-8')));
+      soda.init(function() {     
+        Tree = require(path.join(__dirname, "..", "SodaCore", "lib", "Tree"))(soda);
+        tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "webTree2.json")).toString('utf-8')));
         elements = tree.elements();
+        
+        done();
+      });
     });
 
-    it('Should find three', function () {
+    afterAll(function (done) {  
+      soda.kill();
+
+      soda = null;
+
+      done();
+    });
+
+    it('Should find three', function () {        
         expect(elements.withSelector(".{boxed} @{High Yield CD} < .{rates-wrap} >[nth=3] .{apy-tier}").length).toEqual(3);
     });
 });

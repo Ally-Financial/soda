@@ -42,7 +42,7 @@ describe('Run should pass all validation tests', function () {
       
       savedMethod = console.log;
       savedMethod1 = fs.writeFile;
-      soda = new Soda({ testPath: path.join(__dirname, '..', 'sample_project'), logSupressed: true, interactiveMode: true});
+      soda = new Soda({ testPath: path.join(__dirname, '..', 'sample_project'), logSupressed: true, interactiveMode: true, reset: true});
       
       soda.init(function() {
         soda.config.set("headless", true, true, true);
@@ -74,7 +74,7 @@ describe('Run should pass all validation tests', function () {
 
 
     it('Should validate properties of a Run with no id', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       expect(run.id).toEqual('r0');
       expect(run.state).toEqual('running');
@@ -94,7 +94,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should validate properties of a Run with an id', function (done) {
-      var run = new Run(soda, 'r99');
+      var run = new Run(soda, 'r99', true);
 
       expect(run.id).toEqual('r99');
       expect(run.state).toEqual('running');
@@ -114,7 +114,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should interact with the chain', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -148,7 +148,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle keypresses on the chain from running to paused to failed (f)', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -187,7 +187,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle keypresses on the chain from running (p, r) to paused to failed (e)', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -226,7 +226,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle stop (s) in a running state (s)', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -246,7 +246,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle stop (s) in a paused state', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -272,7 +272,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle an inquiry (i) in a running state', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -290,7 +290,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle an inquiry (i) in a paused state', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -312,7 +312,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle an inquiry (i) in a stopped state', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -334,7 +334,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle a next item (n) in a paused state', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -358,7 +358,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle a next item (n) in a failed state', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -382,7 +382,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle a last item (l) in a paused state', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -406,7 +406,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle a last item (l) in a failed state', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -430,7 +430,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle a skip item (k) in a paused state', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -454,7 +454,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle a skip item (k) in a failed state', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -478,7 +478,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle a exit test mode (x) command', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -500,7 +500,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle getting defined variables (d) command', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -522,7 +522,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle a trace console (y) command', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');
@@ -540,7 +540,7 @@ describe('Run should pass all validation tests', function () {
     });
 
     it('Should handle a trace file (t) command', function (done) {
-      var run = new Run(soda);
+      var run = new Run(soda, 'r0', true);
 
       run.pushToChain('action1');
       run.pushToChain('action2');

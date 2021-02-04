@@ -397,7 +397,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
 &nbsp;
         var Action = <span class="cstat-no" title="statement not covered" >action(soda);</span>
         var tempAction = <span class="cstat-no" title="statement not covered" >new Action(asset);</span>
-<span class="cstat-no" title="statement not covered" >        tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+<span class="cstat-no" title="statement not covered" >        tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        tempAction.evaluate(<span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >          expect(err).toEqual(null);</span>

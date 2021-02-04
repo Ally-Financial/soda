@@ -497,7 +497,7 @@ module.exports = function (soda) {
          */
         this.build = function (simulatorOrDevice, target, projectOrWorkSpace, buildPath, app, complete) {
             var a = arguments.sodaexpect("string", "string", "string", "string", "string", "function|undefined"), err,
-                buildDir = projectOrWorkSpace.substring(0, projectOrWorkSpace.lastIndexOf("/"));
+                buildDir = projectOrWorkSpace.substring(0, projectOrWorkSpace.lastIndexOf(nodePath.sep));
 
             if (soda.config.get("platform").toLowerCase() === "iphone" || soda.config.get("platform").toLowerCase() === "ipad" || soda.config.get("platform").toLowerCase() === "iphoneweb" || soda.config.get("platform").toLowerCase() === "ipadweb") {
               var projectOrWorkSpaceFlag = (projectOrWorkSpace.indexOf('.xcworkspace') > 0) ? "-workspace" : "-project";

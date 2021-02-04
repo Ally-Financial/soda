@@ -76,6 +76,12 @@ var Soda = function (options, onInit) {
 
     var self = this, use = [], databaseEmitters = {};
 
+    // Allow for the ability to reset the sids on start...helpful for unit tests
+    if (typeof options === "object" && options.reset) {
+        sids = 0;
+        Vars            = require(nodePath.join(__dirname, "Classes", "Vars"));
+    }
+
     /**
      * The soda instance id
      * @type {Number}
@@ -298,8 +304,7 @@ var Soda = function (options, onInit) {
 
             // No other Sodas, clean the temp folder
             if(sodaCount.length === 1 && sids === 1) {
-                self.console.debug("*** No Soda processes running, cleaning temp folder ***");
-                
+                self.console.debug("*** No Soda processes running, cleaning temp folder ***");                
                 fs.rmdir(self.config.get("temp"), { recursive: true }, (err) => {
                     fs.mkdir(self.config.get("temp"), { recursive: true }, (err) => {
                         done.call(self, null);

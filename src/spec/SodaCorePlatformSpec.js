@@ -46,6 +46,9 @@ describe('Platform should pass all validation tests', function () {
 
       spy = sinon.stub(child_process, 'exec').callsFake((command, cb) => {
         switch(command) {
+          case "tasklist /FI \"IMAGENAME eq node.exe\" /FO CSV":
+            cb.call(null, null, "\"Image Name\",\"PID\",\"Session Name\",\"Session#\",\"Mem Usage\"\r\n\"node.exe\",\"227007\",\"Console\",\"1\",\"42,452 K\"", null);
+            break;
           case "pgrep -a Soda":
             cb.call(null, null, '227007');
             break;

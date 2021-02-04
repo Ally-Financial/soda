@@ -1067,7 +1067,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
 <span class="cstat-no" title="statement not covered" >        expect(result).toEqual(true);</span>
 &nbsp;
         var Tree = <span class="cstat-no" title="statement not covered" >require(path.join(__dirname, "..", "SodaCore", "lib", "Tree"))(soda);</span>
-        var tree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+        var tree     = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        tree.findElementById('textfield:1', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >         expect(err).toEqual(null);</span>

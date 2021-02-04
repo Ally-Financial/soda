@@ -52,7 +52,7 @@ describe('CoreSyntax should pass all validation tests', function () {
           soda.config.set("platform", "web", true, true);
 
           Tree = require(path.join(__dirname, "..", "SodaCore", "lib", "Tree"))(soda);
-          tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+          tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
           done();
         });
@@ -1031,7 +1031,7 @@ describe('CoreSyntax should pass all validation tests', function () {
         var run = new Run(soda);
         run.state = "running";
 
-        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));
+        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));
 
         soda.framework.getTree = function (complete, dontInstantiate, times) {
           complete('null', tempTree);
@@ -1079,7 +1079,7 @@ describe('CoreSyntax should pass all validation tests', function () {
         var run = new Run(soda);
         run.state = "running";
 
-        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));
+        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));
 
         soda.framework.getTree = function (complete, dontInstantiate, times) {
           complete('null', tempTree);
@@ -1127,7 +1127,7 @@ describe('CoreSyntax should pass all validation tests', function () {
         var run = new Run(soda);
         run.state = "running";
 
-        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));
+        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));
 
         soda.framework.getTree = function (complete, dontInstantiate, times) {
           complete('null', tempTree);
@@ -1173,7 +1173,7 @@ describe('CoreSyntax should pass all validation tests', function () {
         var run = new Run(soda);
         run.state = "running";
 
-        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));
+        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));
 
         soda.framework.getTree = function (complete, dontInstantiate, times) {
           complete('null', tempTree);
@@ -1219,7 +1219,7 @@ describe('CoreSyntax should pass all validation tests', function () {
         var run = new Run(soda);
         run.state = "running";
 
-        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));
+        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));
 
         soda.framework.getTree = function (complete, dontInstantiate, times) {
           complete('null', tempTree);
@@ -1266,7 +1266,7 @@ describe('CoreSyntax should pass all validation tests', function () {
         var run = new Run(soda);
         run.state = "running";
 
-        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));
+        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));
 
         soda.framework.getTree = function (complete, dontInstantiate, times) {
           complete('null', tempTree);
@@ -1312,7 +1312,7 @@ describe('CoreSyntax should pass all validation tests', function () {
         var run = new Run(soda);
         run.state = "running";
 
-        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));
+        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));
 
         soda.framework.getTree = function (complete, dontInstantiate, times) {
           complete('null', tempTree);
@@ -1359,7 +1359,7 @@ describe('CoreSyntax should pass all validation tests', function () {
         var run = new Run(soda);
         run.state = "running";
 
-        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));
+        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));
 
         soda.framework.getTree = function (complete, dontInstantiate, times) {
           complete('null', tempTree);
@@ -1406,7 +1406,7 @@ describe('CoreSyntax should pass all validation tests', function () {
         var run = new Run(soda);
         run.state = "running";
 
-        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));
+        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));
 
         var newTree = {
          assets: assetCollection,
@@ -1447,7 +1447,7 @@ describe('CoreSyntax should pass all validation tests', function () {
         var run = new Run(soda);
         run.state = "running";
 
-        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/google.json")).toString('utf-8')));
+        var tempTree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "google.json")).toString('utf-8')));
 
         var newTree = {
          assets: assetCollection,

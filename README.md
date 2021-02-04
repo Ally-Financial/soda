@@ -43,21 +43,21 @@ Not only is Soda a feature rich CLI app, it's also an importable Node.js module 
 $ npm install
 ```
 
-- **Setup environment variables**
-    - Add the following to your profile (Mac: ~/.bash_profile, Windows: env variables)
+- **Setup environment variables (UNIX/MacOS)**
+    - Add the following to your profile (Mac: ~/.bash_profile or other shell)
     - Replace ID with your ID, and change the path accordingly
     ```bash
-    export SODA_VERSION=2.7.12
+    export SODA_VERSION=2.11.1
     export SODA_ROOT=/Users/ID/Source/soda/
     export SODA_HOME=/Users/ID/Source/soda/src
-    export LAMBDA_ASSET_PATH=@lambda:/soda/assets:FIntar9KTZmJB2mwlH67wD6IScVlBrHz:VjjWb5omGld2lv3k
-    export SODA_SECRET=SECRET_TO_REPLACE
+    export LAMBDA_ASSET_PATH=
+    export SODA_SECRET=
     export AUTH_HOST=your.api.host.com
     export AUTH_PATH=/oauth2/token
     export API_HOST=your.api.host.com
     export PERFECTO_USER=youremail@yourdomain.com
-    export PERFECTO_HOST=host.perfectomobile.com
-    export PERFECTO_PASSWORD=whateveryourpasswordis
+    export PERFECTO_HOST=mydomain.perfectomobile.com
+    export PERFECTO_PASSWORD=something
     export MAINTAINER_NAME=YourNameHere
     export SMTP_FROM_ADDRESS='"sODA" <soda@host.com>'
     export MAINTAINER_EMAIL=youremail@host.com
@@ -72,6 +72,35 @@ $ npm install
     - Replace ID with your ID, and change the path accordingly
     ```bash
     export PATH="$HOME/Users/ID/Source/soda/src/bin:$PATH"
+    ```
+
+- **Setup environment variables (Windows)**
+    - Add the following to your profile (env variables)
+    - Replace ID with your ID, and change the path accordingly
+    ```bash
+    setx SODA_VERSION "2.11.1"
+    setx SODA_ROOT "C:\Users\ID\Source\soda"
+    setx SODA_HOME "C:\Users\ID\Source\soda\src"
+    setx LAMBDA_ASSET_PATH ""
+    setx SODA_SECRET ""
+    setx AUTH_HOST "your.api.host.com"
+    setx AUTH_PATH "/oauth2/token"
+    setx API_HOST "your.api.host.com"
+    setx PERFECTO_USER "youremail@yourdomain.com"
+    setx PERFECTO_HOST "mydomain.perfectomobile.com"
+    setx PERFECTO_PASSWORD "something"
+    setx MAINTAINER_NAME "YourNameHere"
+    setx MAINTAINER_EMAIL "youremail@host.com"
+    setx SMTP_HOST "mailhost.host.corp"
+    setx KEY16 "0123456789012345"
+    setx KEY24 "012345678901234567890123"
+    setx KEY32 "01234567890123456789012345678901"
+    setx WINDOWS_SERVER "WINDOWSSERVERNAME"
+    ```
+    - Update your path to include the soda/bin directory
+    - Replace ID with your ID, and change the path accordingly
+    ```bash
+    setx path "%path%;C:\Users\ID\Source\soda\src\bin"
     ```
 
 ## Run

@@ -691,7 +691,7 @@ iPhone X (11.3) [8346F33B-DFBE-4E62-819B-012A0CD2246A] (Simulator)`;
         expect(result).toEqual(true);
 
         var Tree = require(path.join(__dirname, "..", "SodaCore", "lib", "Tree"))(soda);
-        var tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));
+        var tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));
 
         tree.findElementById('textfield:1', function(err, result) {
          expect(err).toEqual(null);

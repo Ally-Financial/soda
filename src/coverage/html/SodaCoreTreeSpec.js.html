@@ -1860,7 +1860,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     var tree, elements, Soda   = <span class="cstat-no" title="statement not covered" >require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")),</span> localSoda = <span class="cstat-no" title="statement not covered" >new Soda({ console: { supress: true } }).init(),</span> Tree   = <span class="cstat-no" title="statement not covered" >(require(path.join(__dirname, "..", "SodaCore", "lib", "Tree")))(localSoda);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    beforeAll(<span class="fstat-no" title="function not covered" >fu</span>nction () {</span>
-<span class="cstat-no" title="statement not covered" >        tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+<span class="cstat-no" title="statement not covered" >        tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 <span class="cstat-no" title="statement not covered" >        elements = tree.elements();</span>
     });
 &nbsp;
@@ -1883,7 +1883,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should print the proper tree', <span class="fstat-no" title="function not covered" >fu</span>nction () {</span>
       var savedMethod = <span class="cstat-no" title="statement not covered" >console.log;</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/SmallScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "SmallScreen.json")).toString('utf-8')));</span>
       let spy = <span class="cstat-no" title="statement not covered" >sinon.spy(console, 'log');</span>
 <span class="cstat-no" title="statement not covered" >      expect(tree.print()).toBeInstanceOf(Object);</span>
 <span class="cstat-no" title="statement not covered" >      sinon.assert.called(spy);</span>
@@ -1892,12 +1892,12 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should get the elements', <span class="fstat-no" title="function not covered" >fu</span>nction () {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/SmallScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "SmallScreen.json")).toString('utf-8')));</span>
 <span class="cstat-no" title="statement not covered" >      expect(localTree.elements).toBeInstanceOf(Function);</span>
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should find elements at multiple levels', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/SmallScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "SmallScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsAtLevel(0, <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(1);</span>
@@ -1915,7 +1915,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should find elements at level and include everything above', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsAtDelta(0, <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(44);</span>
@@ -1941,7 +1941,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should find an element by id', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementById('window:0', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(1);</span>
@@ -1952,7 +1952,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should not find an element by id that is not there', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementById('thiselementisnotthere', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(0);</span>
@@ -1962,7 +1962,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should find an element by id with alias', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsById('window:0', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(1);</span>
@@ -1973,7 +1973,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should find an element by name', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsByName('help icon', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(1);</span>
@@ -1984,7 +1984,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should not find an element by name that is not there', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsByName('thiselementisnotthere', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(0);</span>
@@ -1994,7 +1994,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should find an element by label', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsByLabel('1-877-247-ALLY (2559)', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(1);</span>
@@ -2005,7 +2005,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should not find an element by label that is not there', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsByLabel('thiselementisnotthere', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(0);</span>
@@ -2015,7 +2015,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should find an element by value', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsByValue('Find ATMs', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(1);</span>
@@ -2026,7 +2026,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should not find an element by value that is not there', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsByValue('thiselementisnotthere', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(0);</span>
@@ -2036,7 +2036,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should find an element by type', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsByType('button', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(6);</span>
@@ -2047,7 +2047,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should not find an element by type that is not there', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsByType('thistypeisnotthere', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(0);</span>
@@ -2057,7 +2057,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should find an element by a selector set', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsBySelectorSet('#{window:0} @{Find ATMs}', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(1);</span>
@@ -2067,7 +2067,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    it('Should find an element by a selector', <span class="fstat-no" title="function not covered" >fu</span>nction (done) {</span>
-      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/LoginScreen.json")).toString('utf-8')));</span>
+      var localTree = <span class="cstat-no" title="statement not covered" >new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "LoginScreen.json")).toString('utf-8')));</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      localTree.findElementsBySelector('@{Find ATMs}', <span class="fstat-no" title="function not covered" >fu</span>nction(err, result) {</span>
 <span class="cstat-no" title="statement not covered" >        expect(result.length).toEqual(1);</span>
@@ -2425,7 +2425,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
   var tree, elements, Soda   = <span class="cstat-no" title="statement not covered" >require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")),</span> localSoda = <span class="cstat-no" title="statement not covered" >new Soda({ console: { supress: true } }).init(),</span> Tree   = <span class="cstat-no" title="statement not covered" >(require(path.join(__dirname, "..", "SodaCore", "lib", "Tree")))(localSoda);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  beforeAll(<span class="fstat-no" title="function not covered" >fu</span>nction () {</span>
-<span class="cstat-no" title="statement not covered" >      tree     = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/TransfersLanding.json")).toString('utf-8')));</span>
+<span class="cstat-no" title="statement not covered" >      tree     = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "TransfersLanding.json")).toString('utf-8')));</span>
 <span class="cstat-no" title="statement not covered" >      elements = tree.elements();</span>
     });
 &nbsp;
@@ -2611,7 +2611,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
   var tree, elements, Soda   = <span class="cstat-no" title="statement not covered" >require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")),</span> localSoda = <span class="cstat-no" title="statement not covered" >new Soda({ console: { supress: true } }).init(),</span> Tree   = <span class="cstat-no" title="statement not covered" >(require(path.join(__dirname, "..", "SodaCore", "lib", "Tree")))(localSoda);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  beforeAll(<span class="fstat-no" title="function not covered" >fu</span>nction () {</span>
-<span class="cstat-no" title="statement not covered" >      tree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/iPhoneSelectOTPScreen.json")).toString('utf-8')));</span>
+<span class="cstat-no" title="statement not covered" >      tree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "iPhoneSelectOTPScreen.json")).toString('utf-8')));</span>
 <span class="cstat-no" title="statement not covered" >      elements = tree.elements();</span>
     });
 &nbsp;
@@ -2690,7 +2690,7 @@ var sinon = <span class="cstat-no" title="statement not covered" >require('sinon
   var tree, elements, Soda   = <span class="cstat-no" title="statement not covered" >require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")),</span> localSoda = <span class="cstat-no" title="statement not covered" >new Soda({ console: { supress: true } }).init(),</span> Tree   = <span class="cstat-no" title="statement not covered" >(require(path.join(__dirname, "..", "SodaCore", "lib", "Tree")))(localSoda);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  beforeAll(<span class="fstat-no" title="function not covered" >fu</span>nction () {</span>
-<span class="cstat-no" title="statement not covered" >      tree = new Tree(JSON.parse(fs.readFileSync(path.resolve(__dirname + "/trees/iPhonePopContactsScreen.json")).toString('utf-8')));</span>
+<span class="cstat-no" title="statement not covered" >      tree = new Tree(JSON.parse(fs.readFileSync(path.join(__dirname, "trees", "iPhonePopContactsScreen.json")).toString('utf-8')));</span>
 <span class="cstat-no" title="statement not covered" >      elements = tree.elements();</span>
     });
 &nbsp;

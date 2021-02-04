@@ -16,6 +16,7 @@
 
 var sinon = require('sinon'),
     path   = require("path"),
+    os       = require('os').platform(),
     fs     = require("fs"),
     Soda   = require(path.join(__dirname, "..", "SodaCore", "lib", "Soda")),
     events = require("events");
@@ -54,7 +55,7 @@ describe('Framework terminal should pass all validation tests', function () {
 
     it('Should validate framework terminal', function (done) {
       expect(terminalFramework.name).toEqual('Shell');
-      expect(terminalFramework.platform).toEqual('OSX');
+      expect(terminalFramework.platform).toEqual(os);
       expect(terminalFramework.version).toEqual('1.0');
       expect(terminalFramework.defaultSyntaxVersion).toEqual('1.0');
       expect(terminalFramework.defaultSyntaxName).toEqual('console');
@@ -62,8 +63,17 @@ describe('Framework terminal should pass all validation tests', function () {
       done();
     });
 
-    it('Should start for terminal sh', function (done) {
-      terminalFramework.start({ shell: "sh"}, function(err) {
+    it('Should start for terminal sh/cmd', function (done) {
+      var shell = "";
+
+      if (os === "win32" || os === "win64") {        
+        shell = "cmd";
+      }
+      else {
+        shell = "sh";
+      }
+
+      terminalFramework.start({ shell: shell}, function(err) {
         expect(err).toEqual(null);
 
         terminalFramework.stop();
@@ -72,8 +82,17 @@ describe('Framework terminal should pass all validation tests', function () {
       });
     });
 
-    it('Should start for terminal bash', function (done) {
-      terminalFramework.start({ shell: "bash"}, function(err) {
+    it('Should start for terminal bash/powershell', function (done) {
+      var shell = "";
+
+      if (os === "win32" || os === "win64") {        
+        shell = "powershell";
+      }
+      else {
+        shell = "bash";
+      }
+
+      terminalFramework.start({ shell: shell}, function(err) {
         expect(err).toEqual(null);
 
         terminalFramework.stop(function () {
@@ -125,8 +144,17 @@ describe('Framework terminal should pass all validation tests', function () {
       });
     });
 
-    it('Should restart for terminal sh', function (done) {
-      terminalFramework.start({ shell: "sh"}, function(err) {
+    it('Should restart for terminal sh/cmd', function (done) {
+      var shell = "";
+
+      if (os === "win32" || os === "win64") {        
+        shell = "cmd";
+      }
+      else {
+        shell = "sh";
+      }
+
+      terminalFramework.start({ shell: shell}, function(err) {
         expect(err).toEqual(null);
 
         terminalFramework.restart(function(err) {
@@ -139,8 +167,17 @@ describe('Framework terminal should pass all validation tests', function () {
       });
     });
 
-    it('Should restart for terminal bash', function (done) {
-      terminalFramework.start({ shell: "bash"}, function(err) {
+    it('Should restart for terminal bash/powershell', function (done) {
+      var shell = "";
+
+      if (os === "win32" || os === "win64") {        
+        shell = "powershell";
+      }
+      else {
+        shell = "bash";
+      }
+
+      terminalFramework.start({ shell: shell}, function(err) {
         expect(err).toEqual(null);
 
         terminalFramework.restart(function(err) {

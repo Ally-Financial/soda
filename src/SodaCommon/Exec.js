@@ -30,21 +30,21 @@ exports.checkForRunningSodas = function (done) {
 		case "win32":
         case "win64":
 			return child_process.exec("tasklist /FI \"IMAGENAME eq node.exe\" /FO CSV", function (err, stdout, stderr) {
-				var processIds = [];
-
+                var processIds = [];
+                
 				if(err) {
 					if(done instanceof Function) done.call(null, err);
-				}
+                }
 				else if(stderr) {
 					if(done instanceof Function) done.call(null, new Error(stderr));
 				}
 				else {
-					var array = stdout.split("\r\n");
+                    var array = stdout.split("\r\n");                    
 					if (array.length > 1) {
 						for (var i = 1; i < array.length; i++) {
-							var values = array[i].split(",");
+                            var values = array[i].split(",");
 							if (values.length > 1 && values[0].replace(/^"(.*)"$/, '$1') === "node.exe") {
-                                processIds.push(values[0].replace(/^"(.*)"$/, '$1'));
+                                processIds.push(values[1].replace(/^"(.*)"$/, '$1'));
 							}
 						}
 					}
@@ -64,7 +64,7 @@ exports.checkForRunningSodas = function (done) {
  * @return {undefined}
  */
 exports.removeDirectory = function (which, done) {
-    if (os === "win32" || os === "win64") {
+    if (os === "win32" || os === "win64") {        
         return child_process.exec("rmdir " + which + " /s /q", done);
     }
     else {
@@ -80,7 +80,7 @@ exports.removeDirectory = function (which, done) {
  */
 exports.makeDirectory = function (named, done) {
     if (os === "win32" || os === "win64") {
-		return child_process.exec("mkdir ", named, done);
+		return child_process.exec("mkdir " + named, done);
     }
     else {
         return child_process.exec("mkdir " + named, done);
@@ -131,7 +131,7 @@ exports.appExists = function (appName, done) {
     var programFiles = "Program Files",
         programFilesx64 = "Program Files (x86)";
 
-    if (os === "win32" || os === "win64") {
+    if (os === "win32" || os === "win64") {        
         return child_process.exec("IF EXIST \"C:\\" + programFiles + "\\" + appName + "\" ( echo exists )", function (err, stdout, stderr) {
             if(err || stderr) {
                 return child_process.exec("IF EXIST \"C:\\" + programFilesx64 + "\\" + appName + "\" ( echo exists )", function (err, stdout, stderr) {

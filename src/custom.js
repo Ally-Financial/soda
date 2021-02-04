@@ -285,7 +285,7 @@ module.exports = function customEvents (soda) {
               .replace(/\[test_results_dir]/g, soda.config.get("testResultsDir"))
               .replace(/\[type]/g, "test_"+result.test);
 
-          fsPromises.mkdir(ssDest.substring(0, ssDest.lastIndexOf("/")), { recursive: true}).then( made => {
+          fsPromises.mkdir(ssDest.substring(0, ssDest.lastIndexOf(nodePath.sep)), { recursive: true}).then( made => {
             fs.writeFile(ssDest, emailer.getTestReport(result), function (err) {
                 if(err) {
                     soda.console.error("Unable to write report file:", err.message);
@@ -339,7 +339,7 @@ module.exports = function customEvents (soda) {
               .replace(/\[test_results_dir]/g, soda.config.get("testResultsDir"))
               .replace(/\[type]/g, "module_"+result.module);
 
-          fsPromises.mkdir(ssDest.substring(0, ssDest.lastIndexOf("/")), { recursive: true}).then( made => {
+          fsPromises.mkdir(ssDest.substring(0, ssDest.lastIndexOf(nodePath.sep)), { recursive: true}).then( made => {
             fs.writeFile(ssDest, emailer.getModuleReport(result), function (err) {
                 if(err) {
                     soda.console.error("Unable to write report file:", err.message);
@@ -394,7 +394,7 @@ module.exports = function customEvents (soda) {
               .replace(/\[test_results_dir]/g, soda.config.get("testResultsDir"))
               .replace(/\[type]/g, "suite");
 
-          fsPromises.mkdir(ssDest.substring(0, ssDest.lastIndexOf("/")), { recursive: true}).then( made => {
+          fsPromises.mkdir(ssDest.substring(0, ssDest.lastIndexOf(nodePath.sep)), { recursive: true}).then( made => {
             fs.writeFile(ssDest, emailer.getSuiteReport(result), function (err) {
                 if(err) {
                     soda.console.error("Unable to write report file:", err.message);
