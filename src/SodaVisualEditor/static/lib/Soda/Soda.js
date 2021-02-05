@@ -435,7 +435,7 @@ window.SodaNamespace = (function SodaNamespace () {
                     self.$landing.startupErrorButton     = self.$landing.self.children("#soda-startup-error-button");
 
                     self.$landing.frameworkSelectWrapper    = self.$landing.start.children("#soda-select-framework");
-                    self.$landing.frameworkStartIcons       = self.$landing.frameworkSelectWrapper.children("i");
+                    self.$landing.frameworkStartIcons       = self.$landing.frameworkSelectWrapper.children("em");
                     self.$landing.frameworkOptionsWrapper   = self.$landing.start.children("#soda-framework-options");
                     self.$landing.frameworkStartOptionForms = self.$landing.frameworkOptionsWrapper.children(".soda-framework-options-form");
                     self.$landing.saveButtons               = self.$landing.frameworkStartOptionForms.find("button.save");
@@ -855,7 +855,7 @@ window.SodaNamespace = (function SodaNamespace () {
                                       dataToSend.push(window.Soda.framework.app);
                                     }
 
-                                    $fields.sodaeach(function () { args.push($(this).val()); });
+                                    $fields.each(function () { args.push($(this).val()); });
 
                                     self.addOutputPipe(buildPipe);
                                     self.$build.submit.prop("disabled", true);
@@ -1056,13 +1056,40 @@ window.SodaNamespace = (function SodaNamespace () {
             }
         }
 
+        /**
+         * Gets the Operating System type
+         * @return {string} The OS type
+         */
+        function getOS() {
+            var userAgent = window.navigator.userAgent,
+                platform = window.navigator.platform,
+                macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+                windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+                iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+                os = null;
+          
+            if (macosPlatforms.indexOf(platform) !== -1) {
+              os = 'Mac OS';
+            } else if (iosPlatforms.indexOf(platform) !== -1) {
+              os = 'iOS';
+            } else if (windowsPlatforms.indexOf(platform) !== -1) {
+              os = 'Windows';
+            } else if (/Android/.test(userAgent)) {
+              os = 'Android';
+            } else if (!os && /Linux/.test(platform)) {
+              os = 'Linux';
+            }
+          
+            return os;
+          }
+
 
         /**
          * Switches the startup dialog to the framework specified by the bound element.
          * @return {undefined}
          */
         function showStartupFormFor () {
-            self.showStartupFormFor($(this).attr("data-framework") || "automator"); // jshint ignore:line
+            self.showStartupFormFor($(this).attr("data-framework") || "selenium"); // jshint ignore:line
             self.$landing.frameworkStartOptionForms.mCustomScrollbar("update");
         }
 
@@ -1075,7 +1102,7 @@ window.SodaNamespace = (function SodaNamespace () {
         function getSettingsFromStartupForm ($form) {
             var options = {}, platform, device, deviceid, workspace, target, bundleid, buildpath, env, app, testPath, testResultsPath;
 
-            $form.find(':input').sodaeach(function (i, el) {
+            $form.find(':input').each(function (i, el) {
                 var attr = $(el).attr("name");
                 switch(attr) {
                     case "platform":
@@ -1128,11 +1155,17 @@ window.SodaNamespace = (function SodaNamespace () {
                 }
             });
 
+            var pathSeparator = '/';
+
+            if (getOS() === "Windows") {
+                pathSeparator = '\\';
+            }
+
             if (self.$landing.self.find("#instruments-options").is(':visible') && (platform === 'iphone' || platform === 'ipad')) {
-              return new SodaStartupSetting($form.attr("data-framework"), testPath, testResultsPath, device, deviceid, app, platform, workspace, target, bundleid, buildpath, buildpath+'/'+app+'.app', env, options);
+              return new SodaStartupSetting($form.attr("data-framework"), testPath, testResultsPath, device, deviceid, app, platform, workspace, target, bundleid, buildpath, buildpath+ pathSeparator +app+'.app', env, options);
             }
             else if (self.$landing.self.find("#perfecto-options").is(':visible') && (platform === 'iphone' || platform === 'ipad')) {
-              return new SodaStartupSetting($form.attr("data-framework"), testPath, testResultsPath, device, deviceid, app, platform, workspace, target, bundleid, buildpath, buildpath+'/'+target+'.ipa', env, options);
+              return new SodaStartupSetting($form.attr("data-framework"), testPath, testResultsPath, device, deviceid, app, platform, workspace, target, bundleid, buildpath, buildpath+ pathSeparator +target+'.ipa', env, options);
             }
             else {
               return new SodaStartupSetting($form.attr("data-framework"), testPath, testResultsPath, device, deviceid, app, platform, workspace, target, bundleid, buildpath, null, env, options);
@@ -1153,7 +1186,6 @@ window.SodaNamespace = (function SodaNamespace () {
 
         // Push events to post-dependency load...
         self.on("dependencies loaded", function () {
-            console.log('DEPENDENCIES LOADED', new Error().stack);
             self.editor = new SodaEditor(self, self.$editor);
 
             /**
@@ -1185,7 +1217,7 @@ window.SodaNamespace = (function SodaNamespace () {
                     required = form.find("input.required");
 
                     var disable = false;
-                    required.sodaeach(function () {
+                    required.each(function () {
                         if($(this).val() === "" || !$(this).val()) {
                             disable = true;
                         }
@@ -1223,7 +1255,7 @@ window.SodaNamespace = (function SodaNamespace () {
 
             self.$landing.startupErrorButton.click(startupFailureClick);
 
-            $("#soda-wrapper").on("click", "i.close", function () {
+            $("#soda-wrapper").on("click", "em.close", function () {
                 $($(this).attr("data-close") || $(this).parent())
                     .fadeOut(SodaSettings.FADEOUT_SLOW_SPEED, function () {
                         $(this).remove();
@@ -1344,7 +1376,7 @@ window.SodaNamespace = (function SodaNamespace () {
          */
         this.enableFrameworkSelectButtons = function () {
             self.$landing.frameworkStartIcons.not(".active").addClass("inactive");
-            self.$landing.frameworkSelectWrapper.on("click", "i.inactive", showStartupFormFor);
+            self.$landing.frameworkSelectWrapper.on("click", "em.inactive", showStartupFormFor);
             return self;
         };
 
@@ -1524,19 +1556,6 @@ window.SodaNamespace = (function SodaNamespace () {
         };
 
         /**
-         * Loads the user's settings
-         * @return {object<Soda>} The current Soda instance
-         */
-        this.loadFavorites = function () {
-            favorites.forEach(function (f, i) { 
-                f.index = i; 
-                self.loadFavorite(f); 
-            });
-            favoritesLoaded = true;
-            return self;
-        };
-
-        /**
          * Returns the settings as an object
          * @return {object} The settings object
          */
@@ -1603,7 +1622,6 @@ window.SodaNamespace = (function SodaNamespace () {
             self.$landing.frameworkStartIcons
                 .removeClass("active")
                 .addClass("inactive");
-
             self.$landing.frameworkStartIcons
                 .filter(function () { return $(this).attr("data-framework") === frameworkName; })
                 .removeClass("inactive")
@@ -2242,7 +2260,6 @@ window.SodaNamespace = (function SodaNamespace () {
 
         var hasLoaded = false;
         socket.on("connect", function () {
-            console.log('CONNECT', new Error().stack);
             exitStatus = -1;
 
             // A hacky way to re-set everything, as the following wasn't thought out well :(
@@ -2289,7 +2306,7 @@ window.SodaNamespace = (function SodaNamespace () {
                                 });
                             }
                                 // Framework hasn't been started, get the user's favorites and show the startup landing page
-                            else {
+                            else {                                
                                 self.send("get settings", function (err, data) {
                                     if (err) return $loadingMessage.html(err.message);
                                     settings = data;
@@ -2299,11 +2316,11 @@ window.SodaNamespace = (function SodaNamespace () {
                                     if (err) return $loadingMessage.html(err.message);
                                     favorites = data;
                                     self.enableFrameworkSelectButtons();
-                                    setTimeout(function () {
+                                    setTimeout(function () {                                        
                                         self
                                             .showLanding(function () { $loading.detach(); })                        // Show the landing page
                                             .loadFavorites()                                                        // Load the favorites
-                                            .showStartupFormFor(favorites.length > 0 ? "favorites" : "automator");  // Show the startup form for the favorites, if any exist or automator, by default
+                                            .showStartupFormFor(favorites.length > 0 ? "favorites" : "selenium");  // Show the startup form for the favorites, if any exist or automator, by default
 
                                         // Setup custom scroll bars for the following elements...
                                         self.$landing.frameworkStartOptionForms.mCustomScrollbar(SodaSettings.SCROLL_OPTIONS);
