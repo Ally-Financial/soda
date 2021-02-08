@@ -36,6 +36,17 @@ Not only is Soda a feature rich CLI app, it's also an importable Node.js module 
 - **Supported on OS X, Windows, and Linux**
 
 ## Install
+- **Ensure you have the latest version of node, or 12.x or greater of node**
+    - https://nodejs.org/en/download/
+- **Note: if you are unable to install the packaged version of node on your machine, download the binary version and then ensure that you alias the node version**
+    - On linux-based platforms: 
+    ```bash
+    alias=PATH_TO_NODE
+    ```
+    - On Windows platforms: 
+    ```cmd
+    doskey node=PATH_TO_NODE
+    ```
 - **Install the node_modules**
     - Run this from within the src directory of soda
 ---
@@ -50,8 +61,6 @@ $ npm install
     export SODA_VERSION=2.11.1
     export SODA_ROOT=/Users/ID/Source/soda/
     export SODA_HOME=/Users/ID/Source/soda/src
-    export LAMBDA_ASSET_PATH=
-    export SODA_SECRET=
     export AUTH_HOST=your.api.host.com
     export AUTH_PATH=/oauth2/token
     export API_HOST=your.api.host.com
@@ -59,7 +68,7 @@ $ npm install
     export PERFECTO_HOST=mydomain.perfectomobile.com
     export PERFECTO_PASSWORD=something
     export MAINTAINER_NAME=YourNameHere
-    export SMTP_FROM_ADDRESS='"sODA" <soda@host.com>'
+    export SMTP_FROM_ADDRESS=soda@host.com
     export MAINTAINER_EMAIL=youremail@host.com
     export SMTP_HOST=mailhost.host.corp
     export SMTP_FROM_ADDRESS=soda@host.com
@@ -77,30 +86,31 @@ $ npm install
 - **Setup environment variables (Windows)**
     - Add the following to your profile (env variables)
     - Replace ID with your ID, and change the path accordingly
-    ```bash
-    setx SODA_VERSION "2.11.1"
-    setx SODA_ROOT "C:\Users\ID\Source\soda"
-    setx SODA_HOME "C:\Users\ID\Source\soda\src"
-    setx LAMBDA_ASSET_PATH ""
-    setx SODA_SECRET ""
-    setx AUTH_HOST "your.api.host.com"
-    setx AUTH_PATH "/oauth2/token"
-    setx API_HOST "your.api.host.com"
-    setx PERFECTO_USER "youremail@yourdomain.com"
-    setx PERFECTO_HOST "mydomain.perfectomobile.com"
-    setx PERFECTO_PASSWORD "something"
-    setx MAINTAINER_NAME "YourNameHere"
-    setx MAINTAINER_EMAIL "youremail@host.com"
-    setx SMTP_HOST "mailhost.host.corp"
-    setx KEY16 "0123456789012345"
-    setx KEY24 "012345678901234567890123"
-    setx KEY32 "01234567890123456789012345678901"
-    setx WINDOWS_SERVER "WINDOWSSERVERNAME"
+    - Navigate to your source directory
+    ```cmd
+    set SOURCE_PATH=%cd%
+    set SODA_VERSION=2.11.1
+    set SODA_ROOT=%SOURCE_PATH%\soda
+    set SODA_HOME=%SOURCE_PATH%\soda\src
+    set AUTH_HOST=your.api.host.com
+    set AUTH_PATH=/oauth2/token
+    set API_HOST=your.api.host.com
+    set PERFECTO_USER=youremail@yourdomain.com
+    set PERFECTO_HOST=mydomain.perfectomobile.com
+    set PERFECTO_PASSWORD=something
+    set MAINTAINER_NAME=YourNameHere
+    set SMTP_FROM_ADDRESS=soda@host.com
+    set MAINTAINER_EMAIL=youremail@host.com
+    set SMTP_HOST=mailhost.host.corp
+    set KEY16=0123456789012345
+    set KEY24=012345678901234567890123
+    set KEY32=01234567890123456789012345678901
+    set WINDOWS_SERVER=WINDOWSSERVERNAME
     ```
     - Update your path to include the soda/bin directory
     - Replace ID with your ID, and change the path accordingly
-    ```bash
-    setx path "%path%;C:\Users\ID\Source\soda\src\bin"
+    ```cmd
+    set PATH=%path%;%SODA_HOME%\bin
     ```
 
 ## Run
@@ -111,21 +121,34 @@ $ npm install
 ---
 **Chrome with Puppeteer**
 ```bash
-$ ./soda chrome about:blank -f puppeteer -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+./soda chrome about:blank -f puppeteer -t $PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+```
+
+```cmd
+set PATH_TO_SCRIPTS=%SODA_HOME%\sample_project
+node %SODA_HOME%\bin\soda chrome about:blank -f puppeteer -t %PATH_TO_SCRIPTS% -e prod -p 1337 -x web -s my_suite -m my_module -dvc
 ```
 ---
 **Chrome with Selenium**
 - Download the selenium driver that matches your installed version of Chrome from https://chromedriver.chromium.org/downloads
 - Unzip the download and move the contents to a directory that is in your system's path
 ```bash
-$ ./soda chrome about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+./soda chrome about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+```
+```cmd
+set PATH_TO_SCRIPTS=%SODA_HOME%\sample_project
+node %SODA_HOME%\bin\soda chrome about:blank -f selenium -t %PATH_TO_SCRIPTS% -e prod -p 1337 -x web -s my_suite -m my_module -dvc
 ```
 ---
 **Firefox with Selenium**
 - Download the gecko driver that matches your installed version of Firefox from https://github.com/mozilla/geckodriver/releases
 - Unzip the download and move the contents to a directory that is in your system's path
 ```bash
-$ ./soda firefox about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+./soda firefox about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+```
+```cmd
+set PATH_TO_SCRIPTS=%SODA_HOME%\sample_project
+node %SODA_HOME%\bin\soda firefox about:blank -f selenium -t %PATH_TO_SCRIPTS% -e prod -p 1337 -x web -s my_suite -m my_module -dvc
 ```
 ---
 **Safari with Selenium on MacOS**
@@ -134,20 +157,29 @@ $ ./soda firefox about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x w
 - In the menu in Safari, choose Develop > Allow Remote Automation.
 - Authorize safaridriver to launch the XPC service that hosts the local webserver. For this, run /usr/bin/safaridriver once and follow the authentication prompt. /usr/bin/safaridriver --enable
 ```bash
-$ ./soda firefox about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+./soda firefox about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
 ```
+---
 **IE with Selenium on Windows 10**
-- Download the correct version of the Internet Explorer driver from https://selenium.dev/downloads
+- Download the correct version of the Internet Explorer Driver server from https://selenium.dev/downloads
 - Unzip the download and move the contents to a directory that is in your system's path
 ```bash
-$ ./soda ie about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+./soda ie about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+```
+```cmd
+set PATH_TO_SCRIPTS=%SODA_HOME%\sample_project
+node %SODA_HOME%\bin\soda ie about:blank -f selenium -t %PATH_TO_SCRIPTS% -e prod -p 1337 -x web -s my_suite -m my_module -dvc
 ```
 **Edge with Selenium on Windows 10**
 - Download the correct version of the edge driver that matches your installed version of Edge from https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver
 - Unzip the download and move the contents to a directory that is in your system's path
 - You may need to rename the executable to MicrosoftWebDriver.exe from msedgedriver.exe
 ```bash
-$ ./soda edge about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+./soda edge about:blank -f selenium -t PATH_TO_SCRIPTS -e prod -p 1337 -x web -s my_suite -m my_module -dvc
+```
+```cmd
+set PATH_TO_SCRIPTS=%SODA_HOME%\sample_project
+node %SODA_HOME%\bin\soda edge about:blank -f selenium -t %PATH_TO_SCRIPTS% -e prod -p 1337 -x web -s my_suite -m my_module -dvc
 ```
 
 ## Table of Contents
