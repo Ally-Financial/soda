@@ -411,7 +411,7 @@ window.SodaTree = function (soda, $tree) {
 
             switch(rawType) {
                 case "test":
-                case "action":
+                case "action":                    
                     if(typeof currentJson === "object" && currentJson.actions instanceof Array) {
                         arr = currentJson.actions;
                         addAction();
@@ -689,7 +689,6 @@ window.SodaTree = function (soda, $tree) {
                         if(!triggeredFirst) triggeredFirst = true;
                     }
                 }
-
                 soda.editor.setContext(
                     {
                         header      : "Add " + type + "?",
@@ -698,7 +697,7 @@ window.SodaTree = function (soda, $tree) {
                         cancelText  : "No, Cancel",
                         onOkay      : function () {
                             soda.editor.switchToToolbox("test-editor", function () {
-                                finish(ui, $input, rawType, elemental, { using: identifierType.lowerFirst, assert: $input.val() });
+                                finish(ui, rawType, group, e, $input, keys, elemental, { using: identifierType.lowerFirst, assert: $input.val() });
                             });
                         }
                     }
@@ -792,7 +791,7 @@ window.SodaTree = function (soda, $tree) {
                                             }
                                         });
                                     }
-                                    else {
+                                    else {                                        
                                         finish(ui, list, group, e, $input, keys, false, prefill);
                                     }
                                 }
