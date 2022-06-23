@@ -69,6 +69,7 @@ var Sodac = function main () {
         variableExcelFile: args.varexcelfile ? args.varexcelfile: null,
         variableJSONFile: args.varjsonfile ? args.varjsonfile: null,
         headless: args.headless ? args.headless: false,
+        browserless: args.browserless ? args.browserless: false,
         perflog: args.perflog ? args.perflog: false,
         editor: args.editor ? args.editor: false,
         testResultsDir: args.u ? args.u : "test-results",
@@ -315,6 +316,7 @@ var Sodac = function main () {
                 soda.config.set('variableJSONFile', args.varjsonfile ? args.varjsonfile: null);
                 soda.config.set('testURL', args.testurl);
                 soda.config.set('headless', args.headless ? args.headless: false);
+                soda.config.set('browserless', args.browserless ? args.browserless: false);
                 soda.config.set('editor', args.editor ? args.editor: false);
                 soda.config.set('perflog', args.perflog ? args.perflog: false);
 

@@ -214,8 +214,15 @@ module.exports = function (soda, repl) {
     // Change env
     repl.addCommand("stdlib—env", "env", function (code, args) {
         if(args[0]) {
-            soda.config.set("env" , args[0]);
-            soda.vars.save("_env_", args[0], true, false, false);
+            if (args[0] === 'prod') {
+                soda.config.set("env" , '');
+                soda.vars.save("_env_", '', true, false, false);  
+            }
+            else {
+                soda.config.set("env" , args[0]);
+                soda.vars.save("_env_", args[0], true, false, false);  
+            }
+                      
             console.log("Environment variable changed to: `" + args[0] + "`");
         }
     }, false, true);

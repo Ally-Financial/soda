@@ -599,8 +599,13 @@ var Soda = function (options, onInit) {
             self.core = coreSyntax;
 
             // Store the _env_ variable
-            self.vars.save("_env_", self.config.get("env"), true);
-
+            if (self.config.get("env") === 'prod') {
+                self.vars.save("_env_", '', true);
+            }
+            else {
+                self.vars.save("_env_", self.config.get("env"), true);
+            }
+            
             // Store the _testurl_ variable
             self.vars.save("_testurl_", self.config.get("testURL"), true);
 

@@ -263,6 +263,13 @@ SodaConfig = function () {
             resultsTrace: path.join("[test_path]", "[test_results_dir]", "traces", "trace_[host]_[yyyymmdd]_[now].json"),
 
             /**
+             * Path to where to save the long term results
+             * The following tokens (e.g. wrapped in brackets) will be replaced: fid (the failure id), reason (the failure reason).
+             * @type {String}
+             */
+             resultsLongTerm: path.join("[test_path]", "[test_results_dir]", "results", "output_[type].json"),
+
+            /**
              * The path to the test scripts (project path)
              * @type {String}
              */

@@ -22,6 +22,8 @@ var https    = require("https"),
     repl     = require(nodePath.join(__dirname, "SodaREPL")),
     Soda     = require(nodePath.join(__dirname, "SodaCore", "lib", "Soda")),
     Emailer    = require(nodePath.join(__dirname, "SodaCore", "EmailManager", "Emailer")),
+    mailinator = require(nodePath.join(__dirname, "mailinator.js")),
+    resultWriter = require(nodePath.join(__dirname, "resultWriter.js")),
     windowsSoda = null,
     seleniumSoda = null,
 
@@ -98,6 +100,16 @@ module.exports = function customEvents (soda) {
           soda.vars.save('timestamp', new Date().getTime());
 
           reply(true);
+        });
+
+        test.on("actions/*/:as:email:getCode", function (action, reply) {
+            mailinator.getCode(function(err) { 
+                reply(false, "Couldn't get code");
+            }, action.email, function(res) { 
+                soda.vars.save(action.as, res);
+
+                reply(true, "Saved as " + action.as);
+            }, 0);
         });
 
         test.on("actions/*/:executeOnSelenium", function (action, reply) {
@@ -279,6 +291,34 @@ module.exports = function customEvents (soda) {
           if (soda.config.get("sendTestResults")) {
             emailer.sendTestReport(result);
           }
+
+          var errorTrackingDest = (soda.config.get("resultsLongTerm") || "")
+              .replace(/\[test_path]/g, soda.config.get("testResultsPath").withoutTrailingSlash)
+              .replace(/\[test_results_dir]/g, soda.config.get("testResultsDir"))
+              .replace(/\[type]/g, "results");
+
+          fsPromises.mkdir(errorTrackingDest.substring(0, errorTrackingDest.lastIndexOf(nodePath.sep)), { recursive: true}).then( made => {
+            var existingContents = {
+            };
+
+            try {
+                let rawdata = fs.readFileSync(errorTrackingDest);
+                existingContents = JSON.parse(rawdata);
+            } catch (err) {                            
+            }
+
+            async function getResults() {
+                var errorTracking = await resultWriter.processResults(existingContents, result);
+
+                fs.writeFile(errorTrackingDest, JSON.stringify(errorTracking), function (err) {
+                    if(err) {
+                        soda.console.error("Unable to write results file:", err.message);
+                    }
+                });
+             }
+
+             getResults();
+          });
 
           var ssDest = (soda.config.get("resultsHTML") || "")
               .replace(/\[test_path]/g, soda.config.get("testResultsPath").withoutTrailingSlash)
