@@ -366,7 +366,9 @@ module.exports = {
 
             awslambda: true,
             
-            chromeawslambda: false
+            chromeawslambda: false,
+
+            browserless: false
         },
         /**
          * Soda instance options

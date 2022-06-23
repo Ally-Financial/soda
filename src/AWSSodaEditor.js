@@ -70,6 +70,7 @@ function VisualEditorLauncher() {
         soda.config.set('headless', SodaConfig.SODA.OPTIONS.headless);
         soda.config.set('awslambda', SodaConfig.SODA.OPTIONS.awslambda);
         soda.config.set('chromeawslambda', SodaConfig.SODA.OPTIONS.chromeawslambda);
+        soda.config.set('browserless', SodaConfig.SODA.OPTIONS.browserless);
         soda.config.set('assetsarn', process.env.ASSETS_ARN);
         soda.config.set('proxy', SodaConfig.SODA.OPTIONS.proxy);
         soda.config.set('chromiumargs', SodaConfig.SODA.OPTIONS.chromiumargs);

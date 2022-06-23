@@ -318,8 +318,10 @@ var PuppeteerDriver = function (soda) {
                 }
                 else {
                     done(null, "");
+                    return self;
                 }
 
+                done(null, "");
                 return self;
             },
 
@@ -541,12 +543,27 @@ var PuppeteerDriver = function (soda) {
                         var page = pages[0];
 
                         setTimeout(async function() {
-                            await page.waitForSelector('*');
+                            await page.waitForSelector('*').then(() => {
+                              }).catch(e => {
+                                return {};
+                              });
     
-                            const yOffset = await page.evaluate(() => { return window.pageYOffset });
-                            const xOffset = await page.evaluate(() => { return window.pageXOffset });
-                            const height = await page.evaluate(() =>  { return window.innerHeight });
-                            const width = await page.evaluate(() => { return window.innerWidth });
+                            const yOffset = await page.evaluate(() => { return window.pageYOffset }).then(() => {
+                            }).catch(e => {
+                              return {};
+                            });
+                            const xOffset = await page.evaluate(() => { return window.pageXOffset }).then(() => {
+                            }).catch(e => {
+                              return {};
+                            });
+                            const height = await page.evaluate(() =>  { return window.innerHeight }).then(() => {
+                            }).catch(e => {
+                              return {};
+                            });
+                            const width = await page.evaluate(() => { return window.innerWidth }).then(() => {
+                            }).catch(e => {
+                              return {};
+                            });
                             const res = await page.evaluate(() => { return (function () {
                                 window.alert          = function () { return true;      };
                                 window.confirm        = function () { return true;      };
@@ -761,13 +778,17 @@ var PuppeteerDriver = function (soda) {
 
                                 if (e.type === 'option') {
                                     soda.console.debug('Clicking element that is an option: ', e.id);
-                                    await page.select('#'+e.parent.id, e.value);
+                                    await page.select('*[id="'+e.parent.id+'"]', e.value);
                                     await page.evaluate((selector) => document.querySelector(selector).selected = true, '#'+e.id);
-                                    await page.evaluate((selector) => { $(selector).change(); }, '#'+e.parent.id);
+                                    await page.evaluate((selector) => { $(selector).change(); }, '*[id="'+e.parent.id+'"]');
                                 }
                                 else {
                                     soda.console.debug('Clicking element: ', e.id);
-                                    await page.click('#'+e.id);
+                                    await page.click('*[id="'+e.id+'"]').then(() => {
+                                    }).catch(e => {
+                                        done(null, null);
+                                        return self;
+                                    });
                                 }
                                 
                                 return postClick();
@@ -791,13 +812,13 @@ var PuppeteerDriver = function (soda) {
 
                                 if (e.type === 'option') {
                                     soda.console.debug('Clicking element that is an option: ', e.id);
-                                    await page.select('#'+e.parent.id, e.value);
-                                    await page.evaluate((selector) => document.querySelector(selector).selected = true, '#'+e.id);
-                                    await page.evaluate((selector) => { $(selector).change(); }, '#'+e.parent.id); 
+                                    await page.select('*[id="'+e.parent.id+'"]', e.value);
+                                    await page.evaluate((selector) => document.querySelector(selector).selected = true, '*[id="'+e.id+'"]');
+                                    await page.evaluate((selector) => { $(selector).change(); }, '*[id="'+e.parent.id+'"]'); 
                                 }
                                 else {
                                     soda.console.debug('Clicking element: ', e.id);
-                                    await page.click('#'+e.id);
+                                    await page.click('*[id="'+e.id+'"]');
                                 }
 
                                 return postClick();
@@ -905,7 +926,7 @@ var PuppeteerDriver = function (soda) {
                                 nextKey = async function() {
                                     if(++k < keySet.length) {
                                         setTimeout(async function() { 
-                                            await page.type('#'+e.id, keySet[k]); 
+                                            await page.type('*[id="'+e.id+'"]', keySet[k]); 
                                             return postSet();
                                         }, options.delay * 1000);
                                     }
@@ -916,17 +937,17 @@ var PuppeteerDriver = function (soda) {
                                     }
                                 };
 
-                                const input = await page.$('#'+e.id);
+                                const input = await page.$('*[id="'+e.id+'"]');
                                 await input.click({ clickCount: 3 })
                                 await page.keyboard.press('Backspace');
-                                await page.click('#'+e.id);
+                                await page.click('*[id="'+e.id+'"]');
                                 return nextKey();
                             }
                             else {
                                 console.log('#'+e.id, options.value.toString());
-                                const input = await page.$('#'+e.id);
+                                const input = await page.$('*[id="'+e.id+'"]');
                                 await input.click({ clickCount: 3 })
-                                await page.type('#'+e.id, options.value.toString());
+                                await page.type('*[id="'+e.id+'"]', options.value.toString());
                                 await page.keyboard.press('Tab');
                                 return postSet();
                             }
@@ -1101,8 +1122,14 @@ var PuppeteerDriver = function (soda) {
         if(soda.config.get("headless")) {
             if (os === "linux") {
                 argList.push('--no-sandbox')
-                argList.push('--disable-setuid-sandbox');
+                argList.push('--disable-setuid-sandbox')
                 argList.push('--disable-dev-shm-usage')
+                argList.push('--start-maximized')
+                argList.push('--window-size=1920,1200')
+            }
+            else {
+                argList.push("--start-maximized");
+                argList.push('--window-size=1920,1200')
             }
             argList.push("--headless");
         }
@@ -1120,7 +1147,7 @@ var PuppeteerDriver = function (soda) {
 
                 var launchOptions = { 
                     args: newArgs,
-                    defaultViewport: chromium.defaultViewport,
+                    defaultViewport: null,
                     executablePath: chromePath, // because we are using puppeteer-core so we must define this option
                     headless: chromium.headless,
                     ignoreHTTPSErrors: true
@@ -1129,6 +1156,25 @@ var PuppeteerDriver = function (soda) {
                 loadScript();
     
                 chromium.puppeteer.launch(launchOptions).then( function(browser) {
+                    Driver.instance = browser;
+                    done(null, true, Driver);
+                    return self;
+                });
+            });
+        }
+        else if (soda.config.get("browserless")) {
+            locateChrome().then( function(path) {
+                chromePath = path;
+    
+                var launchOptions = { 
+                    defaultViewport: null,
+                    headless: headless, 
+                    executablePath: chromePath, // because we are using puppeteer-core so we must define this option
+                    args: argList };
+        
+                loadScript();
+        
+                webdriver.connect({ browserWSEndpoint: 'ws://localhost:3000' }).then( function(browser) {
                     Driver.instance = browser;
                     done(null, true, Driver);
                     return self;
